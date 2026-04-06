@@ -24,6 +24,7 @@ add_executable(${PROJECT_NAME}
     tiny_obj_loader.h
 meshloader.h
 meshloader.cpp
+gaussmap.h gaussmap.cpp
 
 )
 

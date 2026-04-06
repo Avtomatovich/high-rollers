@@ -73,6 +73,14 @@ build CMakeFiles/high-rollers.dir/meshloader.cpp.o: CXX_COMPILER__high-rollers_u
   OBJECT_DIR = CMakeFiles/high-rollers.dir
   OBJECT_FILE_DIR = CMakeFiles/high-rollers.dir
 
+build CMakeFiles/high-rollers.dir/gaussmap.cpp.o: CXX_COMPILER__high-rollers_unscanned_Release /Users/marissashaffer/Desktop/cs/cs2240/high-rollers/gaussmap.cpp || cmake_object_order_depends_target_high-rollers
+  DEFINES = -DQT_CORE_LIB -DQT_GUI_LIB -DQT_NO_DEBUG -DQT_XML_LIB
+  DEP_FILE = CMakeFiles/high-rollers.dir/gaussmap.cpp.o.d
+  FLAGS = -Wno-deprecated-volatile -O3 -DNDEBUG -std=gnu++20 -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk -fcolor-diagnostics
+  INCLUDES = -I/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release -I/Users/marissashaffer/Desktop/cs/cs2240/high-rollers -I/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/high-rollers_autogen/include -I/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/Eigen -isystem /Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Headers -iframework /Users/marissashaffer/Qt/6.9.2/macos/lib -isystem /Users/marissashaffer/Qt/6.9.2/macos/mkspecs/macx-clang -isystem /Users/marissashaffer/Qt/6.9.2/macos/include -isystem /Users/marissashaffer/Qt/6.9.2/macos/lib/QtGui.framework/Headers -isystem /Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Headers
+  OBJECT_DIR = CMakeFiles/high-rollers.dir
+  OBJECT_FILE_DIR = CMakeFiles/high-rollers.dir
+
 
 # =============================================================================
 # Link build statements for EXECUTABLE target high-rollers
@@ -81,7 +89,7 @@ build CMakeFiles/high-rollers.dir/meshloader.cpp.o: CXX_COMPILER__high-rollers_u
 #############################################
 # Link the executable high-rollers
 
-build high-rollers: CXX_EXECUTABLE_LINKER__high-rollers_Release CMakeFiles/high-rollers.dir/high-rollers_autogen/mocs_compilation.cpp.o CMakeFiles/high-rollers.dir/main.cpp.o CMakeFiles/high-rollers.dir/meshloader.cpp.o | /Users/marissashaffer/Qt/6.9.2/macos/lib/QtGui.framework/Versions/A/QtGui /Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Versions/A/QtXml /Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Versions/A/QtCore || high-rollers_autogen high-rollers_autogen_timestamp_deps
+build high-rollers: CXX_EXECUTABLE_LINKER__high-rollers_Release CMakeFiles/high-rollers.dir/high-rollers_autogen/mocs_compilation.cpp.o CMakeFiles/high-rollers.dir/main.cpp.o CMakeFiles/high-rollers.dir/meshloader.cpp.o CMakeFiles/high-rollers.dir/gaussmap.cpp.o | /Users/marissashaffer/Qt/6.9.2/macos/lib/QtGui.framework/Versions/A/QtGui /Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Versions/A/QtXml /Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Versions/A/QtCore || high-rollers_autogen high-rollers_autogen_timestamp_deps
   FLAGS = -Wno-deprecated-volatile -O3 -DNDEBUG -arch arm64 -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk
   LINK_LIBRARIES = -Wl,-rpath,/Users/marissashaffer/Qt/6.9.2/macos/lib  /Users/marissashaffer/Qt/6.9.2/macos/lib/QtGui.framework/Versions/A/QtGui  /Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Versions/A/QtXml  -framework AppKit  -framework OpenGL  -framework ImageIO  -framework Metal  /Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Versions/A/QtCore  -framework IOKit  -framework DiskArbitration  -framework UniformTypeIdentifiers
   LINK_PATH = -F/Users/marissashaffer/Qt/6.9.2/macos/lib

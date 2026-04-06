@@ -430,6 +430,12 @@
 	"HEADERS" : 
 	[
 		[
+			"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/gaussmap.h",
+			"MU",
+			"EWIEGA46WW/moc_gaussmap.cpp",
+			null
+		],
+		[
 			"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/meshloader.h",
 			"MU",
 			"EWIEGA46WW/moc_meshloader.cpp",
@@ -504,6 +510,11 @@
 	"SETTINGS_FILE" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/CMakeFiles/high-rollers_autogen.dir/AutogenUsed.txt",
 	"SOURCES" : 
 	[
+		[
+			"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/gaussmap.cpp",
+			"MU",
+			null
+		],
 		[
 			"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/main.cpp",
 			"MU",

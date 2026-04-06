@@ -1,7 +1,7 @@
-#include "graphics/meshloader.h"
+#include "meshloader.h"
 
 #define TINYOBJLOADER_IMPLEMENTATION
-#include "util/tiny_obj_loader.h"
+#include "tiny_obj_loader.h"
 
 #include <iostream>
 

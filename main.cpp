@@ -1,7 +1,6 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QtCore>
-#include "EdgeOperations.h"
 
 #include <iostream>
 #include <chrono>
