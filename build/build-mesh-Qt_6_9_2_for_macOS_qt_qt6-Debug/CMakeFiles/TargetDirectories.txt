@@ -1,5 +1,0 @@
-/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug/CMakeFiles/high-rollers.dir
-/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug/CMakeFiles/edit_cache.dir
-/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug/CMakeFiles/rebuild_cache.dir
-/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug/CMakeFiles/high-rollers_autogen_timestamp_deps.dir
-/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug/CMakeFiles/high-rollers_autogen.dir
