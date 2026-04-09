@@ -33,10 +33,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Xml
-    pmp-library
-    geometry-central
 )
-add_subdirectory(geometry-central pmp-library)
 
 # This allows you to `#include "Eigen/..."`
 target_include_directories(${PROJECT_NAME} PRIVATE
