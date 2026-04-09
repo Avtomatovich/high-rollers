@@ -451,7 +451,15 @@
 	"HEADER_EXTENSIONS" : [ "h", "hh", "h++", "hm", "hpp", "hxx", "in", "txx" ],
 	"INCLUDE_DIR" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/high-rollers_autogen/include",
 	"MOC_COMPILATION_FILE" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/high-rollers_autogen/mocs_compilation.cpp",
-	"MOC_DEFINITIONS" : [ "QT_CORE_LIB", "QT_GUI_LIB", "QT_NO_DEBUG", "QT_XML_LIB" ],
+	"MOC_DEFINITIONS" : 
+	[
+		"NOMINMAX",
+		"QT_CORE_LIB",
+		"QT_GUI_LIB",
+		"QT_NO_DEBUG",
+		"QT_XML_LIB",
+		"_USE_MATH_DEFINES"
+	],
 	"MOC_DEPEND_FILTERS" : 
 	[
 		[
@@ -464,6 +472,12 @@
 		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release",
 		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers",
 		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/Eigen",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/include",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/include",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/nanort/include",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/nanoflann/include",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/deps/include",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/happly",
 		"/Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Headers",
 		"/Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework",
 		"/Users/marissashaffer/Qt/6.9.2/macos/mkspecs/macx-clang",
@@ -472,6 +486,7 @@
 		"/Users/marissashaffer/Qt/6.9.2/macos/lib/QtGui.framework",
 		"/Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Headers",
 		"/Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework",
+		"/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/deps/geometry-central/deps/eigen-src",
 		"/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/usr/include/c++/v1",
 		"/Library/Developer/CommandLineTools/usr/lib/clang/17/include",
 		"/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/usr/include",

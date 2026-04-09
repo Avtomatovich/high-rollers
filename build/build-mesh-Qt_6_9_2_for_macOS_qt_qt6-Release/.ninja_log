@@ -1,0 +1,16 @@
+# ninja log v6
+11	119	1775743712347317648	/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/high-rollers_autogen/timestamp	990c2679023af864
+11	119	1775743712347317648	high-rollers_autogen/timestamp	990c2679023af864
+11	119	1775743712347317648	/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/high-rollers_autogen/mocs_compilation.cpp	990c2679023af864
+336	4515	1775743506038980836	deps/geometry-central/src/CMakeFiles/geometry-central.dir/surface/simple_polygon_mesh.cpp.o	a8122b3c63706c0
+11	119	1775743712347317648	high-rollers_autogen/mocs_compilation.cpp	990c2679023af864
+119	3023	1775743712456142291	CMakeFiles/high-rollers.dir/main.cpp.o	a1b5dbbf7eb21ad2
+247	335	1775743505950520388	deps/geometry-central/src/CMakeFiles/geometry-central.dir/geometry-central_autogen/mocs_compilation.cpp.o	685cebc66225aa17
+9	247	1775743505942398993	/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/deps/geometry-central/src/geometry-central_autogen/mocs_compilation.cpp	f78a0a114265bad7
+9	247	1775743505942398993	deps/geometry-central/src/geometry-central_autogen/timestamp	f78a0a114265bad7
+207	1186	1775742839123512665	CMakeFiles/high-rollers.dir/gaussmap.cpp.o	cf0e0103abe4c2a1
+9	247	1775743505942398993	deps/geometry-central/src/geometry-central_autogen/mocs_compilation.cpp	f78a0a114265bad7
+120	3779	1775743712456632947	CMakeFiles/high-rollers.dir/meshloader.cpp.o	ca8ada3f7569f2c
+2470	2711	1775742841387160350	high-rollers	271b1f809b4e44eb
+119	189	1775743712455620637	CMakeFiles/high-rollers.dir/high-rollers_autogen/mocs_compilation.cpp.o	9d740df77751b934
+9	247	1775743505942398993	/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/deps/geometry-central/src/geometry-central_autogen/timestamp	f78a0a114265bad7

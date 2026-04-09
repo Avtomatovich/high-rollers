@@ -1,0 +1,27 @@
+{
+	"backtrace" : 0,
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : 
+		[
+			"geometry-central/src/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			}
+		]
+	},
+	"id" : "geometry-central_autogen_timestamp_deps::@03b1b31d4d6a5a53711a",
+	"isGeneratorProvided" : true,
+	"name" : "geometry-central_autogen_timestamp_deps",
+	"paths" : 
+	{
+		"build" : "geometry-central/src",
+		"source" : "geometry-central/src"
+	},
+	"sources" : [],
+	"type" : "UTILITY"
+}

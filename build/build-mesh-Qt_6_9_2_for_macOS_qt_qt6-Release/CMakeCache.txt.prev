@@ -14,6 +14,102 @@
 # EXTERNAL cache entries
 ########################
 
+//Path to a file.
+AMD_INCLUDE_DIR:PATH=AMD_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+AMD_LIBRARY:FILEPATH=AMD_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_Accelerate_LIBRARY:FILEPATH=/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/Accelerate.framework
+
+//Path to a library.
+BLAS_acml_LIBRARY:FILEPATH=BLAS_acml_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_acml_mp_LIBRARY:FILEPATH=BLAS_acml_mp_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_armpl_lp64_LIBRARY:FILEPATH=BLAS_armpl_lp64_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_blas_LIBRARY:FILEPATH=/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/usr/lib/libblas.tbd
+
+//Path to a library.
+BLAS_blis_LIBRARY:FILEPATH=BLAS_blis_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_complib_sgimath_LIBRARY:FILEPATH=BLAS_complib_sgimath_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_cxml_LIBRARY:FILEPATH=BLAS_cxml_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_dxml_LIBRARY:FILEPATH=BLAS_dxml_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_essl_LIBRARY:FILEPATH=BLAS_essl_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_f77blas_LIBRARY:FILEPATH=BLAS_f77blas_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_flexiblas_LIBRARY:FILEPATH=BLAS_flexiblas_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_goto2_LIBRARY:FILEPATH=BLAS_goto2_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_LIBRARY:FILEPATH=BLAS_mkl_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_em64t_LIBRARY:FILEPATH=BLAS_mkl_em64t_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_ia32_LIBRARY:FILEPATH=BLAS_mkl_ia32_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_intel_LIBRARY:FILEPATH=BLAS_mkl_intel_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_intel_lp64_LIBRARY:FILEPATH=BLAS_mkl_intel_lp64_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_mkl_rt_LIBRARY:FILEPATH=BLAS_mkl_rt_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_openblas_LIBRARY:FILEPATH=BLAS_openblas_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_scs_LIBRARY:FILEPATH=BLAS_scs_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_sgemm_LIBRARY:FILEPATH=BLAS_sgemm_LIBRARY-NOTFOUND
+
+//Path to a library.
+BLAS_sunperf_LIBRARY:FILEPATH=BLAS_sunperf_LIBRARY-NOTFOUND
+
+//Build the shared library
+BUILD_SHARED_LIBS:BOOL=OFF
+
+//Path to a file.
+CAMD_INCLUDE_DIR:PATH=CAMD_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+CAMD_LIBRARY:FILEPATH=CAMD_LIBRARY-NOTFOUND
+
+//Path to a file.
+CCOLAMD_INCLUDE_DIR:PATH=CCOLAMD_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+CCOLAMD_LIBRARY:FILEPATH=CCOLAMD_LIBRARY-NOTFOUND
+
+//Path to a file.
+CHOLMOD_INCLUDE_DIR:PATH=CHOLMOD_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+CHOLMOD_LIBRARY:FILEPATH=CHOLMOD_LIBRARY-NOTFOUND
+
 //Path to a program.
 CMAKE_ADDR2LINE:FILEPATH=CMAKE_ADDR2LINE-NOTFOUND
 
@@ -49,10 +145,25 @@ CMAKE_CXX_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
 
 CMAKE_CXX_OUTPUT_EXTENSION:STRING=.o
 
-//No help, variable specified on the command line.
-CMAKE_C_COMPILER:FILEPATH=/usr/bin/clang
+//C compiler
+CMAKE_C_COMPILER:STRING=/usr/bin/clang
 
-CMAKE_C_OUTPUT_EXTENSION:STRING=
+//Flags used by the C compiler during all build types.
+CMAKE_C_FLAGS:STRING=
+
+//Flags used by the C compiler during DEBUG builds.
+CMAKE_C_FLAGS_DEBUG:STRING=-g
+
+//Flags used by the C compiler during MINSIZEREL builds.
+CMAKE_C_FLAGS_MINSIZEREL:STRING=-Os -DNDEBUG
+
+//Flags used by the C compiler during RELEASE builds.
+CMAKE_C_FLAGS_RELEASE:STRING=-O3 -DNDEBUG
+
+//Flags used by the C compiler during RELWITHDEBINFO builds.
+CMAKE_C_FLAGS_RELWITHDEBINFO:STRING=-O2 -g -DNDEBUG
+
+CMAKE_C_OUTPUT_EXTENSION:STRING=.o
 
 //Path to a program.
 CMAKE_DLLTOOL:FILEPATH=CMAKE_DLLTOOL-NOTFOUND
@@ -261,8 +372,57 @@ CMAKE_TAPI:FILEPATH=/Library/Developer/CommandLineTools/usr/bin/tapi
 // Studio IDE projects all commands are done without /nologo.
 CMAKE_VERBOSE_MAKEFILE:BOOL=FALSE
 
+//Path to a file.
+COLAMD_INCLUDE_DIR:PATH=COLAMD_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+COLAMD_LIBRARY:FILEPATH=COLAMD_LIBRARY-NOTFOUND
+
+//Path to a file.
+EIGEN3_INCLUDE_DIR:PATH=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/deps/geometry-central/deps/eigen-src
+
+//The directory containing a CMake configuration file for Eigen3.
+Eigen3_DIR:PATH=Eigen3_DIR-NOTFOUND
+
+//Directory under which to collect all populated content
+FETCHCONTENT_BASE_DIR:PATH=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/_deps
+
+//Disables all attempts to download or update content and assumes
+// source dirs already exist
+FETCHCONTENT_FULLY_DISCONNECTED:BOOL=OFF
+
+//Enables QUIET option for all content population
+FETCHCONTENT_QUIET:BOOL=ON
+
+//When not empty, overrides where to find pre-populated content
+// for eigen
+FETCHCONTENT_SOURCE_DIR_EIGEN:PATH=
+
+//Enables UPDATE_DISCONNECTED behavior for all content population
+FETCHCONTENT_UPDATES_DISCONNECTED:BOOL=OFF
+
+//Enables UPDATE_DISCONNECTED behavior just for population of eigen
+FETCHCONTENT_UPDATES_DISCONNECTED_EIGEN:BOOL=OFF
+
+//Prefer to auto-download a copy Eigen if a system copy might exist.
+GC_ALWAYS_DOWNLOAD_EIGEN:BOOL=OFF
+
+//Path to Eigen installation. Only needed if Eigen is not already
+// available in CMAKE, will not be found by find_package(), and
+// should not be auto-downloaded.
+GC_EIGEN_LOCATION:STRING=
+
+//Git command line client
+GIT_EXECUTABLE:FILEPATH=/usr/bin/git
+
+//Path to a program.
+HOMEBREW_EXECUTABLE:FILEPATH=/opt/homebrew/bin/brew
+
 //Path to a program.
 MACDEPLOYQT_EXECUTABLE:FILEPATH=/Users/marissashaffer/Qt/6.9.2/macos/bin/macdeployqt
+
+//Path to a library.
+METIS_LIBRARY:FILEPATH=METIS_LIBRARY-NOTFOUND
 
 //Include for the OpenGL GLU library
 OPENGL_GLU_INCLUDE_DIR:PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/OpenGL.framework
@@ -337,6 +497,33 @@ Qt6Xml_DIR:PATH=/Users/marissashaffer/Qt/6.9.2/macos/lib/cmake/Qt6Xml
 //The directory containing a CMake configuration file for Qt6.
 Qt6_DIR:PATH=/Users/marissashaffer/Qt/6.9.2/macos/lib/cmake/Qt6
 
+//Enable SuiteSparse.
+SUITESPARSE:BOOL=OFF
+
+//Path to a file.
+SUITESPARSEQR_INCLUDE_DIR:PATH=SUITESPARSEQR_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+SUITESPARSEQR_LIBRARY:FILEPATH=SUITESPARSEQR_LIBRARY-NOTFOUND
+
+//Path to a file.
+SUITESPARSE_CONFIG_INCLUDE_DIR:PATH=SUITESPARSE_CONFIG_INCLUDE_DIR-NOTFOUND
+
+//Path to a library.
+SUITESPARSE_CONFIG_LIBRARY:FILEPATH=SUITESPARSE_CONFIG_LIBRARY-NOTFOUND
+
+//Path to a file.
+UFCONFIG_INCLUDE_DIR:PATH=UFCONFIG_INCLUDE_DIR-NOTFOUND
+
+//Value Computed by CMake
+geometry-central_BINARY_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central
+
+//Value Computed by CMake
+geometry-central_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+geometry-central_SOURCE_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central
+
 //Value Computed by CMake
 high-rollers_BINARY_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release
 
@@ -351,6 +538,72 @@ high-rollers_SOURCE_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-roll
 # INTERNAL cache entries
 ########################
 
+//ADVANCED property for variable: AMD_INCLUDE_DIR
+AMD_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: AMD_LIBRARY
+AMD_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_Accelerate_LIBRARY
+BLAS_Accelerate_LIBRARY-ADVANCED:INTERNAL=1
+//Have function dgemm_
+BLAS_Accelerate_WORKS:INTERNAL=1
+//Have function sgemm_
+BLAS_WORKS:INTERNAL=
+//ADVANCED property for variable: BLAS_acml_LIBRARY
+BLAS_acml_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_acml_mp_LIBRARY
+BLAS_acml_mp_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_armpl_lp64_LIBRARY
+BLAS_armpl_lp64_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_blas_LIBRARY
+BLAS_blas_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_blis_LIBRARY
+BLAS_blis_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_complib_sgimath_LIBRARY
+BLAS_complib_sgimath_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_cxml_LIBRARY
+BLAS_cxml_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_dxml_LIBRARY
+BLAS_dxml_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_essl_LIBRARY
+BLAS_essl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_f77blas_LIBRARY
+BLAS_f77blas_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_flexiblas_LIBRARY
+BLAS_flexiblas_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_goto2_LIBRARY
+BLAS_goto2_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_LIBRARY
+BLAS_mkl_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_em64t_LIBRARY
+BLAS_mkl_em64t_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_ia32_LIBRARY
+BLAS_mkl_ia32_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_intel_LIBRARY
+BLAS_mkl_intel_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_intel_lp64_LIBRARY
+BLAS_mkl_intel_lp64_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_mkl_rt_LIBRARY
+BLAS_mkl_rt_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_openblas_LIBRARY
+BLAS_openblas_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_scs_LIBRARY
+BLAS_scs_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_sgemm_LIBRARY
+BLAS_sgemm_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: BLAS_sunperf_LIBRARY
+BLAS_sunperf_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CAMD_INCLUDE_DIR
+CAMD_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CAMD_LIBRARY
+CAMD_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CCOLAMD_INCLUDE_DIR
+CCOLAMD_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CCOLAMD_LIBRARY
+CCOLAMD_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CHOLMOD_INCLUDE_DIR
+CHOLMOD_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CHOLMOD_LIBRARY
+CHOLMOD_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_ADDR2LINE
 CMAKE_ADDR2LINE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_AR
@@ -381,6 +634,18 @@ CMAKE_CXX_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
 CMAKE_CXX_FLAGS_RELEASE-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_CXX_FLAGS_RELWITHDEBINFO
 CMAKE_CXX_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_COMPILER
+CMAKE_C_COMPILER-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS
+CMAKE_C_FLAGS-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_DEBUG
+CMAKE_C_FLAGS_DEBUG-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_MINSIZEREL
+CMAKE_C_FLAGS_MINSIZEREL-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_RELEASE
+CMAKE_C_FLAGS_RELEASE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: CMAKE_C_FLAGS_RELWITHDEBINFO
+CMAKE_C_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_DLLTOOL
 CMAKE_DLLTOOL-ADVANCED:INTERNAL=1
 //Path to cache edit program executable.
@@ -461,7 +726,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=1
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=4
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP
@@ -506,10 +771,26 @@ CMAKE_TAPI-ADVANCED:INTERNAL=1
 CMAKE_UNAME:INTERNAL=/usr/bin/uname
 //ADVANCED property for variable: CMAKE_VERBOSE_MAKEFILE
 CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: COLAMD_INCLUDE_DIR
+COLAMD_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: COLAMD_LIBRARY
+COLAMD_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: EIGEN3_INCLUDE_DIR
+EIGEN3_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //Details about finding OpenGL
 FIND_PACKAGE_MESSAGE_DETAILS_OpenGL:INTERNAL=[/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/OpenGL.framework][/Library/Developer/CommandLineTools/SDKs/MacOSX15.5.sdk/System/Library/Frameworks/OpenGL.framework][c ][v()]
+//Details about finding Threads
+FIND_PACKAGE_MESSAGE_DETAILS_Threads:INTERNAL=[TRUE][v()]
+//ADVANCED property for variable: GIT_EXECUTABLE
+GIT_EXECUTABLE-ADVANCED:INTERNAL=1
 //Test HAVE_STDATOMIC
 HAVE_STDATOMIC:INTERNAL=1
+//ADVANCED property for variable: HOMEBREW_EXECUTABLE
+HOMEBREW_EXECUTABLE-ADVANCED:INTERNAL=1
+//Have function cheev_
+LAPACK_WORKS:INTERNAL=1
+//ADVANCED property for variable: METIS_LIBRARY
+METIS_LIBRARY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_GLU_INCLUDE_DIR
 OPENGL_GLU_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: OPENGL_INCLUDE_DIR
@@ -1152,6 +1433,16 @@ QT_FEATURE_xmlstreamwriter:INTERNAL=ON
 QT_FEATURE_xrender:INTERNAL=OFF
 //Qt feature: zstd (from target Qt6::Core)
 QT_FEATURE_zstd:INTERNAL=OFF
+//ADVANCED property for variable: SUITESPARSEQR_INCLUDE_DIR
+SUITESPARSEQR_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SUITESPARSEQR_LIBRARY
+SUITESPARSEQR_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SUITESPARSE_CONFIG_INCLUDE_DIR
+SUITESPARSE_CONFIG_INCLUDE_DIR-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: SUITESPARSE_CONFIG_LIBRARY
+SUITESPARSE_CONFIG_LIBRARY-ADVANCED:INTERNAL=1
+//ADVANCED property for variable: UFCONFIG_INCLUDE_DIR
+UFCONFIG_INCLUDE_DIR-ADVANCED:INTERNAL=1
 //CMAKE_INSTALL_PREFIX during last run
 _GNUInstallDirs_LAST_CMAKE_INSTALL_PREFIX:INTERNAL=/tmp
 

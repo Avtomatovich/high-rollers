@@ -1,0 +1,169 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5
+					]
+				},
+				{
+					"build" : "geometry-central",
+					"childIndexes" : 
+					[
+						2,
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-geometry-central-Release-61b1b66cc0a637beb8ed.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.14.0"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "geometry-central"
+				},
+				{
+					"build" : "geometry-central/deps",
+					"jsonFile" : "directory-geometry-central.deps-Release-b0b067d14676464a41a2.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "geometry-central/deps"
+				},
+				{
+					"build" : "geometry-central/src",
+					"jsonFile" : "directory-geometry-central.src-Release-92ceb75c1324d89ce897.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.8.0"
+					},
+					"parentIndex" : 1,
+					"projectIndex" : 1,
+					"source" : "geometry-central/src",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "high-rollers",
+					"targetIndexes" : 
+					[
+						3,
+						4,
+						5
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"name" : "geometry-central",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 3,
+					"id" : "geometry-central::@03b1b31d4d6a5a53711a",
+					"jsonFile" : "target-geometry-central-Release-9b48388d848b6cb65d1f.json",
+					"name" : "geometry-central",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "geometry-central_autogen::@03b1b31d4d6a5a53711a",
+					"jsonFile" : "target-geometry-central_autogen-Release-59df6f5bf82271b1c536.json",
+					"name" : "geometry-central_autogen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "geometry-central_autogen_timestamp_deps::@03b1b31d4d6a5a53711a",
+					"jsonFile" : "target-geometry-central_autogen_timestamp_deps-Release-78b7df0999624ad5a9df.json",
+					"name" : "geometry-central_autogen_timestamp_deps",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "high-rollers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-high-rollers-Release-a88d5e7925670c91cf1e.json",
+					"name" : "high-rollers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "high-rollers_autogen::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-high-rollers_autogen-Release-7a60ff1c56bf2eeec0bf.json",
+					"name" : "high-rollers_autogen",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "high-rollers_autogen_timestamp_deps::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-high-rollers_autogen_timestamp_deps-Release-a240192167249f460945.json",
+					"name" : "high-rollers_autogen_timestamp_deps",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release",
+		"source" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 7
+	}
+}
