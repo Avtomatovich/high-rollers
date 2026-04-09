@@ -10,13 +10,17 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # Sets C++ standard
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specifies required Qt components
 find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Gui)
 find_package(Qt6 REQUIRED COMPONENTS Xml)
+
+# GLEW: this creates its library and allows you to `#include "GL/glew.h"`
+include_directories(${PROJECT_NAME} PRIVATE glew/include)
+
 
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
@@ -42,14 +46,16 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Xml
+    StaticGLEW
 pmp-library
     geometry-central
 )
 
 
 # This allows you to `#include "Eigen/..."`
-target_include_directories(${PROJECT_NAME} PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE BEFORE
     deps/eigen
+deps/pmp-library/src
 	
 )
 target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")

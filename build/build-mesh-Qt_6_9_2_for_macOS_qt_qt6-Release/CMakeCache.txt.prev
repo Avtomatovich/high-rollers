@@ -428,6 +428,8 @@ FETCHCONTENT_UPDATES_DISCONNECTED_EIGEN:BOOL=OFF
 //Prefer to auto-download a copy Eigen if a system copy might exist.
 GC_ALWAYS_DOWNLOAD_EIGEN:BOOL=OFF
 
+GC_BUILD_TESTS:BOOL=OFF
+
 //Path to Eigen installation. Only needed if Eigen is not already
 // available in CMAKE, will not be found by find_package(), and
 // should not be auto-downloaded.
@@ -504,7 +506,7 @@ OpenMP_libomp_LIBRARY:FILEPATH=OpenMP_libomp_LIBRARY-NOTFOUND
 PMP_BUILD_DOCS:BOOL=OFF
 
 //Build the PMP examples
-PMP_BUILD_EXAMPLES:BOOL=ON
+PMP_BUILD_EXAMPLES:BOOL=OFF
 
 //Build Polygonal
 PMP_BUILD_POLYGONAL:BOOL=OFF
@@ -614,9 +616,6 @@ geometry-central_BINARY_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-
 
 //Value Computed by CMake
 geometry-central_IS_TOP_LEVEL:STATIC=OFF
-
-//Dependencies for the target
-geometry-central_LIB_DEPENDS:STATIC=general;Eigen3::Eigen;
 
 //Value Computed by CMake
 geometry-central_SOURCE_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/deps/geometry-central
@@ -832,7 +831,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=13
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=12
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

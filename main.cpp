@@ -1,9 +1,9 @@
 #include <QCoreApplication>
 #include <QCommandLineParser>
 #include <QtCore>
-
 #include <iostream>
 #include <chrono>
+#include "pmp/viewers/mesh_viewer.h"
 
 
 int main(int argc, char *argv[])
