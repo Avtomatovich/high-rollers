@@ -3,7 +3,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "geometry-central/src/libgeometry-central.a"
+			"path" : "pmp-library/src/libgeometry-central.a"
 		}
 	],
 	"backtrace" : 1,
@@ -92,14 +92,14 @@
 			"includes" : 
 			[
 				{
-					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src"
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src"
 				},
 				{
 					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/src"
 				},
 				{
 					"backtrace" : 0,
-					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/geometry-central_autogen/include"
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/geometry-central_autogen/include"
 				},
 				{
 					"backtrace" : 5,
@@ -115,7 +115,7 @@
 				},
 				{
 					"backtrace" : 6,
-					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/deps/include"
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/deps/include"
 				},
 				{
 					"backtrace" : 6,
@@ -219,14 +219,14 @@
 	"dependencies" : 
 	[
 		{
-			"backtrace" : 0,
-			"id" : "geometry-central_autogen::@03b1b31d4d6a5a53711a"
+			"id" : "geometry-central_autogen_timestamp_deps::@e0f99a39856dfe85a0f9"
 		},
 		{
-			"id" : "geometry-central_autogen_timestamp_deps::@03b1b31d4d6a5a53711a"
+			"backtrace" : 0,
+			"id" : "geometry-central_autogen::@e0f99a39856dfe85a0f9"
 		}
 	],
-	"id" : "geometry-central::@03b1b31d4d6a5a53711a",
+	"id" : "geometry-central::@e0f99a39856dfe85a0f9",
 	"install" : 
 	{
 		"destinations" : 
@@ -245,7 +245,7 @@
 	"nameOnDisk" : "libgeometry-central.a",
 	"paths" : 
 	{
-		"build" : "geometry-central/src",
+		"build" : "pmp-library/src",
 		"source" : "geometry-central/src"
 	},
 	"sourceGroups" : 
@@ -436,7 +436,7 @@
 			"backtrace" : 0,
 			"compileGroupIndex" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/geometry-central_autogen/mocs_compilation.cpp",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/geometry-central_autogen/mocs_compilation.cpp",
 			"sourceGroupIndex" : 0
 		},
 		{
@@ -1276,13 +1276,13 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/geometry-central_autogen/timestamp",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/geometry-central_autogen/timestamp",
 			"sourceGroupIndex" : 2
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/geometry-central_autogen/timestamp.rule",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/geometry-central_autogen/timestamp.rule",
 			"sourceGroupIndex" : 3
 		}
 	],

@@ -36,9 +36,9 @@
 			"destination" : "lib",
 			"paths" : 
 			[
-				"geometry-central/src/libgeometry-central.a"
+				"pmp-library/src/libgeometry-central.a"
 			],
-			"targetId" : "geometry-central::@03b1b31d4d6a5a53711a",
+			"targetId" : "geometry-central::@e0f99a39856dfe85a0f9",
 			"targetIndex" : 0,
 			"type" : "target"
 		},
@@ -58,7 +58,7 @@
 	],
 	"paths" : 
 	{
-		"build" : "geometry-central",
+		"build" : "pmp-library",
 		"source" : "geometry-central"
 	}
 }

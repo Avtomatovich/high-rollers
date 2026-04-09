@@ -17,15 +17,15 @@
 	"dependencies" : 
 	[
 		{
-			"id" : "geometry-central_autogen_timestamp_deps::@03b1b31d4d6a5a53711a"
+			"id" : "geometry-central_autogen_timestamp_deps::@e0f99a39856dfe85a0f9"
 		}
 	],
-	"id" : "geometry-central_autogen::@03b1b31d4d6a5a53711a",
+	"id" : "geometry-central_autogen::@e0f99a39856dfe85a0f9",
 	"isGeneratorProvided" : true,
 	"name" : "geometry-central_autogen",
 	"paths" : 
 	{
-		"build" : "geometry-central/src",
+		"build" : "pmp-library/src",
 		"source" : "geometry-central/src"
 	},
 	"sourceGroups" : 
@@ -51,19 +51,19 @@
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/CMakeFiles/geometry-central_autogen",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/CMakeFiles/geometry-central_autogen",
 			"sourceGroupIndex" : 0
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/CMakeFiles/geometry-central_autogen.rule",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/CMakeFiles/geometry-central_autogen.rule",
 			"sourceGroupIndex" : 1
 		},
 		{
 			"backtrace" : 0,
 			"isGenerated" : true,
-			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/src/geometry-central_autogen/timestamp.rule",
+			"path" : "build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/src/geometry-central_autogen/timestamp.rule",
 			"sourceGroupIndex" : 1
 		}
 	],

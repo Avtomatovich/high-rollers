@@ -516,7 +516,7 @@ SUITESPARSE_CONFIG_LIBRARY:FILEPATH=SUITESPARSE_CONFIG_LIBRARY-NOTFOUND
 UFCONFIG_INCLUDE_DIR:PATH=UFCONFIG_INCLUDE_DIR-NOTFOUND
 
 //Value Computed by CMake
-geometry-central_BINARY_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central
+geometry-central_BINARY_DIR:STATIC=/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library
 
 //Value Computed by CMake
 geometry-central_IS_TOP_LEVEL:STATIC=OFF

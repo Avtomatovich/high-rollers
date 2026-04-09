@@ -110,7 +110,13 @@
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 40,
+				"line" : 42,
+				"parent" : 0
+			},
+			{
+				"command" : 5,
+				"file" : 0,
+				"line" : 47,
 				"parent" : 0
 			}
 		]
@@ -128,6 +134,10 @@
 			[
 				{
 					"backtrace" : 2,
+					"define" : "NOMINMAX"
+				},
+				{
+					"backtrace" : 2,
 					"define" : "QT_CORE_LIB"
 				},
 				{
@@ -141,6 +151,10 @@
 				{
 					"backtrace" : 2,
 					"define" : "QT_XML_LIB"
+				},
+				{
+					"backtrace" : 2,
+					"define" : "_USE_MATH_DEFINES"
 				}
 			],
 			"frameworks" : 
@@ -178,6 +192,30 @@
 					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/Eigen"
 				},
 				{
+					"backtrace" : 16,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/src/../include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/nanort/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/nanoflann/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/deps/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/geometry-central/deps/happly"
+				},
+				{
 					"backtrace" : 2,
 					"isSystem" : true,
 					"path" : "/Users/marissashaffer/Qt/6.9.2/macos/lib/QtCore.framework/Headers"
@@ -201,6 +239,11 @@
 					"backtrace" : 2,
 					"isSystem" : true,
 					"path" : "/Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Headers"
+				},
+				{
+					"backtrace" : 2,
+					"isSystem" : true,
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/deps/geometry-central/deps/eigen-src"
 				}
 			],
 			"language" : "CXX",
@@ -208,6 +251,7 @@
 			{
 				"backtraces" : 
 				[
+					2,
 					2,
 					2
 				],
@@ -224,6 +268,10 @@
 	],
 	"dependencies" : 
 	[
+		{
+			"backtrace" : 2,
+			"id" : "geometry-central::@e0f99a39856dfe85a0f9"
+		},
 		{
 			"id" : "high-rollers_autogen_timestamp_deps::@6890427a1f51a3e7e1df"
 		},
@@ -261,6 +309,16 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "/Users/marissashaffer/Qt/6.9.2/macos/lib/QtXml.framework/Versions/A/QtXml",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "-lpmp-library",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "pmp-library/src/libgeometry-central.a",
 				"role" : "libraries"
 			},
 			{

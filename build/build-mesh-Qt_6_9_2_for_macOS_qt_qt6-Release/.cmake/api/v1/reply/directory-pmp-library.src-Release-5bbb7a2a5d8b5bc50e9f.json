@@ -8,7 +8,7 @@
 	"installers" : [],
 	"paths" : 
 	{
-		"build" : "geometry-central/src",
+		"build" : "pmp-library/src",
 		"source" : "geometry-central/src"
 	}
 }

@@ -8,7 +8,7 @@
 	"installers" : [],
 	"paths" : 
 	{
-		"build" : "geometry-central/deps",
+		"build" : "pmp-library/deps",
 		"source" : "geometry-central/deps"
 	}
 }

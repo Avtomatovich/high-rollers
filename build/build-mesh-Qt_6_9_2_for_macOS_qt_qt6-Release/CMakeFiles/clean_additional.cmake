@@ -5,9 +5,9 @@ if("${CONFIG}" STREQUAL "" OR "${CONFIG}" STREQUAL "Release")
   file(REMOVE_RECURSE
   "CMakeFiles/high-rollers_autogen.dir/AutogenUsed.txt"
   "CMakeFiles/high-rollers_autogen.dir/ParseCache.txt"
-  "geometry-central/src/CMakeFiles/geometry-central_autogen.dir/AutogenUsed.txt"
-  "geometry-central/src/CMakeFiles/geometry-central_autogen.dir/ParseCache.txt"
-  "geometry-central/src/geometry-central_autogen"
   "high-rollers_autogen"
+  "pmp-library/src/CMakeFiles/geometry-central_autogen.dir/AutogenUsed.txt"
+  "pmp-library/src/CMakeFiles/geometry-central_autogen.dir/ParseCache.txt"
+  "pmp-library/src/geometry-central_autogen"
   )
 endif()

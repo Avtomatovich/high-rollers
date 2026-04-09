@@ -110,13 +110,13 @@
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 41,
+				"line" : 42,
 				"parent" : 0
 			},
 			{
 				"command" : 5,
 				"file" : 0,
-				"line" : 45,
+				"line" : 47,
 				"parent" : 0
 			}
 		]
@@ -209,7 +209,7 @@
 				},
 				{
 					"backtrace" : 2,
-					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/geometry-central/deps/include"
+					"path" : "/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release/pmp-library/deps/include"
 				},
 				{
 					"backtrace" : 2,
@@ -270,7 +270,7 @@
 	[
 		{
 			"backtrace" : 2,
-			"id" : "geometry-central::@03b1b31d4d6a5a53711a"
+			"id" : "geometry-central::@e0f99a39856dfe85a0f9"
 		},
 		{
 			"backtrace" : 0,
@@ -313,7 +313,12 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "geometry-central/src/libgeometry-central.a",
+				"fragment" : "-lpmp-library",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "pmp-library/src/libgeometry-central.a",
 				"role" : "libraries"
 			},
 			{
