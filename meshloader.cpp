@@ -9,8 +9,13 @@
 #include <QFile>
 #include <QTextStream>
 #include <QRegularExpression>
+#include "geometrycentral/surface/manifold_surface_mesh.h"
+#include "geometrycentral/surface/meshio.h"
+#include "geometrycentral/surface/surface_mesh.h"
 
 using namespace Eigen;
+using namespace geometrycentral;
+using namespace geometrycentral::surface;
 
 bool MeshLoader::loadTetMesh(const std::string &filepath, std::vector<Eigen::Vector3d> &vertices, std::vector<Eigen::Vector4i> &tets)
 {

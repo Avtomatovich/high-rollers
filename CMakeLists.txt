@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # Sets C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specifies required Qt components
@@ -18,47 +18,54 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Gui)
 find_package(Qt6 REQUIRED COMPONENTS Xml)
 
-# GLEW: this creates its library and allows you to `#include "GL/glew.h"`
-include_directories(${PROJECT_NAME} PRIVATE glew/include)
+include_directories(src)
+include_directories(deps)
+
 
 
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
     main.cpp
     tiny_obj_loader.h
-meshloader.h
-meshloader.cpp
-gaussmap.h gaussmap.cpp
-
+    meshloader.h
+    meshloader.cpp
+    gaussmap.h
+    gaussmap.cpp
 )
 
-# Disable PMP examples and tests to avoid name conflicts
-set(PMP_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-set(PMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(WITH_QHULL_TESTS OFF CACHE BOOL "" FORCE)
+set(WITH_QHULL_TOOLS OFF CACHE BOOL "" FORCE)
 
-# Disable geometry-central tests/examples if they conflict
-set(GC_BUILD_TESTS OFF CACHE BOOL "" FORCE)
-add_subdirectory(deps/pmp-library)
 add_subdirectory(deps/geometry-central)
+add_subdirectory(deps/polyscope)
+set(CMAKE_AUTOMOC OFF)
+add_subdirectory(deps/qhull)
+set(CMAKE_AUTOMOC ON)
 
 # Specifies libraries to be linked (Qt components, glew, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Xml
-    StaticGLEW
-pmp-library
     geometry-central
+    polyscope
+    qhullcpp
+    qhull_r
 )
 
 
 # This allows you to `#include "Eigen/..."`
 target_include_directories(${PROJECT_NAME} PRIVATE BEFORE
     deps/eigen
-deps/pmp-library/src
-	
+    deps/geometry-central
+    deps/qhull/src/libqhullcpp
+    deps/qhull/src
 )
+
 target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/polyscope/deps/args")
 # Set this flag to silence warnings on Windows
 if (MSVC OR MSYS OR MINGW)
   set(CMAKE_CXX_FLAGS "-Wno-volatile")

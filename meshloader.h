@@ -4,6 +4,7 @@
 #include "Eigen/Dense"
 #include "Eigen/StdVector"
 
+
 EIGEN_DEFINE_STL_VECTOR_SPECIALIZATION(Eigen::Matrix4i)
 
 class MeshLoader
