@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 17.0.1, 2026-04-09T20:32:16. -->
+<!-- Written by QtCreator 18.0.1, 2026-04-10T15:57:15. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
-  <value type="QByteArray">{3f60f161-94b4-4b1b-9de4-ee9370124fc0}</value>
+  <value type="QByteArray">{c7bed5b3-f895-44a2-9982-e7be3901cdb6}</value>
  </data>
  <data>
   <variable>ProjectExplorer.Project.ActiveTarget</variable>
@@ -79,13 +79,14 @@
     <value type="bool" key="ClangTools.AnalyzeOpenFiles">true</value>
     <value type="bool" key="ClangTools.BuildBeforeAnalysis">true</value>
     <value type="QString" key="ClangTools.DiagnosticConfig">Builtin.DefaultTidyAndClazy</value>
-    <value type="int" key="ClangTools.ParallelJobs">5</value>
+    <value type="int" key="ClangTools.ParallelJobs">4</value>
     <value type="bool" key="ClangTools.PreferConfigFile">true</value>
     <valuelist type="QVariantList" key="ClangTools.SelectedDirs"/>
     <valuelist type="QVariantList" key="ClangTools.SelectedFiles"/>
     <valuelist type="QVariantList" key="ClangTools.SuppressedDiagnostics"/>
     <value type="bool" key="ClangTools.UseGlobalSettings">true</value>
    </valuemap>
+   <value type="int" key="RcSync">0</value>
   </valuemap>
  </data>
  <data>
@@ -104,18 +105,18 @@
     <value type="int" key="CMake.Configure.BaseEnvironment">2</value>
     <value type="bool" key="CMake.Configure.ClearSystemEnvironment">false</value>
     <valuelist type="QVariantList" key="CMake.Configure.UserEnvironmentChanges"/>
-    <value type="QString" key="CMake.Initial.Parameters">-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
--DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON
--DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
+    <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_BUILD_TYPE:STRING=Debug
--DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
--DQT_MAINTENANCE_TOOL:FILEPATH=/Users/justinxu/Qt/MaintenanceTool.app/Contents/MacOS/MaintenanceTool
--DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
--DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{BuildConfig:BuildDirectory:NativeFilePath}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}
+-DQT_MAINTENANCE_TOOL:FILEPATH=/Users/marissashaffer/Qt/MaintenanceTool.app/Contents/MacOS/MaintenanceTool
 -DCMAKE_GENERATOR:STRING=Ninja
--DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
+-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
+-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
+-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{BuildConfig:BuildDirectory:NativeFilePath}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON
+-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}</value>
     <value type="int" key="EnableQmlDebugging">0</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Debug</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Debug</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -181,6 +182,7 @@
        <value type="bool" key="CMakeProjectManager.MakeStep.ClearSystemEnvironment">false</value>
        <valuelist type="QVariantList" key="CMakeProjectManager.MakeStep.UserEnvironmentChanges"/>
        <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Build</value>
        <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ApplicationManagerPlugin.Deploy.CMakePackageStep</value>
       </valuemap>
       <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
@@ -206,6 +208,11 @@
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ApplicationManagerPlugin.Deploy.Configuration</value>
     </valuemap>
     <value type="qlonglong" key="ProjectExplorer.Target.DeployConfigurationCount">2</value>
+    <valuemap type="QVariantMap" key="ProjectExplorer.Target.PluginSettings">
+     <value type="bool" key="AndroidBuildTargetDirSupport">false</value>
+     <valuelist type="QVariantList" key="ApplicationmanagerPackageTargets"/>
+     <value type="bool" key="UseAndroidBuildTargetDir">false</value>
+    </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.0">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
      <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
@@ -216,16 +223,14 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">high-rollers</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
-     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">high-rollers</value>
-     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
-     <value type="QString" key="RunConfiguration.Arguments">template_inis/test.ini</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ProjectExplorer.CustomExecutableRunConfiguration</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey"></value>
+     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
-     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory">/Users/justinxu/Desktop/CSCI2240/high-rollers</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Debug</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
    </valuemap>
@@ -234,17 +239,17 @@
     <value type="int" key="CMake.Configure.BaseEnvironment">2</value>
     <value type="bool" key="CMake.Configure.ClearSystemEnvironment">false</value>
     <valuelist type="QVariantList" key="CMake.Configure.UserEnvironmentChanges"/>
-    <value type="QString" key="CMake.Initial.Parameters">-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}
--DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON
--DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
+    <value type="QString" key="CMake.Initial.Parameters">-DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
 -DCMAKE_BUILD_TYPE:STRING=Release
--DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
--DQT_MAINTENANCE_TOOL:FILEPATH=/Users/justinxu/Qt/MaintenanceTool.app/Contents/MacOS/MaintenanceTool
--DCMAKE_C_COMPILER:FILEPATH=%{Compiler:Executable:C}
--DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{BuildConfig:BuildDirectory:NativeFilePath}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}
+-DQT_MAINTENANCE_TOOL:FILEPATH=/Users/marissashaffer/Qt/MaintenanceTool.app/Contents/MacOS/MaintenanceTool
 -DCMAKE_GENERATOR:STRING=Ninja
--DCMAKE_CXX_FLAGS_INIT:STRING=%{Qt:QML_DEBUG_FLAG}</value>
-    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release</value>
+-DCMAKE_CXX_COMPILER:FILEPATH=%{Compiler:Executable:Cxx}
+-DCMAKE_PREFIX_PATH:PATH=%{Qt:QT_INSTALL_PREFIX}
+-DCMAKE_PROJECT_INCLUDE_BEFORE:FILEPATH=%{BuildConfig:BuildDirectory:NativeFilePath}/.qtc/package-manager/auto-setup.cmake
+-DCMAKE_COLOR_DIAGNOSTICS:BOOL=ON
+-DQT_QMAKE_EXECUTABLE:FILEPATH=%{Qt:qmakeExecutable}</value>
+    <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/build/build-mesh-Qt_6_9_2_for_macOS_qt_qt6-Release</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.0">
       <value type="QString" key="CMakeProjectManager.MakeStep.BuildPreset"></value>
@@ -310,6 +315,7 @@
        <value type="bool" key="CMakeProjectManager.MakeStep.ClearSystemEnvironment">false</value>
        <valuelist type="QVariantList" key="CMakeProjectManager.MakeStep.UserEnvironmentChanges"/>
        <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+       <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Build</value>
        <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ApplicationManagerPlugin.Deploy.CMakePackageStep</value>
       </valuemap>
       <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
@@ -335,6 +341,11 @@
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ApplicationManagerPlugin.Deploy.Configuration</value>
     </valuemap>
     <value type="qlonglong" key="ProjectExplorer.Target.DeployConfigurationCount">2</value>
+    <valuemap type="QVariantMap" key="ProjectExplorer.Target.PluginSettings">
+     <value type="bool" key="AndroidBuildTargetDirSupport">false</value>
+     <valuelist type="QVariantList" key="ApplicationmanagerPackageTargets"/>
+     <value type="bool" key="UseAndroidBuildTargetDir">false</value>
+    </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.0">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
      <value type="bool" key="Analyzer.QmlProfiler.Settings.UseGlobalSettings">true</value>
@@ -345,16 +356,17 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">high-rollers</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">high-rollers</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
-     <value type="QString" key="RunConfiguration.Arguments">template_inis/test_cow.ini</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
+     <value type="QString" key="RunConfiguration.Arguments">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/template_inis/test_cow.ini</value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory">/Users/justinxu/Desktop/CSCI2240/high-rollers</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.1">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -366,14 +378,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qconvex</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qconvex</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.10">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -385,14 +398,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.11">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -404,14 +418,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg2</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg2</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.12">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -423,14 +438,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg3</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg3</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.13">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -442,14 +458,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_egp</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_egp</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -461,14 +478,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qdelaunay</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qdelaunay</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.3">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -480,14 +498,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhalf</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhalf</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.4">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -499,14 +518,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhull</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhull</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.5">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -518,14 +538,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhullp</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhullp</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.6">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -537,14 +558,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qvoronoi</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qvoronoi</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.7">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -556,14 +578,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">rbox</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">rbox</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.8">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -575,14 +598,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">testqset</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">testqset</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.9">
      <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -594,14 +618,15 @@
      <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
      <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
      <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">testqset_r</value>
+     <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
      <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
      <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">testqset_r</value>
      <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+     <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
      <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
      <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
      <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-     <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+     <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
     </valuemap>
     <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">14</value>
    </valuemap>
@@ -628,6 +653,7 @@
       <value type="bool" key="CMakeProjectManager.MakeStep.ClearSystemEnvironment">false</value>
       <valuelist type="QVariantList" key="CMakeProjectManager.MakeStep.UserEnvironmentChanges"/>
       <value type="bool" key="ProjectExplorer.BuildStep.Enabled">true</value>
+      <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">Build</value>
       <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">ApplicationManagerPlugin.Deploy.CMakePackageStep</value>
      </valuemap>
      <valuemap type="QVariantMap" key="ProjectExplorer.BuildStepList.Step.1">
@@ -663,16 +689,17 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">high-rollers</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">high-rollers</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">true</value>
-    <value type="QString" key="RunConfiguration.Arguments">template_inis/test_cow.ini</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
+    <value type="QString" key="RunConfiguration.Arguments">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers/template_inis/test_cow.ini</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory">/Users/justinxu/Desktop/CSCI2240/high-rollers</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory">/Users/marissashaffer/Desktop/cs/cs2240/high-rollers</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.1">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -684,14 +711,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qconvex</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qconvex</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.10">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -703,14 +731,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.11">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -722,14 +751,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg2</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg2</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.12">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -741,14 +771,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_eg3</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_eg3</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.13">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -760,14 +791,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">user_egp</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">user_egp</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.2">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -779,14 +811,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qdelaunay</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qdelaunay</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.3">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -798,14 +831,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhalf</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhalf</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.4">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -817,14 +851,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhull</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhull</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.5">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -836,14 +871,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qhullp</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qhullp</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.6">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -855,14 +891,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">qvoronoi</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">qvoronoi</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.7">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -874,14 +911,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">rbox</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">rbox</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.8">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -893,14 +931,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">testqset</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">testqset</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.RunConfiguration.9">
     <value type="bool" key="Analyzer.Perf.Settings.UseGlobalSettings">true</value>
@@ -912,14 +951,15 @@
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
     <value type="bool" key="PE.EnvironmentAspect.PrintOnRun">false</value>
     <value type="QString" key="PerfRecordArgsId">-e cpu-cycles --call-graph dwarf,4096 -F 250</value>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName">testqset_r</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.DisplayName"></value>
     <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">CMakeProjectManager.CMakeRunConfiguration.</value>
     <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">testqset_r</value>
     <value type="bool" key="ProjectExplorer.RunConfiguration.Customized">false</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.UniqueId"></value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/Users/justinxu/Desktop/CSCI2240/high-rollers/build/build-high-rollers-Qt_6_9_2_for_macOS-Release/deps/qhull</value>
+    <value type="QString" key="RunConfiguration.WorkingDirectory.default">%{RunConfig:Executable:Path}</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">14</value>
   </valuemap>
@@ -927,10 +967,6 @@
  <data>
   <variable>ProjectExplorer.Project.TargetCount</variable>
   <value type="qlonglong">1</value>
- </data>
- <data>
-  <variable>ProjectExplorer.Project.Updater.FileVersion</variable>
-  <value type="int">22</value>
  </data>
  <data>
   <variable>Version</variable>

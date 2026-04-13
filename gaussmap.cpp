@@ -1,3 +1,6 @@
 #include "gaussmap.h"
 
-GaussMap::GaussMap() {}
+GaussMap::GaussMap() {
+
+}
+

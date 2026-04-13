@@ -7,6 +7,7 @@
 #include "geometrycentral/surface/meshio.h"
 #include "geometrycentral/surface/surface_mesh.h"
 
+#include "geometrycentral/surface/surface_mesh_factories.h"
 #include "polyscope/polyscope.h"
 #include "polyscope/surface_mesh.h"
 #include "libqhullcpp/Qhull.h"
@@ -64,18 +65,45 @@ int main(int argc, char *argv[])
     // Parameters: comment, dimension, numPoints, coords, qhullCommand
     qhull.runQhull("", 3, geometry->mesh.nVertices(), ptArray.data(), "Qt");
 
-    std::vector<std::vector<size_t>> hullFaces;
-
-    for (auto facet : qhull.facetList()) {
-        if (!facet.isUpperDelaunay()) { // Standard check for 3D hulls
+    // Collect hull faces with original IDs
+    std::vector<std::vector<size_t>> rawFaces;
+    for (orgQhull::QhullFacet facet : qhull.facetList()) {
+        if (!facet.isUpperDelaunay()) {
             std::vector<size_t> faceIndices;
-            for (auto vertex : facet.vertices()) {
-                // Get the original index of this point
+            for (orgQhull::QhullVertex vertex : facet.vertices()) {
                 faceIndices.push_back(vertex.point().id());
             }
-            hullFaces.push_back(faceIndices);
+            rawFaces.push_back(faceIndices);
         }
     }
+
+    // Collect only the vertex IDs actually used by hull faces - ignore the verts that aren't in the hull
+    std::map<size_t, size_t> oldToNew;
+    std::vector<Vector3> hullVerts;
+
+    for (std::vector<size_t>& face : rawFaces) {
+        for (size_t oldIdx : face) {
+            if (oldToNew.find(oldIdx) == oldToNew.end()) {
+                oldToNew[oldIdx] = hullVerts.size();  // assign next compact index
+                // look up position from original geometry
+                Vector3 pos = geometry->vertexPositions[geometry->mesh.vertex(oldIdx)];
+                hullVerts.push_back(pos);
+            }
+        }
+    }
+
+    // Remap face indices to the new compact range
+    std::vector<std::vector<size_t>> hullFaces;
+    for (std::vector<size_t>& face : rawFaces) {
+        std::vector<size_t> remapped;
+        for (size_t oldIdx : face) {
+            remapped.push_back(oldToNew[oldIdx]);
+        }
+        hullFaces.push_back(remapped);
+    }
+
+    std::tuple<std::unique_ptr<SurfaceMesh>, std::unique_ptr<VertexPositionGeometry>> convexMesh =
+        makeSurfaceMeshAndGeometry(hullFaces, hullVerts);
 
     polyscope::init(); // initialize the gui
 
@@ -83,9 +111,7 @@ int main(int argc, char *argv[])
     // polyscope::registerSurfaceMesh("my mesh",
     //                                geometry->vertexPositions, mesh->getFaceVertexList());
 
-    polyscope::registerSurfaceMesh("My Convex Hull",
-                                   geometry->vertexPositions,
-                                   hullFaces);
+    polyscope::registerSurfaceMesh("My Convex Hull", std::get<1>(convexMesh)->vertexPositions, std::get<0>(convexMesh)->getFaceVertexList());
 
     polyscope::show(); // pass control to the gui until the user exits
 
