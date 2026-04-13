@@ -60,31 +60,56 @@ int main(int argc, char *argv[])
         ptArray.push_back(pos.z);
     }
 
-    // 2. Run Qhull
     orgQhull::Qhull qhull;
     // Parameters: comment, dimension, numPoints, coords, qhullCommand
     qhull.runQhull("", 3, geometry->mesh.nVertices(), ptArray.data(), "Qt");
 
-    // Collect hull faces with original IDs
+    // Collect the raw hull faces from the qhull output
     std::vector<std::vector<size_t>> rawFaces;
     for (orgQhull::QhullFacet facet : qhull.facetList()) {
         if (!facet.isUpperDelaunay()) {
+            // Get Qhull's normal for this facet
+            auto normalCoords = facet.hyperplane().coordinates();
+            Vector3 qhullNormal = {normalCoords[0], normalCoords[1], normalCoords[2]};
+
+            // Read vertices
             std::vector<size_t> faceIndices;
+            std::vector<Vector3> facePositions;
             for (orgQhull::QhullVertex vertex : facet.vertices()) {
-                faceIndices.push_back(vertex.point().id());
+                size_t oldIdx = vertex.point().id();
+                faceIndices.push_back(oldIdx);
+                facePositions.push_back({
+                    vertex.point().toStdVector()[0],
+                    vertex.point().toStdVector()[1],
+                    vertex.point().toStdVector()[2]
+                });
             }
+
+            // Compute winding normal: cross product of two face edges
+            Vector3 e1 = facePositions[1] - facePositions[0];
+            Vector3 e2 = facePositions[2] - facePositions[0];
+            Vector3 windingNormal = cross(e1, e2);
+
+            // If winding normal opposes Qhull normal, reverse vertex order
+            if (dot(windingNormal, qhullNormal) < 0) {
+                std::reverse(faceIndices.begin(), faceIndices.end());
+            }
+
             rawFaces.push_back(faceIndices);
         }
     }
+
 
     // Collect only the vertex IDs actually used by hull faces - ignore the verts that aren't in the hull
     std::map<size_t, size_t> oldToNew;
     std::vector<Vector3> hullVerts;
 
+    //for each vertex index, we create a mapping of the old to new index for the vertices list
     for (std::vector<size_t>& face : rawFaces) {
         for (size_t oldIdx : face) {
             if (oldToNew.find(oldIdx) == oldToNew.end()) {
-                oldToNew[oldIdx] = hullVerts.size();  // assign next compact index
+                oldToNew[oldIdx] = hullVerts.size();  // give the next index to the map
+
                 // look up position from original geometry
                 Vector3 pos = geometry->vertexPositions[geometry->mesh.vertex(oldIdx)];
                 hullVerts.push_back(pos);
@@ -92,24 +117,20 @@ int main(int argc, char *argv[])
         }
     }
 
-    // Remap face indices to the new compact range
+    // Remap face indices to the new range without gaps in the array
     std::vector<std::vector<size_t>> hullFaces;
     for (std::vector<size_t>& face : rawFaces) {
         std::vector<size_t> remapped;
-        for (size_t oldIdx : face) {
+        for (size_t oldIdx : face) { //for each face, push back the new index
             remapped.push_back(oldToNew[oldIdx]);
         }
         hullFaces.push_back(remapped);
     }
 
     std::tuple<std::unique_ptr<SurfaceMesh>, std::unique_ptr<VertexPositionGeometry>> convexMesh =
-        makeSurfaceMeshAndGeometry(hullFaces, hullVerts);
+        makeManifoldSurfaceMeshAndGeometry(hullFaces, hullVerts);
 
     polyscope::init(); // initialize the gui
-
-    // add the mesh to the gui
-    // polyscope::registerSurfaceMesh("my mesh",
-    //                                geometry->vertexPositions, mesh->getFaceVertexList());
 
     polyscope::registerSurfaceMesh("My Convex Hull", std::get<1>(convexMesh)->vertexPositions, std::get<0>(convexMesh)->getFaceVertexList());
 
