@@ -19,7 +19,7 @@ public:
 private:
     // TODO: is explicit Morse-Smale complex necessary?
     // TODO:    perhaps partially... store min, max, saddle per elem
-    // TODO:    explicit connectivity necassary for ascending manifold?
+    // TODO:    explicit connectivity necessary for ascending manifold?
 
     // TODO: pre-compute all max vertices, saddle edges, min faces
     // TODO:    does this belong in the mesh class instead?

@@ -2,6 +2,19 @@
 
 * **WARNING:** This is a continuously evolving document. You may encounter incorrect info...
 
+## Table of Contents
+
+* [Abstract](#abstract)
+* [Intro](#intro)
+* [Algorithm](#algorithm)
+  * [Derivation](#derivation)
+  * [Tracing Paths](#tracing-paths)
+  * [Categorize Paths With Morse-Smale Complex](#categorize-paths-with-morse-smale-complex)
+  * [Trace Separatrix on Gauss Map](#trace-separatrix-on-gauss-map)
+* [Manipulating the Probabilities](#manipulating-the-probabilities)
+* [Inverse Design](#inverse-design)
+* [Appendix](#appendix)
+
 ## Abstract
 
 * _What to solve?_
@@ -24,7 +37,7 @@
   * e.g. no need to be manifold
 * Simplest case:
   * To compute probs of stable face configs...
-    * Use normalized solid angles of each face of convex hull
+    * Use normalized solid angles of each face of convex hull (hint, hint...)
 * Related to fabrication tasks, can produce dice
 
 ## Algorithm
@@ -67,7 +80,7 @@
     * $\hat{n}$ = unit vector pointing opposite to gravity in object space
       * _i.e. $\hat{n}$ points up_
   * Map $\hat{n}$ to face/edge/vertex of convex hull $H$ based on Gauss map
-  * **Gauss map** = maps surface vertex => dir of normal
+  * [**Gauss map**](#explanation) = maps surface vertex => dir of normal
     * Gauss map is a _unit sphere_
     * Gauss map of $H$ is dual graph that maps
       * Faces => points
@@ -76,7 +89,7 @@
 * **Gauss image** = points || great arcs || spherical polygons
 * If hull vertex $x_j$ is resting on ground,
   * Get upward dir $\hat{z}$ by rotating normal $\hat{n}$ by R
-  * **Height of center of mass** = (wrt $x_j$)
+  * **Height of center of mass (wrt $x_j$)**
     * $U_j(\hat{n}) = (c - x_j) \cdot \hat{n}$
       * i.e. scalar projection (scaling factor) of vector from $x_j$ to $c$ along $\hat{n}$
 * For all unique vertices, edges, faces of convex hull $H$ that it could land on
@@ -171,10 +184,10 @@
     * if and only if maximizing normal is in dual graph
 * Saddle points
   * Only on E2 (hinge edges)
-  * $\hat{n}^*_{ij}=c-c_{ij}$
+  * $\hat{n}^{*}_{ij}=c-c_{ij}$
   * $c_{ij}=x_i+\frac{(c-x_i)\cdot v_{ij}} {v_{ij}\cdot v_{ij}}\cdot v_{ij}$
     * $c_{ij}$ is projection of center of mass $c$ on edge $ij$
-    * $\hat{n}^*_{ij}$ is saddle point iff it lies in E2 edge on Gauss map
+    * $\hat{n}^{*}_{ij}$ is saddle point iff it lies in E2 edge on Gauss map
     * $v_{ij}=x_j - x_i$ is the edge vector
 
 ### Trace Separatrix on Gauss Map
@@ -206,15 +219,15 @@
 * All faces of $H$ are _stable_ = all vertices of $H$ are _unstable_
   * Thus, $p_f$ = normalized solid angle of face $f$ seen from center of mass $c$
 
-## Manipulating the Probabilities (TODO...)
+## Manipulating the Probabilities
 
 * TODO...
 
-## Inverse Design (TODO...)
+## Inverse Design
 
 * TODO...
 
-## Rigid Body Simulation Validation (TODO...)
+## Rigid Body Simulation Validation
 
 * Use Bullet for fast output, RigidIPC for more accurate output
 * TODO...
@@ -229,50 +242,36 @@
   * Short [notes](http://mesh.brown.edu/dgp/pdfs/Garland-diffgeom.pdf) by Garland (ignore Frenet formulae)
   * Neat and short [explanation](https://www.youtube.com/watch?v=UYiAlYlSwBo) on YouTube
   * A [longer one](https://www.youtube.com/watch?v=NlU1m-OfumE) by Crane (or honestly just skim thru his lectures in the Discrete Differential Geometry playlist 😉)
-* There are two types:
-  * Gaussian curvature
-  * Mean curvature
-* **Gaussian curvature**
-  * Take three points on a parabolic curve
-  * Draw a circle that connects all three
-    * This is the **osculating circle**
-  * Take the radius $\rho$ of osculating circle
-    * $\kappa = \frac{1}{\rho}$ = Gaussian curvature
-  * Take point on both curve and osculating circle
-    * Tangent on point is tangent to both curve and circle
-* **Mean curvature** = (_take a grain of salt here_)
-  * Can draw many circles that include varying sets of points of a curve
-  * There will be a global max curvature $\kappa_1$ and global min curvature $\kappa_2$
-  * $\kappa_1$ and $\kappa_2$ are known as **principal curvatures**
-  * $\texttt{H} = \frac{1}{2}(\kappa_1 + \kappa_2)$ = mean curvature
 
-### Best Practices
+#### Explanation
 
-* This will reduce bugs, miscommunication, and _wasted hours of your life_.
-* The first suggestion is to _thoroughly_ read the [paper](https://hbaktash.github.io/files/rolling_dragons_paper.pdf) and [Geometry Central docs](https://geometry-central.net).
-  * Take your time with these. You will be re-reading them frequently.
+* Consider a unit normal vector $\hat{n}$ of a point on a surface
+  * Gather all unique surface normals and have them all share the same origin
+  * They will form a sphere called the **Gauss map**
+* Use the **shape operator** to transform a surface normal to the Gauss map
+  * i.e. convert a surface normal to a sphere normal!
+* How to build the shape operator?
+  * Recall that the vector orthogonal to a normal is the **tangent**
+  * Build three axes (aka basis vectors) with them
+    * The normal $\hat{n}$, tangent $\hat{t}$, and bi-tangent $\hat{b}$
+  * Bundle the vectors as columns to build a transformation matrix $S$
 
-#### Readability
+$$
+  S = \begin{bmatrix}
+        \hat{n}_x & \hat{t}_x & \hat{b}_x\\
+        \hat{n}_y & \hat{t}_y & \hat{b}_y\\
+        \hat{n}_z & \hat{t}_z & \hat{b}_z\\
+      \end{bmatrix}
+$$
 
-* Use `camelCase` for variable names, `PascalCase` for class names
-* Add comments where possible
-* Add spaces between lines of code for readability
-* Add description of changes during commits
-  * Try a `[action] [object]` format, e.g. `Add class, remove struct, modify vars`
-
-#### Maintainability
-
-* **!! DO NOT COMMIT TO MAIN BRANCH WITHOUT JOINT CODE REVIEW !!**
-* Make sure code runs before committing
-* Avoid committing build/config files + dirs by editing the `.gitignore` accordingly
-* Use [code tags like TODO and FIXME](https://en.wikipedia.org/wiki/Comment_(computer_programming)#code-tag) to stub future work
-
-#### Optimization
-
-* Try out [bithacks](https://graphics.stanford.edu/~seander/bithacks.html) to speed up code (don't forget to add comments)
-* To decide between classes, structs, and namespaces:
-  * Classes = funcs + data (persistent state to maintain)
-  * Structs = data (with a few lightweight helper funcs)
-  * Namespaces = funcs only (or to avoid ownership clashes)
-
-УДАЧИ ВАМ!
+* _Those three axes ($\hat{n}, \hat{t}, \hat{b}$) form a plane L, which is found on both the surface AND Gauss map!_
+* To apply the shape operator on any surface point $x_s$ to the Gauss map $x_g$:
+  * Just do $x_g = S \cdot x_s$
+* _Problem:_ The plane L varies depending on the surface normal used as the basis...
+  * _Solution:_ Extract constant properties of the matrix $S$, aka _invariants_
+* What are the parts of matrix $S$ that don't change regardless of its elements?
+  * Determinant ($\det$) = [definition is a bit complicated](https://en.wikipedia.org/wiki/Determinant)
+  * Trace ($tr$) = sum of squares of diagonal elements of matrix
+* We can now define the two types of curvature!!
+  * **Gaussian curvature** = $\det(S)$
+  * **Mean curvature** = $\frac{1}{2}tr(S)$
