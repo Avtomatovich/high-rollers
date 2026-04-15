@@ -184,10 +184,10 @@
     * if and only if maximizing normal is in dual graph
 * Saddle points
   * Only on E2 (hinge edges)
-  * $\hat{n}^{*}_{ij}=c-c_{ij}$
+  * $\hat{n}_{ij}^{*}=c-c_{ij}$
   * $c_{ij}=x_i+\frac{(c-x_i)\cdot v_{ij}} {v_{ij}\cdot v_{ij}}\cdot v_{ij}$
     * $c_{ij}$ is projection of center of mass $c$ on edge $ij$
-    * $\hat{n}^{*}_{ij}$ is saddle point iff it lies in E2 edge on Gauss map
+    * $\hat{n}_{ij}^{*}$ is saddle point iff it lies in E2 edge on Gauss map
     * $v_{ij}=x_j - x_i$ is the edge vector
 
 ### Trace Separatrix on Gauss Map

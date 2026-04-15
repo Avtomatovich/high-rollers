@@ -4,19 +4,21 @@
 #include "mesh.h"
 
 #include <vector>
-#include <Eigen/Dense>
-
-using namespace Eigen;
 
 class GaussMap
 {
 public:
-    GaussMap() {}
+    GaussMap(const Mesh& mesh);
 
-    // TODO: optimize by storing as MatrixX3d instead of std::vector?
-    std::vector<Vector3d> traceGradient(const Vector3d& n0, const Mesh& mesh);
+    std::vector<Vector3> traceGradient(const Vector3& n0);
 
 private:
+    const SurfaceMesh& _hull;
+    const VertexPositionGeometry& _geom;
+
+    const EdgeData<RollType>& _edgeTypes;
+    const FaceData<RollType>& _faceTypes;
+
     // TODO: is explicit Morse-Smale complex necessary?
     // TODO:    perhaps partially... store min, max, saddle per elem
     // TODO:    explicit connectivity necessary for ascending manifold?
@@ -25,16 +27,16 @@ private:
     // TODO:    does this belong in the mesh class instead?
 
     // TODO: define this func signature better
-    void buildSeparatrix(const Mesh& mesh);
+    void buildSeparatrix();
 
     // TODO: is explicit dual graph necessary?
     // TODO:    unlikely b/c of good primal mesh traversal...
     // TODO:    funcs alr traverse dual graph...
 
-    Vector3d rayArcInt(const Vector3d& ns,
-                       const Vector3d& n,
-                       const Vector3d& n1,
-                       const Vector3d& n2);
+    Vector3 rayArcInt(const Vector3& ns,
+                      const Vector3& n,
+                      const Vector3& n1,
+                      const Vector3& n2);
 };
 
 #endif // GAUSSMAP_H

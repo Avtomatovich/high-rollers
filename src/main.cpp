@@ -45,13 +45,8 @@ int main(int argc, char *argv[])
     // create mesh instance
     Mesh mesh(args[0].toStdString(), com, !ok);
 
-    // TODO: add bool from CLI for selecting view?
-
-    // display mesh
-    // mesh.showMesh();
-
-    // display hull
-    mesh.showHull();
+    // display mesh and hull
+    mesh.show();
 
     a.exit();
 }

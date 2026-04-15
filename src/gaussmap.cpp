@@ -1,30 +1,36 @@
 #include "gaussmap.h"
 
-std::vector<Vector3d> GaussMap::traceGradient(const Vector3d& n0, const Mesh& mesh)
+
+GaussMap::GaussMap(const Mesh& mesh) :
+    _hull(mesh.getHull()),
+    _geom(mesh.getHullGeom()),
+    _edgeTypes(mesh.getEdgeTypes()),
+    _faceTypes(mesh.getFaceTypes())
+{}
+
+std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
 {
     // TODO: trace gradients over the Gauss map
-    const auto& hull = mesh.getHull();
-    std::vector<Vector3d> N;
+    std::vector<Vector3> N;
     // TODO: check if supposed to insert at index of corresponding elem?
     N.push_back(n0);
     return N;
 }
 
-Vector3d GaussMap::rayArcInt(const Vector3d& ns,
-                             const Vector3d& n,
-                             const Vector3d& n1,
-                             const Vector3d& n2)
+Vector3 GaussMap::rayArcInt(const Vector3& ns,
+                            const Vector3& n,
+                            const Vector3& n1,
+                            const Vector3& n2)
 {
     // TODO: understand how and why this works
-    Vector3d nint = Vector3d::Zero();
-    Vector3d n1n2 = n1.cross(n2), n2n1 = n2.cross(n1);
-    Vector3d d = ns.cross(n).cross(n1n2);
-    Vector3d dn2 = d.cross(n2), dn1 = d.cross(n1);
-    if (dn2.dot(n1n2) >= 0.0 && dn1.dot(n2n1) >= 0.0) {
-        nint =  d;
+    Vector3 n1n2 = cross(n1, n2), n2n1 = cross(n2, n1);
+    Vector3 d = cross(cross(ns, n), n1n2);
+    Vector3 dn2 = cross(d, n2), dn1 = cross(d, n1);
+    if (dot(dn2, n1n2) >= 0.0 && dot(dn1, n2n1) >= 0.0) {
+        return d;
     }
-    if ((-dn2).dot(n1n2) >= 0.0 && (-dn1).dot(n2n1) >= 0.0) {
-        nint = -d;
+    if (dot(-dn2, n1n2) >= 0.0 && dot(-dn1, n2n1) >= 0.0) {
+        return -d;
     }
-    return nint;
+    return Vector3::zero();
 }

@@ -11,7 +11,7 @@
 using namespace geometrycentral;
 using namespace geometrycentral::surface;
 
-enum class ElemType
+enum class RollType
 {
     STABLE, // FO
     WHEEL,  // F1 / E1
@@ -31,12 +31,11 @@ public:
     inline const VertexPositionGeometry& getMeshGeom() const { return *_meshGeom; }
     inline const VertexPositionGeometry& getHullGeom() const { return *_hullGeom; }
 
-    inline const EdgeData<ElemType>& getEdgeTypes() const { return _edgeTypes; }
-    inline const FaceData<ElemType>& getFaceTypes() const { return _faceTypes; }
+    inline const EdgeData<RollType>& getEdgeTypes() const { return _edgeTypes; }
+    inline const FaceData<RollType>& getFaceTypes() const { return _faceTypes; }
 
-    // viewing funcs
-    void showMesh();
-    void showHull();
+    // viewing func
+    void show();
 
 private:
     std::unique_ptr<SurfaceMesh> _mesh;
@@ -45,8 +44,8 @@ private:
 
     Vector3 _com;
 
-    EdgeData<ElemType> _edgeTypes;
-    FaceData<ElemType> _faceTypes;
+    EdgeData<RollType> _edgeTypes;
+    FaceData<RollType> _faceTypes;
 
     void computeCenterOfMass();
 

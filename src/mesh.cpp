@@ -26,13 +26,13 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     const auto& iBuf = hull.getIndexBuffer();
     const auto& vBuf = hull.getVertexBuffer();
 
-    // build polygons and vertices from convex hull
+    // build polygon and vertex containers for convex hull data
     std::vector<std::vector<size_t>> poly(iBuf.size() / 3);
     std::vector<Vector3> vert(vBuf.size());
 
     size_t upper_bound = std::max(poly.size(), vert.size());
 
-    // copy data from temp hull obj to containers in single loop
+    // copy data from temp hull obj to containers in one pass
     for (size_t i = 0; i < upper_bound; i++) {
         if (i < poly.size()) {
             poly[i] = { iBuf[3 * i], iBuf[3 * i + 1], iBuf[3 * i + 2] };
@@ -46,15 +46,6 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // build manifold convex hull
     std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
 
-    // pre-compute all indices
-    // TODO: would this help with fetching coords by speedup?
-    _meshGeom->requireVertexIndices();
-    _meshGeom->requireEdgeIndices();
-    _meshGeom->requireFaceIndices();
-    _hullGeom->requireVertexIndices();
-    _hullGeom->requireEdgeIndices();
-    _hullGeom->requireFaceIndices();
-
     // pre-compute face and vertex normals of hull
     _hullGeom->requireVertexNormals();
     _hullGeom->requireFaceNormals();
@@ -66,18 +57,12 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     classify();
 }
 
-void Mesh::showMesh()
+void Mesh::show()
 {
     polyscope::init();
     polyscope::registerSurfaceMesh("mesh",
                                    _meshGeom->vertexPositions,
                                    _mesh->getFaceVertexList());
-    polyscope::show();
-}
-
-void Mesh::showHull()
-{
-    polyscope::init();
     polyscope::registerSurfaceMesh("hull",
                                    _hullGeom->vertexPositions,
                                    _hull->getFaceVertexList());
@@ -92,9 +77,11 @@ void Mesh::computeCenterOfMass()
 
 void Mesh::classify()
 {
-    _edgeTypes = EdgeData<ElemType>(*_hull, ElemType::WHEEL);
-    _faceTypes = FaceData<ElemType>(*_hull, ElemType::STABLE);
+    // link lists to mesh instances
+    _edgeTypes = EdgeData<RollType>(*_hull, RollType::WHEEL);
+    _faceTypes = FaceData<RollType>(*_hull, RollType::STABLE);
 
+    // classify edges and faces
     classifyEdges();
     classifyFaces();
 }
