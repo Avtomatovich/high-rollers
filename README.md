@@ -12,10 +12,10 @@
 ## Usage
 
 - The executable requires one parameter: a path to a mesh file. It can be of type:
-  - `.obj,`
-  - `.ply,`
-  - `.stl,`
-  - `.off`.
+  - `.obj`
+  - `.ply`
+  - `.stl`
+  - `.off`
 - After passing a mesh file path, you can pass three optional floating-point numbers that represent the xyz-coordinates of the center of mass of the mesh.
 - You can call the executable in the terminal with the `--help` or `-h` flags for a breakdown of the arguments.
 
