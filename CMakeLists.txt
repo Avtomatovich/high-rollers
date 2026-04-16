@@ -45,6 +45,26 @@ add_subdirectory(deps/qhull)
 set(CMAKE_AUTOMOC ON)
 
 # Specifies libraries to be linked (Qt components, glew, etc)
+# Specifies .cpp and .h files to be passed to the compiler
+add_executable(${PROJECT_NAME}
+    src/main.cpp
+
+    src/util/quickhull/ConvexHull.hpp
+    src/util/quickhull/Quickhull.hpp
+
+    src/util/quickhull/Quickhull.cpp
+
+    src/mesh.h 
+    src/mesh.cpp
+    src/gaussmap.h 
+    src/gaussmap.cpp
+)
+
+add_subdirectory(deps/eigen)
+add_subdirectory(deps/geometry-central)
+add_subdirectory(deps/polyscope)
+
+# Specifies libraries to be linked (Qt components, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
@@ -66,10 +86,15 @@ target_include_directories(${PROJECT_NAME} PRIVATE BEFORE
 
 target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/polyscope/deps/args")
-# Set this flag to silence warnings on Windows
-if (MSVC OR MSYS OR MINGW)
-  set(CMAKE_CXX_FLAGS "-Wno-volatile")
-endif()
+    Eigen3::Eigen
+    geometry-central
+    polyscope
+)
+
+# This allows you to include libraries
+target_include_directories(${PROJECT_NAME} PRIVATE
+    src
+)
 
 # Set this flag to silence warnings on MacOS
 if (APPLE)
