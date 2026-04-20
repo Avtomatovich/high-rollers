@@ -6,8 +6,11 @@
 
 #include "polyscope/polyscope.h"
 #include "polyscope/surface_mesh.h"
+#include "polyscope/point_cloud.h"
+#include "polyscope/curve_network.h"
 
 #include "util/quickhull/QuickHull.hpp"
+#include <Eigen/Geometry>
 
 Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     _com(com)
@@ -57,21 +60,106 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     classify();
 }
 
+void Mesh::visualizeEdgeTypes() {
+    // 1. Clear existing structures to avoid buffer conflicts
+    polyscope::removeStructure("Wheel Edges");
+    polyscope::removeStructure("Hinge Edges");
+
+    std::vector<glm::vec3> nodePositions;
+    for (Vertex v : _hull->vertices()) {
+        Vector3 p = _hullGeom->vertexPositions[v];
+        nodePositions.push_back({(float)p.x, (float)p.y, (float)p.z});
+    }
+
+    std::vector<std::array<size_t, 2>> wheelEdges;
+    std::vector<std::array<size_t, 2>> hingeEdges;
+
+    for (Edge e : _hull->edges()) {
+        size_t u = e.halfedge().vertex().getIndex();
+        size_t v = e.halfedge().twin().vertex().getIndex();
+
+        if (_edgeTypes[e] == RollType::WHEEL) {
+            wheelEdges.push_back({u, v});
+        } else if (_edgeTypes[e] == RollType::HINGE) {
+            hingeEdges.push_back({u, v});
+        }
+    }
+
+    // 2. Only register if there is actually data to show
+    // Polyscope sometimes throws 'inconsistent size' errors if you pass an empty edge list
+    if (!wheelEdges.empty()) {
+        auto* psWheel = polyscope::registerCurveNetwork("Wheel Edges", nodePositions, wheelEdges);
+        psWheel->setEnabled(true);
+        psWheel->setColor({1.0, 0.0, 0.0});
+        psWheel->setRadius(0.005);
+    }
+
+    if (!hingeEdges.empty()) {
+        auto* psHinge = polyscope::registerCurveNetwork("Hinge Edges", nodePositions, hingeEdges);
+        psHinge->setEnabled(true);
+        psHinge->setColor({0.0, 1.0, 0.0});
+        psHinge->setRadius(0.005);
+    }
+}
+
 void Mesh::show()
 {
     polyscope::init();
-    polyscope::registerSurfaceMesh("mesh",
-                                   _meshGeom->vertexPositions,
-                                   _mesh->getFaceVertexList());
+    // polyscope::registerSurfaceMesh("mesh",
+    //                                _meshGeom->vertexPositions,
+    //                                _mesh->getFaceVertexList());
+    std::vector<glm::vec3> points;
+    computeCenterOfMass();
+    points.push_back(glm::vec3(_com.x, _com.y, _com.z));
+    polyscope::PointCloud* psCloud = polyscope::registerPointCloud("really great points", points);
+    psCloud->setPointRadius(0.02);
+    psCloud->setPointRenderMode(polyscope::PointRenderMode::Quad);
     polyscope::registerSurfaceMesh("hull",
                                    _hullGeom->vertexPositions,
                                    _hull->getFaceVertexList());
+    classifyEdges();
+    classifyFaces();
+    std::vector<glm::vec3> faceColors;
+    for (Face f: _hull->faces()) {
+        if (_faceTypes[f] == RollType::STABLE) {
+            faceColors.push_back({1.0, 0.0, 0.0});
+        } else if (_faceTypes[f] == RollType::HINGE) {
+            faceColors.push_back({0.0, 1.0, 0.0});
+        } else if (_faceTypes[f] == RollType::WHEEL) {
+            faceColors.push_back({0.0, 0.0, 1.0});
+        }
+    }
+    polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("faceTypes", faceColors);
+    polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
+    visualizeEdgeTypes();
     polyscope::show();
 }
 
 void Mesh::computeCenterOfMass()
 {
     // TODO: compute using mesh, NOT hull
+    double totalVolume = 0;
+    _com = Vector3::zero();
+
+    for (Face f : _mesh->faces()) {
+        // Get the 3 vertices of this triangle via halfedge traversal
+        Halfedge he = f.halfedge();
+        Vector3 a = _meshGeom->vertexPositions[he.vertex()];
+        Vector3 b = _meshGeom->vertexPositions[he.next().vertex()];
+        Vector3 c = _meshGeom->vertexPositions[he.next().next().vertex()];
+
+        // Signed volume of tetrahedron (a, b, c, origin)
+        // = (1/6) * a · (b × c)
+        double signedVol = dot(a, cross(b, c)) / 6.0;
+        totalVolume += signedVol;
+
+        // Centroid of this tet is (a + b + c) / 4
+        // weighted by its signed volume
+        _com += (a + b + c) * signedVol;
+    }
+
+    // divide by 4 (tet centroid denominator) and totalVolume
+    _com /= (4.0 * totalVolume);
 
 }
 
@@ -89,15 +177,94 @@ void Mesh::classify()
 void Mesh::classifyEdges()
 {
     // TODO: classify edges as E1/E2
+    Eigen::Vector3d eigenCom(_com.x, _com.y, _com.z);
     for (Edge e : _hull->edges()) {
+        Vertex a = e.firstVertex();
+        Vertex b = e.secondVertex();
 
+        Vector3 v1Pos = _hullGeom->vertexPositions[a];
+        Vector3 v2Pos = _hullGeom->vertexPositions[b];
+        // convert to eigen
+        Eigen::Vector3d v1(v1Pos.x, v1Pos.y, v1Pos.z);
+        Eigen::Vector3d v2(v2Pos.x, v2Pos.y, v2Pos.z);
+
+
+        Eigen::Hyperplane<double, 3> plane = Eigen::Hyperplane<double, 3>::Through(v1, v2);
+        Eigen::Vector3d projectedCom = plane.projection(eigenCom);
+        Eigen::Vector3d edgeDir = v2 - v1;
+        Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
+        Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
+        double t = (projectedComOnEdge - v1).dot(v2 - v1) / (v2 - v1).squaredNorm();
+        if (0.0 < t && t < 1.0) {
+            _edgeTypes[e] = RollType::HINGE;
+        } else {
+            _edgeTypes[e] = RollType::WHEEL;
+        }
     }
 }
 
 void Mesh::classifyFaces()
 {
     // TODO: classify faces as F0/F1/F2
+    Eigen::Vector3d eigenCom(_com.x, _com.y, _com.z);
     for (Face f : _hull->faces()) {
+        std::vector<Vertex> vertices;
+        for (Vertex v : f.adjacentVertices()) {
+            vertices.push_back(v);
+        }
+        Vector3 v1Pos = _hullGeom->vertexPositions[vertices[0]];
+        Vector3 v2Pos = _hullGeom->vertexPositions[vertices[1]];
+        Vector3 v3Pos = _hullGeom->vertexPositions[vertices[2]];
 
+        Eigen::Vector3d v1(v1Pos[0], v1Pos[1], v1Pos[2]);
+        Eigen::Vector3d v2(v2Pos[0], v2Pos[1], v2Pos[2]);
+        Eigen::Vector3d v3(v3Pos[0], v3Pos[1], v3Pos[2]);
+        std::vector<Eigen::Vector3d> eigenVertices{v1, v2, v3};
+
+
+        Eigen::Hyperplane<double, 3> plane = Eigen::Hyperplane<double, 3>::Through(v1, v2, v3);
+        Eigen::Vector3d projectedCom = plane.projection(eigenCom);
+        Eigen::Vector3d edge12 = v2 - v1;
+        Eigen::Vector3d edge13 = v3 - v1;
+        Eigen::Vector3d triangleNormal = edge12.cross(edge13);
+        double totalArea2 = triangleNormal.norm(); // 2 * Area of triangle
+
+        // 2. Calculate signed areas of the 3 sub-triangles formed with P
+        // Sub-triangles: (P, v1, v2), (P, v2, v3), (P, v3, v1)
+        Eigen::Vector3d C1 = (v2 - v1).cross(projectedCom - v1);
+        Eigen::Vector3d C2 = (v3 - v2).cross(projectedCom - v2);
+        Eigen::Vector3d C3 = (v1 - v3).cross(projectedCom - v3);
+
+        // 3. Check if P is inside using the dot product with the main normal
+        // If the sub-triangle normal points the same way as the main normal, the point is "inside" that edge
+        bool inside1 = C1.dot(triangleNormal) >= 0;
+        bool inside2 = C2.dot(triangleNormal) >= 0;
+        bool inside3 = C3.dot(triangleNormal) >= 0;
+
+        if (inside1 && inside2 && inside3) {
+            _faceTypes[f] = RollType::STABLE; // F0: Inside
+        } else {
+            // 4. Determine if it's a Hinge (F1) or Wheel (F2)
+            // It is a Hinge if it's "outside" an edge but within the Voronoi stripe of that edge
+            bool inStripe = false;
+
+            for (int i = 0; i < 3; i++) {
+                Eigen::Vector3d a = eigenVertices[i];
+                Eigen::Vector3d b = eigenVertices[(i + 1) % 3];
+                Eigen::Vector3d edgeDir = b - a;
+
+                // Scalar projection to find position along the infinite line of the edge
+                double t = (projectedCom - a).dot(edgeDir) / edgeDir.squaredNorm();
+
+                // If it's outside this specific edge and 0 < t < 1, it's in the stripe
+                // We check if it's outside this edge specifically by re-checking the cross product sign
+                Eigen::Vector3d currentC = (b - a).cross(projectedCom - a);
+                if (currentC.dot(triangleNormal) < 0 && (t > 0 && t < 1)) {
+                    inStripe = true;
+                    break;
+                }
+            }
+            _faceTypes[f] = inStripe ? RollType::HINGE : RollType::WHEEL;
+        }
     }
 }

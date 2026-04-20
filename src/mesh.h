@@ -48,6 +48,7 @@ private:
     FaceData<RollType> _faceTypes;
 
     void computeCenterOfMass();
+    void visualizeEdgeTypes();
 
     void classify();
     void classifyEdges();
