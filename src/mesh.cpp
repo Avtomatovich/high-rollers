@@ -125,13 +125,6 @@ void Mesh::classify()
     classifyFaces();
 }
 
-Face nextFaceFromEdge(Edge e, const Eigen::Vector3d& nHat){
-
-}
-
-Vertex Mesh::nextVertex(SurfacePoint curr, Vector3 projectedCOM){
-
-}
 
 void Mesh::classifyEdges()
 {
@@ -141,8 +134,20 @@ void Mesh::classifyEdges()
         Vertex a = e.firstVertex();
         Vertex b = e.secondVertex();
 
+        Face fA = e.halfedge().face();
+        Face fB = e.halfedge().twin().face();
+
+        Vector3 gcNormA = _hullGeom->faceNormals[fA];
+        Vector3 gcNormB = _hullGeom->faceNormals[fB];
+
+        Eigen::Vector3d nA(gcNormA.x, gcNormA.y, gcNormA.z);
+        Eigen::Vector3d nB(gcNormB.x, gcNormB.y, gcNormB.z);
+
         Vector3 v1Pos = _hullGeom->vertexPositions[a];
         Vector3 v2Pos = _hullGeom->vertexPositions[b];
+
+        Eigen::Vector3d edgeN = (nA + nB).normalized(); //WARNING: is the average of the face normals sufficient here?
+
         // convert to eigen
         Eigen::Vector3d v1(v1Pos.x, v1Pos.y, v1Pos.z);
         Eigen::Vector3d v2(v2Pos.x, v2Pos.y, v2Pos.z);
@@ -154,10 +159,46 @@ void Mesh::classifyEdges()
         Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
         Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
         double t = (projectedComOnEdge - v1).norm() / (v2 - v1).norm();
+
+        //HINGE TYPE
         if (0.0 < t && t < 1.0) {
             _edgeTypes[e] = RollType::HINGE;
-            Face next;
 
+            //U = -mg * (edgeNormal · COM)
+            //Compute the tangent vector towards nB by projecting normB onto nHat's tangent plane and normalize
+            Eigen::Vector3d tangentTowardsB = (nB - nB.dot(edgeN) * edgeN).normalized();
+
+            //get the part of the vector that is projected onto the surface normal, and subtract it from the original vector
+            Eigen::Vector3d gradientU = -(eigenCom - eigenCom.dot(edgeN) * edgeN);
+
+            // If < 0,  roll to fB
+            // If > 0,  roll to fA
+            double directionalDeriv = gradientU.dot(tangentTowardsB);
+            Face next = (directionalDeriv < 0.0) ? fB: fA;
+            //create a vector3 of the face vertices to pass into surfacePoint
+            std::vector<Vertex> nextVerts;
+            for (Vertex v : next.adjacentVertices()) nextVerts.push_back(v);
+            //collect the vertices of the face and convert to eigen
+            Vector3 p1 = _hullGeom->vertexPositions[nextVerts[0]];
+            Vector3 p2 = _hullGeom->vertexPositions[nextVerts[1]];
+            Vector3 p3 = _hullGeom->vertexPositions[nextVerts[2]];
+            Eigen::Vector3d fa(p1.x, p1.y, p1.z);
+            Eigen::Vector3d fb(p2.x, p2.y, p2.z);
+            Eigen::Vector3d fc(p3.x, p3.y, p3.z);
+
+            //project com onto face plane
+            Eigen::Hyperplane<double, 3> facePlane = Eigen::Hyperplane<double, 3>::Through(fa, fb, fc);
+            Eigen::Vector3d p = facePlane.projection(eigenCom);
+
+            //compute barycentric coordinates for COM projection onto face!
+            double totalArea = (fb - fa).cross(fc - fa).norm();
+            double u = (fb - p).cross(fc - p).norm() / totalArea;  // weight for fa
+            double v = (fc - p).cross(fa - p).norm() / totalArea;  // weight for fb
+            double w = 1.0 - u - v;                                // weight for fc
+
+            _edgeRoll[e] = Roll(RollType::HINGE, SurfacePoint(next, Vector3{u, v, w}));
+
+            //WHEEL TYPE
         } else {
             _edgeTypes[e] = RollType::WHEEL;
             //next vertex is closest to COM projection
@@ -169,7 +210,6 @@ void Mesh::classifyEdges()
 
 void Mesh::classifyFaces()
 {
-    // TODO: classify faces as F0/F1/F2
     Eigen::Vector3d eigenCom(_com.x, _com.y, _com.z);
     for (Face f : _hull->faces()) {
         std::vector<Vertex> vertices;
