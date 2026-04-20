@@ -1,0 +1,8 @@
+[submodule "deps/eigen"]
+	path = deps/eigen
+	url = https://gitlab.com/libeigen/eigen.git
+[submodule "deps/geometry-central"]
+	path = deps/geometry-central
+	url = https://github.com/nmwsharp/geometry-central.git
+	path = deps/polyscope
+	url = https://github.com/nmwsharp/polyscope.git
