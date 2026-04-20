@@ -66,6 +66,17 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
 void Mesh::show()
 {
     polyscope::init();
+
+    /** TODO: sequence the outputs
+     * for (size_t i = 0; i < normals.size(); i++) {
+        polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
+            "mesh_" + std::to_string(i),          // unique name per orientation
+            _meshGeom->vertexPositions,
+            _mesh->getFaceVertexList()
+        );
+        ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
+    }
+     */
     polyscope::SurfaceMesh * psmesh = polyscope::registerSurfaceMesh("mesh",
                                    _meshGeom->vertexPositions,
                                    _mesh->getFaceVertexList());
@@ -89,11 +100,10 @@ void Mesh::computeCenterOfMass()
 Eigen::Matrix4d Mesh::normalToTransform(const Eigen::Vector3d& n){
     Eigen::Vector3d norm = n.normalized();
     Eigen::Vector3d up(0,0,1);
-    Eigen::Quaterniond q = Eigen::Quaterniond::FromTwoVectors(up, n);
+    Eigen::Quaterniond q = Eigen::Quaterniond::FromTwoVectors(up, norm);
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T.block<3,3>(0,0) = q.toRotationMatrix();
     return T;
-
 }
 
 //Helper to turn an eigen matrix to a glm one
