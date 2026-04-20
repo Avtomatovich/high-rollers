@@ -37,7 +37,6 @@ add_subdirectory(deps/eigen)
 add_subdirectory(deps/geometry-central)
 add_subdirectory(deps/polyscope)
 
-# Specifies libraries to be linked (Qt components, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
@@ -51,6 +50,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
 )
+
 
 # Set this flag to silence warnings on Windows
 if (MSVC OR MSYS OR MINGW)

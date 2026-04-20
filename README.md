@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # High Rollers
 
 ## Setup
@@ -31,3 +32,12 @@ This project acknowledges and expresses thanks for the use of the following exte
 - [**Polyscope** by Nicholas Sharp and others](www.polyscope.run)
 - [**Eigen** by Gaël Guennebaud and Benoît Jacob and others](https://libeigen.gitlab.io)
 - [**Quickhull** by Antti Kuukka and others](https://github.com/akuukka/quickhull)
+=======
+# high-rollers
+CSCI2240 Final Project Repo
+
+
+Resources/Dependencies
+- Geometry Central
+https://github.com/nmwsharp/gc-polyscope-project-template/tree/master
+>>>>>>> dc7a058e15dfbe7c63250c50248b81a5256b1129

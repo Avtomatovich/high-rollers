@@ -16,6 +16,10 @@
 # Debugger Files
 *.pdb
 
+# Ignore all build directories
+build/
+*.build/
+
 # Compiled Dynamic libraries
 *.so
 *.dylib
