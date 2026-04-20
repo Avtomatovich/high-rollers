@@ -46,6 +46,11 @@ public:
     inline const EdgeData<Roll>& getEdgeRoll() const { return _edgeRoll; }
     inline const FaceData<Roll>& getFaceRoll() const { return _faceRoll; }
 
+
+    inline const EdgeData<RollType>& getEdgeTypes() const { return _edgeTypes; }
+    inline const FaceData<RollType>& getFaceTypes() const { return _faceTypes; }
+
+
     // viewing func
     void show();
 
@@ -61,9 +66,12 @@ private:
 
     EdgeData<Roll> _edgeRoll;
     FaceData<Roll> _faceRoll;
+    EdgeData<RollType> _edgeTypes;
+    FaceData<RollType> _faceTypes;
 
     void computeCenterOfMass();
-
+    Face nextFaceFromEdge(Edge e, const Eigen::Vector3d& nHat);
+    Vertex nextVertex(SurfacePoint curr, Vector3 projCOM);
     void classify();
     void classifyEdges();
     void classifyFaces();
