@@ -8,6 +8,7 @@
 #include "geometrycentral/surface/vertex_position_geometry.h"
 #include "geometrycentral/surface/manifold_surface_mesh.h"
 #include "geometrycentral/surface/surface_point.h"
+#include "glm/glm.hpp"
 
 using namespace geometrycentral;
 using namespace geometrycentral::surface;
@@ -54,7 +55,8 @@ private:
 
     std::unique_ptr<ManifoldSurfaceMesh> _hull;
     std::unique_ptr<VertexPositionGeometry> _hullGeom;
-
+    Eigen::Matrix4d normalToTransform(const Eigen::Vector3d& n);
+    static glm::mat4 eigenToGlm(const Eigen::Matrix4d &T);
     Vector3 _com;
 
     EdgeData<Roll> _edgeRoll;

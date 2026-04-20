@@ -66,12 +66,16 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
 void Mesh::show()
 {
     polyscope::init();
-    polyscope::registerSurfaceMesh("mesh",
+    polyscope::SurfaceMesh * psmesh = polyscope::registerSurfaceMesh("mesh",
                                    _meshGeom->vertexPositions,
                                    _mesh->getFaceVertexList());
+    polyscope::SurfaceMesh * pshull =
     polyscope::registerSurfaceMesh("hull",
                                    _hullGeom->vertexPositions,
                                    _hull->getFaceVertexList());
+    glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d(0.5,0.5, 0.5)));
+    psmesh->setTransform(t);
+    pshull->setTransform(t);
     polyscope::show();
 }
 
@@ -79,6 +83,26 @@ void Mesh::computeCenterOfMass()
 {
     // TODO: compute using mesh, NOT hull
 
+}
+
+//Helper function to convert a normal vector into a mesh orientation
+Eigen::Matrix4d Mesh::normalToTransform(const Eigen::Vector3d& n){
+    Eigen::Vector3d norm = n.normalized();
+    Eigen::Vector3d up(0,0,1);
+    Eigen::Quaterniond q = Eigen::Quaterniond::FromTwoVectors(up, n);
+    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+    T.block<3,3>(0,0) = q.toRotationMatrix();
+    return T;
+
+}
+
+//Helper to turn an eigen matrix to a glm one
+glm::mat4 Mesh::eigenToGlm(const Eigen::Matrix4d &T){
+    glm::mat4 m;
+    for (int col = 0; col < 4; col++)
+        for (int row = 0; row < 4; row++)
+            m[col][row] = static_cast<float>(T(row, col)); // Eigen=row-major, glm=col-major
+    return m;
 }
 
 void Mesh::classify()
