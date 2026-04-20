@@ -194,7 +194,7 @@ void Mesh::classifyEdges()
         Eigen::Vector3d edgeDir = v2 - v1;
         Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
         Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
-        double t = (projectedComOnEdge - v1).dot(v2 - v1) / (v2 - v1).squaredNorm();
+        double t = (projectedComOnEdge - v1).norm() / (v2 - v1).norm();
         if (0.0 < t && t < 1.0) {
             _edgeTypes[e] = RollType::HINGE;
         } else {
@@ -226,22 +226,23 @@ void Mesh::classifyFaces()
         Eigen::Vector3d projectedCom = plane.projection(eigenCom);
         Eigen::Vector3d edge12 = v2 - v1;
         Eigen::Vector3d edge13 = v3 - v1;
-        Eigen::Vector3d triangleNormal = edge12.cross(edge13);
-        double totalArea2 = triangleNormal.norm(); // 2 * Area of triangle
+        Eigen::Vector3d crossProduct = edge12.cross(edge13);
+        double A = 0.5 * crossProduct.norm();
 
         // 2. Calculate signed areas of the 3 sub-triangles formed with P
-        // Sub-triangles: (P, v1, v2), (P, v2, v3), (P, v3, v1)
-        Eigen::Vector3d C1 = (v2 - v1).cross(projectedCom - v1);
-        Eigen::Vector3d C2 = (v3 - v2).cross(projectedCom - v2);
-        Eigen::Vector3d C3 = (v1 - v3).cross(projectedCom - v3);
-
+        // Sub-triangles: (P, v2, v1), (P, v3, v2), (P, v1, v3)
+        double A1 = (v2 - projectedCom).cross(v1 - projectedCom).norm() * 0.5;
+        double A2 = (v3 - projectedCom).cross(v2 - projectedCom).norm() * 0.5;
+        double A3 = (v1 - projectedCom).cross(v3 - projectedCom).norm() * 0.5;
+        // TODO: add epsilon
         // 3. Check if P is inside using the dot product with the main normal
         // If the sub-triangle normal points the same way as the main normal, the point is "inside" that edge
-        bool inside1 = C1.dot(triangleNormal) >= 0;
-        bool inside2 = C2.dot(triangleNormal) >= 0;
-        bool inside3 = C3.dot(triangleNormal) >= 0;
 
-        if (inside1 && inside2 && inside3) {
+        bool check = (A1 / A) + (A2 / A) + (A3 / A) <= 1.0;
+        bool inside1 = (A1 / A) >= 0.0;
+        bool inside2 = (A2 / A) >= 0.0;
+        bool inside3 = (A3 / A) >= 0.0;
+        if (check && inside1 && inside2 && inside3) {
             _faceTypes[f] = RollType::STABLE; // F0: Inside
         } else {
             // 4. Determine if it's a Hinge (F1) or Wheel (F2)
@@ -254,12 +255,13 @@ void Mesh::classifyFaces()
                 Eigen::Vector3d edgeDir = b - a;
 
                 // Scalar projection to find position along the infinite line of the edge
-                double t = (projectedCom - a).dot(edgeDir) / edgeDir.squaredNorm();
+                Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
+                Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
+                double t = (projectedComOnEdge - a).norm() / (b - a).norm();
 
                 // If it's outside this specific edge and 0 < t < 1, it's in the stripe
                 // We check if it's outside this edge specifically by re-checking the cross product sign
-                Eigen::Vector3d currentC = (b - a).cross(projectedCom - a);
-                if (currentC.dot(triangleNormal) < 0 && (t > 0 && t < 1)) {
+                if ((t > 0 && t < 1)) {
                     inStripe = true;
                     break;
                 }
