@@ -46,9 +46,15 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // build manifold convex hull
     std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
 
-    // pre-compute face and vertex normals of hull
+    // pre-compute vertex positions on hull
+    _hullGeom->requireVertexPositions();
+
+    // pre-compute vertex and face normals of hull
     _hullGeom->requireVertexNormals();
     _hullGeom->requireFaceNormals();
+
+    // pre-compute edge dihedral angles (angles between faces)
+    _hullGeom->requireEdgeDihedralAngles();
 
     // compute center of mass if not provided
     if (computeCom) computeCenterOfMass();
@@ -77,9 +83,9 @@ void Mesh::computeCenterOfMass()
 
 void Mesh::classify()
 {
-    // link lists to mesh instances
-    _edgeTypes = EdgeData<RollType>(*_hull, RollType::WHEEL);
-    _faceTypes = FaceData<RollType>(*_hull, RollType::STABLE);
+    // link element lists to hull
+    _edgeRoll = EdgeData<Roll>(*_hull);
+    _faceRoll = FaceData<Roll>(*_hull);
 
     // classify edges and faces
     classifyEdges();
@@ -89,7 +95,7 @@ void Mesh::classify()
 void Mesh::classifyEdges()
 {
     // TODO: classify edges as E1/E2
-    for (Edge e : _hull->edges()) {
+    for (const Edge& e : _hull->edges()) {
 
     }
 }
@@ -97,7 +103,7 @@ void Mesh::classifyEdges()
 void Mesh::classifyFaces()
 {
     // TODO: classify faces as F0/F1/F2
-    for (Face f : _hull->faces()) {
+    for (const Face& f : _hull->faces()) {
 
     }
 }

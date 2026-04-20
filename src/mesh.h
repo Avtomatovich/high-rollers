@@ -7,6 +7,7 @@
 #include "geometrycentral/surface/surface_mesh.h"
 #include "geometrycentral/surface/vertex_position_geometry.h"
 #include "geometrycentral/surface/manifold_surface_mesh.h"
+#include "geometrycentral/surface/surface_point.h"
 
 using namespace geometrycentral;
 using namespace geometrycentral::surface;
@@ -18,6 +19,12 @@ enum class RollType
     HINGE   // F2 / E2
 };
 
+struct Roll
+{
+    RollType type;
+    SurfacePoint next;
+};
+
 class Mesh
 {
 public:
@@ -26,26 +33,32 @@ public:
 
     // getters and setters
     inline const SurfaceMesh& getMesh() const { return *_mesh; }
-    inline const ManifoldSurfaceMesh& getHull() const { return *_hull; }
+
+    // WARNING: non-const getter due to non-const iterators (e.g. faces(), edges())
+    inline ManifoldSurfaceMesh& getHull() { return *_hull; }
+
+    inline const Vector3& getCenterOfMass() const { return _com; }
 
     inline const VertexPositionGeometry& getMeshGeom() const { return *_meshGeom; }
     inline const VertexPositionGeometry& getHullGeom() const { return *_hullGeom; }
 
-    inline const EdgeData<RollType>& getEdgeTypes() const { return _edgeTypes; }
-    inline const FaceData<RollType>& getFaceTypes() const { return _faceTypes; }
+    inline const EdgeData<Roll>& getEdgeRoll() const { return _edgeRoll; }
+    inline const FaceData<Roll>& getFaceRoll() const { return _faceRoll; }
 
     // viewing func
     void show();
 
 private:
     std::unique_ptr<SurfaceMesh> _mesh;
+    std::unique_ptr<VertexPositionGeometry> _meshGeom;
+
     std::unique_ptr<ManifoldSurfaceMesh> _hull;
-    std::unique_ptr<VertexPositionGeometry> _meshGeom, _hullGeom;
+    std::unique_ptr<VertexPositionGeometry> _hullGeom;
 
     Vector3 _com;
 
-    EdgeData<RollType> _edgeTypes;
-    FaceData<RollType> _faceTypes;
+    EdgeData<Roll> _edgeRoll;
+    FaceData<Roll> _faceRoll;
 
     void computeCenterOfMass();
 

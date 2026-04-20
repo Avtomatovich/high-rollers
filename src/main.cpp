@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "mesh.h"
+#include "gaussmap.h"
 
 int main(int argc, char *argv[])
 {
@@ -47,6 +48,12 @@ int main(int argc, char *argv[])
 
     // display mesh and hull
     mesh.show();
+
+    // create Gauss map instance
+    GaussMap gaussMap(mesh);
+
+    // trace gradients from random initial orientation
+    gaussMap.traceGradient(gaussMap.randomGaussNormal());
 
     a.exit();
 }

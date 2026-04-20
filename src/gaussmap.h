@@ -3,40 +3,56 @@
 
 #include "mesh.h"
 
-#include <vector>
+
+struct Separatrix
+{
+    Vector3 n1, n2;
+    Face f1, f2;
+};
 
 class GaussMap
 {
 public:
-    GaussMap(const Mesh& mesh);
+    GaussMap(Mesh& mesh);
 
     std::vector<Vector3> traceGradient(const Vector3& n0);
 
+    // Gauss map sampling helper
+    Vector3 randomGaussNormal();
+
 private:
-    const SurfaceMesh& _hull;
+    ManifoldSurfaceMesh& _hull;
     const VertexPositionGeometry& _geom;
 
-    const EdgeData<RollType>& _edgeTypes;
-    const FaceData<RollType>& _faceTypes;
+    const Vector3& _c;
 
-    // TODO: is explicit Morse-Smale complex necessary?
-    // TODO:    perhaps partially... store min, max, saddle per elem
-    // TODO:    explicit connectivity necessary for ascending manifold?
+    const EdgeData<Roll>& _edgeRoll;
+    const FaceData<Roll>& _faceRoll;
 
-    // TODO: pre-compute all max vertices, saddle edges, min faces
-    // TODO:    does this belong in the mesh class instead?
+    VertexData<std::vector<Vector3>> _arcNormals;
 
-    // TODO: define this func signature better
-    void buildSeparatrix();
-
-    // TODO: is explicit dual graph necessary?
-    // TODO:    unlikely b/c of good primal mesh traversal...
-    // TODO:    funcs alr traverse dual graph...
+    std::vector<Face> _minima;
+    VertexData<Vector3> _maxima;
+    EdgeData<Vector3> _saddles;
 
     Vector3 rayArcInt(const Vector3& ns,
                       const Vector3& n,
                       const Vector3& n1,
                       const Vector3& n2);
+
+    // TODO: move MS complex logic to MS class
+    std::vector<Separatrix> buildSeparatrix();
+
+    // bounds-checking helpers
+    SurfacePoint elementWithNormal(const Vector3& n);
+    bool onGaussEdge(const Edge& e, const Vector3& n);
+    bool onGaussPatch(const Vertex& v, const Vector3& n);
+
+    // pre-computing helpers
+    void computeArcNormals();
+    void computeMinima();
+    void computeMaxima();
+    void computeSaddles();
 };
 
 #endif // GAUSSMAP_H

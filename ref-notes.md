@@ -105,12 +105,28 @@
 
 * Given initial upward orientation $\hat{n_0}$,
   * Rolling a shape = Rotate in direction that minimizes U until rest
-* Gauss map relates surface vertices to normals
+  * How to compute initial upward orientation?
+    * i.e. how can we find an initial normal?
+    * _Answer_ = sample from the Gauss map! (which is a unit sphere)
+    * From the _Global Illumination Compendium_,
+      * Generate a random point on sphere $(c_x, c_y, c_z, R)$ with density $p(\Theta)=\frac{1}{4\pi R^2}$ and $r_1$, $r_2$ are random numbers sampled from $[0, 1]$
+        * $x = c_x + 2R\cos(2\pi r_1)\sqrt{r_2(1-r_2)}$
+        * $y = c_y + 2R\sin(2\pi r_1)\sqrt{r_2(1-r_2)}$
+        * $z = c_z + R(1-2r_2)$
+          * where $(c_x, c_y, c_z)$ are coordinates of the sphere origin
+          * $R$ is sphere radius, which is 1
+          * $p(\Theta)$ is probability density, which is reciprocal of sphere area to make it uniform
+      * For a unit sphere at the origin, this simplifies to...
+        * $x = 2\cos(2\pi r_1)\sqrt{r_2(1-r_2)}$
+        * $y = 2\sin(2\pi r_1)\sqrt{r_2(1-r_2)}$
+        * $z = 1-2r_2$
+* Gauss map relates surface normals to points on a sphere
 * Note that since normals are unit length, _Gauss map is unit sphere_
 * **You can "trace" paths on the Gauss map to minimize derivatives**
 * Edges b/n patches are discontinuities in vector field of U
 * GOAL: Solve for smallest $\partial U/\partial\hat{n}$
-* Use **Appendix A, algorithm 1** = to trace all paths
+* Use **Appendix A, algorithm 1** to trace all paths
+* IMPORTANT: while categorizing, need to cache vertex/edge/face to roll towards
 
 #### Vertex
 
@@ -118,6 +134,10 @@
 2. Start from $\hat{n}$ in patch of $i$
 3. Go along direction of $-\partial U/\partial\hat{n}$
 4. Continue until you intersect with edge of patch
+
+* How to compute partial derivative of $U$ wrt to $\hat{n}$?
+  * $-\partial U/\partial\hat{n} = -\frac{\partial}{\partial\hat{n}}(c - x_j)\cdot\hat{n}$
+  * $-(c - x_j) = x_j - c$
 
 #### Edge
 
@@ -136,9 +156,11 @@
        * This is tracing along edge between patches (which is safe)
 * How to check if an edge is E1 or E2 (wheel or hinge)?
     1. Take plane L containing $x_i$ and $x_j$
-       * Impl tip: build eqn of plane L using normal and either $x_i$ or $x_j$
-    2. Split intoi three strips, one parallel line thru $x_i$, one parallel line thru $x_j$
+       * Impl tip: build eqn of plane L using $x_i$ and $x_j$ to compute plane normal
+       * Or, you could use `Eigen::Hyperplane` instead!!
+    2. Split into three strips, one parallel line thru $x_i$, one parallel line thru $x_j$
        * Both lines must be _orthogonal_ to edge $ij$
+       * Maybe use `Eigen::ParametrizedLine` here?
     3. Project center of mass $c$ onto L to get $\bar{c}$
        * How to project a point to a plane?
            * Get vector from point on plane (either $x_i$ or $x_j$) to $c$
@@ -150,8 +172,10 @@
     4. If $\bar{c}$ is in section between parallel lines, _edge is wheel (E1)_
     5. Else, _edge is hinge (E2)_
 * If edge is wheel (E1), trace within patch of identified vertex (either $i$ or $j$)
+  * Cache this vertex!
 * If edge is hinge (E2),
   * roll to next incident face based on direction of $\partial U/\partial\hat{n}$ along edge between patches
+  * Cache this face!
 
 #### Face
 
@@ -168,6 +192,41 @@
     3. If $\bar{c}$ is on strip, F2 (roll on edge)
     4. If $\bar{c}$ is on cone, F1 (roll on vertex)
     5. Else, F0
+* Cache that edge/vertex!
+
+### Element Fetching Based on Normals
+
+* Combination of checking if a normal is that of a face, edge, or vertex (in that order!)
+
+#### How to check if it is a face normal?
+
+* Face normal = vertex on Gauss map
+* Compute all face normals and do a linear search
+* Could do a mapping of normals to faces, but floating point arithmetic won't guarantee equality
+
+#### How to check if it is an edge normal?
+
+* Edges on Gauss maps connect face normals (which are Gauss vertices)
+* To check if normal corresponds to edge
+  * Compute dihedral angle $\phi$ (angle between face normals)
+  * Is edge normal if angle $\theta$ with either face normal is less than dihedral angle $\phi$
+    * $\theta < \phi$
+
+#### How to check if it is a vertex normal?
+
+* Vertices on Gauss maps correspond to patches
+  * Patch vertices are face normals
+  * Patch boundaries are Gauss edges that connect face normals (Gauss vertices)
+* Many ways to do this, but simplest method so far uses great circle intersections
+  * Create circular slices of Gauss map sphere using patch boundaries
+    * Circular slice = **Great circle**
+  * Great circles are contained in a plane
+    * To determine plane normal, take two points on plane (patch boundary endpoints = face normals)
+    * Compute cross product of endpoints
+  * Compute dot product of normal to be tested and all great-circle (plane) normals
+  * If all dot products have same sign (all negative/all positive)
+    * Normal is in vertex patch on Gauss map
+  * Else, not in vertex patch on Gauss map
 
 ### Categorize Paths with Morse-Smale Complex
 
@@ -181,14 +240,17 @@
   * Occur at unstable hull vertices (F1 or F2)
   * Compute max height of center of mass $c$
     * $\hat{n}_j = \argmin_{\hat{n}}U_j(\hat{n})=(x_j-c)\cdot\hat{n}$
-    * if and only if maximizing normal is in dual graph
+    * if and only if $\hat{n}_j$ is in vertex patch of j on Gauss map
+      * Just compute $x_j - c$ for all vertices and check if in vertex patch of j
+      * Use great-circle intersection method
 * Saddle points
   * Only on E2 (hinge edges)
   * $\hat{n}_{ij}^{*}=c-c_{ij}$
   * $c_{ij}=x_i+\frac{(c-x_i)\cdot v_{ij}} {v_{ij}\cdot v_{ij}}\cdot v_{ij}$
     * $c_{ij}$ is projection of center of mass $c$ on edge $ij$
-    * $\hat{n}_{ij}^{*}$ is saddle point iff it lies in E2 edge on Gauss map
     * $v_{ij}=x_j - x_i$ is the edge vector
+    * $\hat{n}_{ij}^{*}$ is saddle point iff it lies on edge on Gauss map
+      * Use dihedral angle check from element fetching to determine
 
 ### Trace Separatrix on Gauss Map
 
@@ -202,17 +264,19 @@
   * Precompute all max vertices, saddle edges, min (stable) faces
     * Only needs single pass
   * Subroutine for intersections w/great arcs (edges b/n patches)
-  * Finally compute area $A_f$ of ascending manifold
+    * Using `rayArcInt`
 * FINALLY, $p_f = \frac{A_f}{4\pi}$
   * Alternately, compute $A_f$ as sum of signed spherical triangle areas
     * $A_f = \sum_i \Omega(\hat{n}, u_i, u_{i + 1})$
       * $\Omega(\hat{n}, u_i, u_{i + 1})$ = signed area of spherical triangle w/vertices ${\hat{n}, u_i, u_{i + 1}}$
       * $\hat{n}$ = any point on sphere (consider as origin), also is normal of face $f$
       * How to compute signed spherical triangle areas?
-        * Convert vertices from Cartesian to spherical
-          * Remember Gauss map is unit sphere, so $r = 1$!
-        * Compute double integral to get surface area patch?
-          * TODO… arc length formulae might help?
+        * Use Girard's theorem!
+          * $A_t = A + B + C - \pi$
+            * $A, B, C$ are interior angles of spherical triangle
+              * i.e. angle made by sides of spherical triangle
+        * How to get interior angles of spherical triangle?
+          * TODO
 
 #### Special Cases
 
@@ -230,7 +294,7 @@
 ## Rigid Body Simulation Validation
 
 * Use Bullet for fast output, RigidIPC for more accurate output
-* TODO...
+* Use Rodrigues' (axis-angle) formula (with $\hat{z} = (0, 0, 1)$ as the axis and $\hat{n}$ to get the angle) to compute rotation $R$
 
 ## Appendix
 
