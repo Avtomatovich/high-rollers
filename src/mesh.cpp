@@ -195,7 +195,7 @@ void Mesh::classifyEdges()
             double u = (fb - p).cross(fc - p).norm() / totalArea;  // weight for fa
             double v = (fc - p).cross(fa - p).norm() / totalArea;  // weight for fb
             double w = 1.0 - u - v;                                // weight for fc
-
+            //pass as the faceCoords into SurfacePoint
             _edgeRoll[e] = Roll(RollType::HINGE, SurfacePoint(next, Vector3{u, v, w}));
 
             //WHEEL TYPE
