@@ -97,7 +97,7 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
             }
         }
     }
-
+    assert(elementWithNormal(N.back()).face);
     return N;
 }
 

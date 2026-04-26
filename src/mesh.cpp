@@ -66,12 +66,27 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
 void Mesh::show()
 {
     polyscope::init();
-    polyscope::registerSurfaceMesh("mesh",
+
+    /** TODO: sequence the outputs
+     * for (size_t i = 0; i < normals.size(); i++) {
+        polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
+            "mesh_" + std::to_string(i),          // unique name per orientation
+            _meshGeom->vertexPositions,
+            _mesh->getFaceVertexList()
+        );
+        ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
+    }
+     */
+    polyscope::SurfaceMesh * psmesh = polyscope::registerSurfaceMesh("mesh",
                                    _meshGeom->vertexPositions,
                                    _mesh->getFaceVertexList());
+    polyscope::SurfaceMesh * pshull =
     polyscope::registerSurfaceMesh("hull",
                                    _hullGeom->vertexPositions,
                                    _hull->getFaceVertexList());
+    glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d(0.5,0.5, 0.5)));
+    psmesh->setTransform(t);
+    pshull->setTransform(t);
     polyscope::show();
 }
 
@@ -81,6 +96,24 @@ void Mesh::computeCenterOfMass()
 
 }
 
+//Helper function to convert a normal vector into a mesh orientation
+Eigen::Matrix4d Mesh::normalToTransform(const Eigen::Vector3d& n){
+    Eigen::Vector3d norm = n.normalized();
+    Eigen::Vector3d up(0,0,1);
+    Eigen::Quaterniond q = Eigen::Quaterniond::FromTwoVectors(up, norm);
+    Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
+    T.block<3,3>(0,0) = q.toRotationMatrix();
+    return T;
+}
+
+//Helper to turn an eigen matrix to a glm one
+glm::mat4 Mesh::eigenToGlm(const Eigen::Matrix4d &T){
+    glm::mat4 m;
+    for (int col = 0; col < 4; col++)
+        for (int row = 0; row < 4; row++)
+            m[col][row] = static_cast<float>(T(row, col)); // Eigen=row-major, glm=col-major
+    return m;
+}
 void Mesh::classify()
 {
     // link element lists to hull
@@ -92,18 +125,175 @@ void Mesh::classify()
     classifyFaces();
 }
 
+
 void Mesh::classifyEdges()
 {
     // TODO: classify edges as E1/E2
-    for (const Edge& e : _hull->edges()) {
+    Eigen::Vector3d eigenCom(_com.x, _com.y, _com.z);
+    for (Edge e : _hull->edges()) {
+        Vertex a = e.firstVertex();
+        Vertex b = e.secondVertex();
 
+        Face fA = e.halfedge().face();
+        Face fB = e.halfedge().twin().face();
+
+        Vector3 gcNormA = _hullGeom->faceNormals[fA];
+        Vector3 gcNormB = _hullGeom->faceNormals[fB];
+
+        Eigen::Vector3d nA(gcNormA.x, gcNormA.y, gcNormA.z);
+        Eigen::Vector3d nB(gcNormB.x, gcNormB.y, gcNormB.z);
+
+        Vector3 v1Pos = _hullGeom->vertexPositions[a];
+        Vector3 v2Pos = _hullGeom->vertexPositions[b];
+
+        Eigen::Vector3d edgeN = (nA + nB).normalized(); //WARNING: is the average of the face normals sufficient here?
+
+        // convert to eigen
+        Eigen::Vector3d v1(v1Pos.x, v1Pos.y, v1Pos.z);
+        Eigen::Vector3d v2(v2Pos.x, v2Pos.y, v2Pos.z);
+
+
+        Eigen::Hyperplane<double, 3> plane = Eigen::Hyperplane<double, 3>::Through(v1, v2);
+        Eigen::Vector3d projectedCom = plane.projection(eigenCom);
+        Eigen::Vector3d edgeDir = v2 - v1;
+        Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
+        Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
+        double t = (projectedComOnEdge - v1).norm() / (v2 - v1).norm();
+
+        //HINGE TYPE
+        if (0.0 < t && t < 1.0) {
+            _edgeTypes[e] = RollType::HINGE;
+
+            //U = -mg * (edgeNormal · COM)
+            //Compute the tangent vector towards nB by projecting normB onto nHat's tangent plane and normalize
+            Eigen::Vector3d tangentTowardsB = (nB - nB.dot(edgeN) * edgeN).normalized();
+
+            //get the part of the vector that is projected onto the surface normal, and subtract it from the original vector
+            Eigen::Vector3d gradientU = -(eigenCom - eigenCom.dot(edgeN) * edgeN);
+
+            // If < 0,  roll to fB
+            // If > 0,  roll to fA
+            double directionalDeriv = gradientU.dot(tangentTowardsB);
+            Face next = (directionalDeriv < 0.0) ? fB: fA;
+            //create a vector3 of the face vertices to pass into surfacePoint
+            std::vector<Vertex> nextVerts;
+            for (Vertex v : next.adjacentVertices()) nextVerts.push_back(v);
+            //collect the vertices of the face and convert to eigen
+            Vector3 p1 = _hullGeom->vertexPositions[nextVerts[0]];
+            Vector3 p2 = _hullGeom->vertexPositions[nextVerts[1]];
+            Vector3 p3 = _hullGeom->vertexPositions[nextVerts[2]];
+            Eigen::Vector3d fa(p1.x, p1.y, p1.z);
+            Eigen::Vector3d fb(p2.x, p2.y, p2.z);
+            Eigen::Vector3d fc(p3.x, p3.y, p3.z);
+
+            //project com onto face plane
+            Eigen::Hyperplane<double, 3> facePlane = Eigen::Hyperplane<double, 3>::Through(fa, fb, fc);
+            Eigen::Vector3d p = facePlane.projection(eigenCom);
+
+            //compute barycentric coordinates for COM projection onto face!
+            double totalArea = (fb - fa).cross(fc - fa).norm();
+            double u = (fb - p).cross(fc - p).norm() / totalArea;  // weight for fa
+            double v = (fc - p).cross(fa - p).norm() / totalArea;  // weight for fb
+            double w = 1.0 - u - v;                                // weight for fc
+            //pass as the faceCoords into SurfacePoint
+            _edgeRoll[e] = Roll(RollType::HINGE, SurfacePoint(next, Vector3{u, v, w}));
+
+            //WHEEL TYPE
+        } else {
+            _edgeTypes[e] = RollType::WHEEL;
+            //next vertex is closest to COM projection
+            Vertex next = (v1 - projectedCom).norm() > (v2 - projectedCom).norm() ? b : a;
+            _edgeRoll[e] = {RollType::WHEEL, next};
+        }
     }
 }
 
 void Mesh::classifyFaces()
 {
-    // TODO: classify faces as F0/F1/F2
-    for (const Face& f : _hull->faces()) {
+    Eigen::Vector3d eigenCom(_com.x, _com.y, _com.z);
+    for (Face f : _hull->faces()) {
+        std::vector<Vertex> vertices;
+        for (Vertex v : f.adjacentVertices()) {
+            vertices.push_back(v);
+        }
+        std::vector<Edge> edges;
+        for (Edge e : f.adjacentEdges()) {
+            edges.push_back(e);
+        }
 
+        Vector3 v1Pos = _hullGeom->vertexPositions[vertices[0]];
+        Vector3 v2Pos = _hullGeom->vertexPositions[vertices[1]];
+        Vector3 v3Pos = _hullGeom->vertexPositions[vertices[2]];
+
+        Eigen::Vector3d v1(v1Pos[0], v1Pos[1], v1Pos[2]);
+        Eigen::Vector3d v2(v2Pos[0], v2Pos[1], v2Pos[2]);
+        Eigen::Vector3d v3(v3Pos[0], v3Pos[1], v3Pos[2]);
+        std::vector<Eigen::Vector3d> eigenVertices{v1, v2, v3};
+
+
+        Eigen::Hyperplane<double, 3> plane = Eigen::Hyperplane<double, 3>::Through(v1, v2, v3);
+        Eigen::Vector3d projectedCom = plane.projection(eigenCom);
+        Eigen::Vector3d edge12 = v2 - v1;
+        Eigen::Vector3d edge13 = v3 - v1;
+        Eigen::Vector3d crossProduct = edge12.cross(edge13);
+        double A = 0.5 * crossProduct.norm();
+
+        // 2. Calculate signed areas of the 3 sub-triangles formed with P
+        // Sub-triangles: (P, v2, v1), (P, v3, v2), (P, v1, v3)
+        double A1 = (v2 - projectedCom).cross(v1 - projectedCom).norm() * 0.5;
+        double A2 = (v3 - projectedCom).cross(v2 - projectedCom).norm() * 0.5;
+        double A3 = (v1 - projectedCom).cross(v3 - projectedCom).norm() * 0.5;
+        // TODO: add epsilon
+        // 3. Check if P is inside using the dot product with the main normal
+        // If the sub-triangle normal points the same way as the main normal, the point is "inside" that edge
+
+        bool check = (A1 / A) + (A2 / A) + (A3 / A) <= 1.0;
+        bool inside1 = (A1 / A) >= 0.0;
+        bool inside2 = (A2 / A) >= 0.0;
+        bool inside3 = (A3 / A) >= 0.0;
+        if (check && inside1 && inside2 && inside3) {
+            _faceTypes[f] = RollType::STABLE; // F0: Inside
+
+        } else {
+            // 4. Determine if it's a Hinge (F1) or Wheel (F2)
+            // It is a Hinge if it's "outside" an edge but within the Voronoi stripe of that edge
+            bool inStripe = false;
+            Edge nextE;
+            Vertex nextV;
+            Roll r;
+            double vertDist = INFINITY;
+
+            for (int i = 0; i < 3; i++) {
+                Eigen::Vector3d a = eigenVertices[i];
+                Eigen::Vector3d b = eigenVertices[(i + 1) % 3];
+                Eigen::Vector3d edgeDir = b - a;
+
+
+                // Scalar projection to find position along the infinite line of the edge
+                Eigen::ParametrizedLine<double, 3> edge = Eigen::ParametrizedLine<double, 3>::Through(v1, edgeDir.normalized());
+                Eigen::Vector3d projectedComOnEdge = edge.projection(projectedCom);
+                double t = (projectedComOnEdge - a).norm() / (b - a).norm();
+
+                // If it's outside this specific edge and 0 < t < 1, it's in the stripe
+                // We check if it's outside this edge specifically by re-checking the cross product sign
+                if ((t > 0 && t < 1)) {
+                    inStripe = true;
+                    //sets the hinge edge to the one that is in this strip
+                    nextE = edges[i];// TODO-- do we need to turn this into a face?
+                    _faceRoll[f] = Roll(RollType::HINGE, SurfacePoint(edges[i], t));
+                    break;
+                }
+                else{
+                    double vToCOM = (projectedCom-a).norm();
+                    //rolls onto a vertex -- which one? just the closest norm()?
+                    if((projectedCom-a).norm()<vertDist){
+                        vertDist = vToCOM;
+                        nextV = vertices[i];
+                    }
+                }
+            }
+            _faceRoll[f] = Roll(RollType::WHEEL, nextV);
+            _faceTypes[f] = inStripe ? RollType::HINGE : RollType::WHEEL;
+        }
     }
 }

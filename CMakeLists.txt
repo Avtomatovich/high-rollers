@@ -37,7 +37,7 @@ add_subdirectory(deps/eigen)
 add_subdirectory(deps/geometry-central)
 add_subdirectory(deps/polyscope)
 
-# Specifies libraries to be linked (Qt components, etc)
+find_package(Bullet REQUIRED)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
@@ -45,12 +45,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Eigen3::Eigen
     geometry-central
     polyscope
+    ${BULLET_LIBRARIES}
 )
 
 # This allows you to include libraries
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
+    ${BULLET_INCLUDE_DIRS}
 )
+
 
 # Set this flag to silence warnings on Windows
 if (MSVC OR MSYS OR MINGW)
