@@ -6,8 +6,8 @@
 
 struct Separatrix
 {
-    Vector3 n1, n2;
-    Face f1, f2;
+    Vector3 n1, n2; // saddle points/local maxima
+    Face f1, f2; // local minima
 };
 
 class GaussMap
@@ -15,12 +15,15 @@ class GaussMap
 public:
     GaussMap(Mesh& mesh);
 
+    void computeProb();
+
     std::vector<Vector3> traceGradient(const Vector3& n0);
 
     // Gauss map sampling helper
     Vector3 randomGaussNormal();
 
 private:
+    // // vars
     ManifoldSurfaceMesh& _hull;
     const VertexPositionGeometry& _geom;
 
@@ -31,16 +34,18 @@ private:
 
     VertexData<std::vector<Vector3>> _arcNormals;
 
-    std::vector<Face> _minima;
+    FaceData<double> _minima;
     VertexData<Vector3> _maxima;
     EdgeData<Vector3> _saddles;
 
+
+    // // funcs
+    // ray-arc/arc-arc intersection routine
     Vector3 rayArcInt(const Vector3& ns,
                       const Vector3& n,
                       const Vector3& n1,
                       const Vector3& n2);
 
-    // TODO: move MS complex logic to MS class
     std::vector<Separatrix> buildSeparatrix();
 
     // bounds-checking helpers
@@ -53,6 +58,13 @@ private:
     void computeMinima();
     void computeMaxima();
     void computeSaddles();
+
+    // spherical triangle area helper
+    double spheTriArea(const Vector3& a,
+                       const Vector3& b,
+                       const Vector3& c);
+
+    static constexpr double SPHERE_AREA = 4.0 * std::numbers::pi;
 };
 
 #endif // GAUSSMAP_H

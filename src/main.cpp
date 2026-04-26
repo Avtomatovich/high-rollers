@@ -52,8 +52,8 @@ int main(int argc, char *argv[])
     // create Gauss map instance
     GaussMap gaussMap(mesh);
 
-    // trace gradients from random initial orientation
-    gaussMap.traceGradient(gaussMap.randomGaussNormal());
+    // output stable face probabilties
+    gaussMap.computeProb();
 
     a.exit();
 }

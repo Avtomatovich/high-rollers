@@ -1,6 +1,5 @@
 #include "gaussmap.h"
 
-#include <numbers>
 
 #include "geometrycentral/utilities/utilities.h"
 
@@ -19,18 +18,14 @@ GaussMap::GaussMap(Mesh& mesh) :
 
 Vector3 GaussMap::randomGaussNormal()
 {
-    // generate random numbers from 0 to 1
+    // generate random numbers within [0, 1]
     double r1 = unitRand(), r2 = unitRand();
     // compute azimuthal (horizontal) angle
     double phi = 2.0 * std::numbers::pi * r1;
-    // compute xy-scaling factor (based on theta = acos(1 - 2 * r2))
+    // compute xy-scaling factor based on theta = acos(1 - 2 * r2)
     double factor = 2.0 * std::sqrt(r2 * (1.0 - r2));
     // sample random point on Gauss map (i.e. normal)
-    return {
-        factor * std::cos(phi),
-        factor * std::sin(phi),
-        1.0 - 2.0 * r2
-    };
+    return { factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 };
 }
 
 std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
@@ -93,7 +88,6 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
                     // n <- nNext
                     n = nNext;
                     // N = N union {n}
-                    // WARNING: do you need to avoid repeats?
                     N.push_back(n);
                     // elem = ElementWithNormal(n);
                     elem = elementWithNormal(n);
@@ -111,6 +105,7 @@ SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
 {
     // face normal check
     for (const Face& f : _hull.faces()) {
+        // TODO: add epsilon to equality check
         if (_geom.faceNormals[f] == n) {
             return SurfacePoint(f, Vector3::constant(1.0 / 3.0));
         }
@@ -212,9 +207,12 @@ void GaussMap::computeArcNormals()
 
 void GaussMap::computeMinima()
 {
+    // link list of per-face spherical polygon areas to hull
+    _minima = FaceData<double>(_hull, -std::numeric_limits<double>::infinity());
+
     for (const Face& f : _hull.faces()) {
         if (_faceRoll[f].type == RollType::STABLE) {
-            _minima.push_back(f);
+            _minima[f] = 0.0;
         }
     }
 }
@@ -243,7 +241,7 @@ void GaussMap::computeSaddles()
             // fetch endpoint coords
             const Vector3& xi = _geom.vertexPositions[e.firstVertex()];
             const Vector3& xj = _geom.vertexPositions[e.secondVertex()];
-            // compute normalized edge vector
+            // compute edge vector
             Vector3 vij = xj - xi;
             // project center of mass onto edge
             Vector3 cij = xi + dot((_c - xi), vij) / dot(vij, vij) * vij;
@@ -343,4 +341,38 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
 
     // return BN
     return BN;
+}
+
+void GaussMap::computeProb()
+{
+    std::vector<Separatrix> separatrices = buildSeparatrix();
+
+    // accumulate signed spherical triangle areas for stable faces
+    for (const Separatrix& s : separatrices) {
+        const Vector3& nf1 = _geom.faceNormals[s.f1];
+        const Vector3& nf2 = _geom.faceNormals[s.f2];
+        _minima[s.f1] += spheTriArea(nf1, s.n1, s.n2);
+        _minima[s.f2] += spheTriArea(nf2, s.n1, s.n2);
+    }
+
+    std::cout << "Odds of landing on each hull face: " << std::endl;
+
+    // normalize area sums to get probabilities
+    for (const Face& f : _hull.faces()) {
+        if (_faceRoll[f].type == RollType::STABLE) {
+            _minima[f] /= SPHERE_AREA;
+            std::cout << "  Prob of face " << f << ": " << _minima[f] << std::endl;
+        }
+    }
+
+    // reset after probability computation
+    computeMinima();
+}
+
+double GaussMap::spheTriArea(const Vector3& a,
+                             const Vector3& b,
+                             const Vector3& c)
+{
+    return 2.0 * atan2(dot(a, cross(b, c)),
+                       1.0 + dot(a, b) + dot(a, c) + dot(b, c));
 }

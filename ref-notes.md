@@ -266,17 +266,58 @@
   * Subroutine for intersections w/great arcs (edges b/n patches)
     * Using `rayArcInt`
 * FINALLY, $p_f = \frac{A_f}{4\pi}$
-  * Alternately, compute $A_f$ as sum of signed spherical triangle areas
-    * $A_f = \sum_i \Omega(\hat{n}, u_i, u_{i + 1})$
-      * $\Omega(\hat{n}, u_i, u_{i + 1})$ = signed area of spherical triangle w/vertices ${\hat{n}, u_i, u_{i + 1}}$
-      * $\hat{n}$ = any point on sphere (consider as origin), also is normal of face $f$
-      * How to compute signed spherical triangle areas?
-        * Use Girard's theorem!
-          * $A_t = A + B + C - \pi$
-            * $A, B, C$ are interior angles of spherical triangle
-              * i.e. angle made by sides of spherical triangle
-        * How to get interior angles of spherical triangle?
-          * TODO
+  * where $A_f$ is the area of ascending manifold
+    * Remember, ascending manifold is spherical patch around minima bounded by separatrices
+  * How to compute $A_f$?
+    * If ascending manifold is defined by vertices $[\hat{u}_1, \hat{u}_2, ..., \hat{u}_k]$, split into sum of signed spherical triangle areas:
+      * $A_f = \sum_i\Omega(\hat{n}, \hat{u}_i, \hat{u}_{i + 1})$
+        * where $\hat{n}$ is any point on sphere that is treated as origin
+          * IMPORTANT: for ascending manifold, **$\hat{n}$ is normal of stable face** (since face is local minima that manifold is centered at)
+    * Standard formula for spherical triangle is from Girard's theorem:
+      * $A = \alpha + \beta + \gamma - \pi$
+        * where $\alpha, \beta, \gamma$ are interior angles of triangle
+      * How to compute interior angles? Two ways:
+        * _Dihedral angles_
+          * Compute normals of planes that intersect at vertex
+          * Compute angle between normals
+          * Repeat for all vertices
+        * _Tangent method_
+          * Given vertices A, B, C, start from vertex, say, A
+          * Compute edge vectors from A, which are AB = B - A, and AC = C - A
+          * Extract tangential components from AB and AC, where A is normal
+            * $AB_t = AB - (AB \cdot A) A$
+            * $AC_t = AC - (AC \cdot A) A$
+          * Compute angle between tangential components
+            * $\theta_A = \arccos(\frac{AB_t \cdot AC_t}{||AB_t||\cdot||AC_t||})$
+          * Repeat for all vertices
+    * IMPROVEMENT: Recall the formula for solid angles: $\Omega = A / r^2$
+      * where $\Omega$ is solid angle with origin at sphere origin
+      * $A$ is surface area of spherical patch bounded by solid angle
+      * $r$ is radius of sphere
+    * For unit sphere, $\Omega = A$, so we can use solid angle formulae to compute spherical triangle area
+      * One example is L'Huilier's theorem:
+        * $4 \cdot \arctan\Bigg(\sqrt{\tan(\frac{\theta_S}{2}) \cdot tan(\frac{\theta_S - \theta_A}{2}) \cdot tan(\frac{\theta_S - \theta_B}{2}) \cdot tan(\frac{\theta_S - \theta_C}{2})}\Bigg)$
+          * where $\theta_A, \theta_B, \theta_C$ are interior angles of triangle
+          * $\theta_S = \frac{\theta_A + \theta_B + \theta_C}{2}$
+      * Better one proposed by Van Oosterom and Strackee [1983]
+        * $A = 2 \cdot \arctan\Bigg(\frac{\left|a \cdot (b \times c)\right|}{||a||\cdot||b||\cdot||c|| + (a \cdot b)\cdot||c|| + (a \cdot c)\cdot||b|| + (b \cdot c)\cdot||a||}\Bigg)$
+          * where $a, b, c$ are 3D coordinates of vertices of spherical triangle
+          * Note absolute value around numerator
+      * Even better one proposed by Eriksson [1990]
+        * Since Gauss map is unit sphere, $||a|| = ||b|| = ||c|| = 1$
+          * Simplify to $A = 2 \cdot \arctan\Bigg(\frac{\left|a \cdot (b \times c)\right|}{1 + (a \cdot b) + (a \cdot c) + (b \cdot c)}\Bigg)$
+        * In code,
+
+        ```cpp
+        double N = std::abs(a.dot(b.cross(c))); \\ numerator
+        double D = 1.0 + a.dot(b) + a.dot(c) + b.dot(c); \\ denominator
+        double area = 2.0 * atan2(N, D);
+        ```
+
+    * Basically, sweep around stable face normal at center of ascending manifold
+      * Compute signed spherical triangle area centered at face normal for each polygon vertex pair
+      * Sum them up, and _VOILA_, you have the area $A_f$ of a spherical polygon!
+* Divide $A_f$ by area of sphere $4\pi$, and you have probability of landing on face $f$!
 
 #### Special Cases
 
