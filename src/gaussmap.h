@@ -48,6 +48,11 @@ private:
 
     std::vector<Separatrix> buildSeparatrix();
 
+    // hinge-rolling helper
+    SurfacePoint nextFace(const SurfacePoint& elem, 
+                          const SurfacePoint& next, 
+                          const Vector3& n);
+
     // bounds-checking helpers
     SurfacePoint elementWithNormal(const Vector3& n);
     bool onGaussEdge(const Edge& e, const Vector3& n);

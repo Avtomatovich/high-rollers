@@ -64,7 +64,7 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
         if (roll.type == RollType::HINGE) {
             // Face that elem hinge-rolls onto
             // elem <- NextFace(elem)
-            elem = roll.next;
+            elem = nextFace(elem, roll.next, n);
             // A face normal
             // n <- Normal(elem)
             n = _geom.faceNormals[elem.face];
@@ -122,6 +122,37 @@ SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
     }
 
     return SurfacePoint();
+}
+
+SurfacePoint GaussMap::nextFace(const SurfacePoint& elem, 
+                                const SurfacePoint& next, 
+                                const Vector3& n)
+{
+    // fetch hinging edge
+    Edge e = (elem.type == SurfacePointType::Edge) ? elem.edge : next.edge;
+    
+    // fetch adjacent faces
+    const Face& f1 = e.halfedge().face();
+    const Face& f2 = e.halfedge().twin().face();
+    
+    // fetch adjacent face normals
+    const Vector3& nf1 = _geom.faceNormals[f1];
+    const Vector3& nf2 = _geom.faceNormals[f2];
+
+    // fetch vertex endpoint coords
+    const Vector3& x1 = _geom.vertexPositions[e.firstVertex()];
+    const Vector3& x2 = _geom.vertexPositions[e.secondVertex()];
+
+    // compute gradients weighted by delta = 0.5 for boundary arc points
+    Vector3 grad1 = 0.5 * (x1 - _c);
+    Vector3 grad2 = 0.5 * (x2 - _c);
+
+    // compute net gradient vector
+    Vector3 grad = unit(grad1 + grad2);
+
+    // return f1 if net gradient and vector from n to nf2 diverge, else f2
+    return SurfacePoint{(dot(grad, unit(nf2 - n)) < 0.0) ? f1 : f2, 
+                        Vector3::constant(1.0 / 3.0)};
 }
 
 Vector3 GaussMap::rayArcInt(const Vector3& ns,
