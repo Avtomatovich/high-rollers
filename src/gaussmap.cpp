@@ -105,8 +105,8 @@ SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
 {
     // face normal check
     for (const Face& f : _hull.faces()) {
-        // TODO: add epsilon to equality check
-        if (_geom.faceNormals[f] == n) {
+        const Vector3& nf = _geom.faceNormals[f];
+        if (norm(nf - n) <= EPS * std::min(norm(nf), norm(n))) {
             return SurfacePoint(f, Vector3::constant(1.0 / 3.0));
         }
     }
@@ -386,7 +386,7 @@ void GaussMap::computeProb()
         _minima[s.f2] += spheTriArea(nf2, s.n1, s.n2);
     }
 
-    std::cout << "Odds of landing on each hull face: " << std::endl;
+    std::cout << "Odds of stability for each hull face: " << std::endl;
 
     // normalize area sums to get probabilities
     for (const Face& f : _hull.faces()) {

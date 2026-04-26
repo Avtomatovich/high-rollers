@@ -69,6 +69,7 @@ private:
                        const Vector3& b,
                        const Vector3& c);
 
+    static constexpr double EPS = 1e-6;
     static constexpr double SPHERE_AREA = 4.0 * std::numbers::pi;
 };
 
