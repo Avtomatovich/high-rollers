@@ -18,6 +18,9 @@ find_package(Qt6 REQUIRED COMPONENTS Core)
 find_package(Qt6 REQUIRED COMPONENTS Gui)
 find_package(Qt6 REQUIRED COMPONENTS Xml)
 
+include_directories(src)
+include_directories(deps)
+
 # Specifies .cpp and .h files to be passed to the compiler
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -27,37 +30,52 @@ add_executable(${PROJECT_NAME}
 
     src/util/quickhull/Quickhull.cpp
 
-    src/mesh.h 
+    src/mesh.h
     src/mesh.cpp
-    src/gaussmap.h 
+    src/gaussmap.h
     src/gaussmap.cpp
 )
 
-add_subdirectory(deps/eigen)
+set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+set(WITH_QHULL_TESTS OFF CACHE BOOL "" FORCE)
+set(WITH_QHULL_TOOLS OFF CACHE BOOL "" FORCE)
+
 add_subdirectory(deps/geometry-central)
 add_subdirectory(deps/polyscope)
+
+# Toggle AUTOMOC for qhull to prevent build errors if qhull doesn't support it
+set(CMAKE_AUTOMOC OFF)
+add_subdirectory(deps/qhull)
+set(CMAKE_AUTOMOC ON)
 
 # Specifies libraries to be linked (Qt components, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt::Core
     Qt::Gui
     Qt::Xml
-    Eigen3::Eigen
     geometry-central
     polyscope
+    qhullcpp
+    qhull_r
 )
 
-# This allows you to include libraries
-target_include_directories(${PROJECT_NAME} PRIVATE
-    src
+# This allows you to `#include "Eigen/..."`
+target_include_directories(${PROJECT_NAME} PRIVATE BEFORE
+    deps/eigen
+    deps/geometry-central
+    deps/qhull/src/libqhullcpp
+    deps/qhull/src
 )
 
-# Set this flag to silence warnings on Windows
+target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/deps/polyscope/deps/args")
+
+# Set flags to silence warnings
 if (MSVC OR MSYS OR MINGW)
   set(CMAKE_CXX_FLAGS "-Wno-volatile")
 endif()
 
-# Set this flag to silence warnings on MacOS
 if (APPLE)
   set(CMAKE_CXX_FLAGS "-Wno-deprecated-volatile")
 endif()
