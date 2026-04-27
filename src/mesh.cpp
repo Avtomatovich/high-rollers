@@ -69,8 +69,8 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
 
 void Mesh::visualizeEdgeTypes() {
     // 1. Clear existing structures to avoid buffer conflicts
-    polyscope::removeStructure("Wheel Edges");
-    polyscope::removeStructure("Hinge Edges");
+    polyscope::removeStructure("wheel edges");
+    polyscope::removeStructure("hinge edges");
 
     std::vector<glm::vec3> nodePositions;
     for (Vertex v : _hull->vertices()) {
@@ -95,14 +95,14 @@ void Mesh::visualizeEdgeTypes() {
     // 2. Only register if there is actually data to show
     // Polyscope sometimes throws 'inconsistent size' errors if you pass an empty edge list
     if (!wheelEdges.empty()) {
-        auto *psWheel = polyscope::registerCurveNetwork("Wheel Edges", nodePositions, wheelEdges);
+        auto *psWheel = polyscope::registerCurveNetwork("wheel edges", nodePositions, wheelEdges);
         psWheel->setEnabled(true);
         psWheel->setColor({1.0, 0.0, 0.0});
         psWheel->setRadius(0.005);
     }
 
     if (!hingeEdges.empty()) {
-        auto *psHinge = polyscope::registerCurveNetwork("Hinge Edges", nodePositions, hingeEdges);
+        auto *psHinge = polyscope::registerCurveNetwork("hinge edges", nodePositions, hingeEdges);
         psHinge->setEnabled(true);
         psHinge->setColor({0.0, 1.0, 0.0});
         psHinge->setRadius(0.005);
@@ -114,6 +114,7 @@ void Mesh::show()
     polyscope::init();
 
     // // NORMAL TRANSFORMS
+
     // TODO: sequence the outputs
     // for (size_t i = 0; i < normals.size(); i++) {
     //     polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
@@ -136,21 +137,21 @@ void Mesh::show()
     // psmesh->setTransform(t);
     // pshull->setTransform(t);
 
-    // // CLASSIFICATION HIGHLIGHTS
+
+    // // CLASSIFICATION HIGHLIGHTING
+
     // polyscope::registerSurfaceMesh("mesh",
     //                                _meshGeom->vertexPositions,
     //                                _mesh->getFaceVertexList());
     std::vector<glm::vec3> points;
-    computeCenterOfMass();
     points.push_back(glm::vec3(_com.x, _com.y, _com.z));
-    polyscope::PointCloud* psCloud = polyscope::registerPointCloud("really great points", points);
+    polyscope::PointCloud *psCloud = polyscope::registerPointCloud("center of mass", points);
     psCloud->setPointRadius(0.02);
     psCloud->setPointRenderMode(polyscope::PointRenderMode::Quad);
     polyscope::registerSurfaceMesh("hull",
                                    _hullGeom->vertexPositions,
                                    _hull->getFaceVertexList());
-    classifyEdges();
-    classifyFaces();
+
     std::vector<glm::vec3> faceColors;
     for (Face f: _hull->faces()) {
         if (_faceRoll[f].type == RollType::STABLE) {
@@ -161,7 +162,8 @@ void Mesh::show()
             faceColors.push_back({0.0, 0.0, 1.0});
         }
     }
-    polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("faceTypes", faceColors);
+
+    polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("face types", faceColors);
     polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
     visualizeEdgeTypes();
     
@@ -173,15 +175,15 @@ void Mesh::computeCenterOfMass()
     double totalVolume = 0.0;
     _com = Vector3::zero();
 
-    for (Face f : _mesh->faces()) {
+    for (const Face& f : _mesh->faces()) {
         // Get the 3 vertices of this triangle via halfedge traversal
         Halfedge he = f.halfedge();
-        Vector3 a = _meshGeom->vertexPositions[he.vertex()];
-        Vector3 b = _meshGeom->vertexPositions[he.next().vertex()];
-        Vector3 c = _meshGeom->vertexPositions[he.next().next().vertex()];
+        const Vector3& a = _meshGeom->vertexPositions[he.vertex()];
+        const Vector3& b = _meshGeom->vertexPositions[he.next().vertex()];
+        const Vector3& c = _meshGeom->vertexPositions[he.next().next().vertex()];
 
         // Signed volume of tetrahedron (a, b, c, origin)
-        // = (1/6) * a · (b × c)
+        // = (1 / 6) * a · (b × c)
         double signedVol = dot(a, cross(b, c)) / 6.0;
         totalVolume += signedVol;
 

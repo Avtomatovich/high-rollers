@@ -311,7 +311,7 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
         // Resting face starting from f1
         // f*1 <- DestinedFace(f1)
         // f*2 <- DestinedFace(f2)
-        // WARNING: check this is correct, likely bugs from no type checks
+        // WARNING: no enum type checks done for faces here
         Face fs1 = elementWithNormal(traceGradient(_geom.faceNormals[f1]).back()).face;
         Face fs2 = elementWithNormal(traceGradient(_geom.faceNormals[f2]).back()).face;
 

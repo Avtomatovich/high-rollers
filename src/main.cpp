@@ -46,14 +46,14 @@ int main(int argc, char *argv[])
     // create mesh instance
     Mesh mesh(args[0].toStdString(), com, !ok);
 
-    // display mesh and hull
-    mesh.show();
-
     // create Gauss map instance
     GaussMap gaussMap(mesh);
 
     // output stable face probabilties
     gaussMap.computeProb();
+
+    // display mesh and hull
+    // mesh.show();
 
     a.exit();
 }
