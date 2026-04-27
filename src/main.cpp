@@ -25,24 +25,24 @@ int main(int argc, char *argv[])
         a.exit(1);
         return 1;
     }
-    
+
     // init bool for valid center of mass param
     bool ok = false;
-    
+
     // parse center of mass coords
     Vector3 com;
     if (args.size() >= 4) {
         for (int i = 1; i < 4; i++) {
             args[i].toFloat(&ok);
             if (!ok) {
-                char pos = i == 1 ? 'x' : i == 2 ? 'y' : 'z'; 
+                char pos = i == 1 ? 'x' : i == 2 ? 'y' : 'z';
                 std::cerr << "Invalid " << pos << "-coord param." << std::endl;
                 break;
-            } 
+            }
             com[i] = args[i].toFloat();
         }
     }
-    
+
     // create mesh instance
     Mesh mesh(args[0].toStdString(), com, !ok);
 
@@ -54,6 +54,6 @@ int main(int argc, char *argv[])
 
     // display mesh and hull
     // mesh.show();
-
+    gaussMap.visualizeGaussMap();
     a.exit();
 }

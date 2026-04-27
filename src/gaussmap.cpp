@@ -2,6 +2,10 @@
 
 
 #include "geometrycentral/utilities/utilities.h"
+#include "polyscope/polyscope.h"
+#include "polyscope/point_cloud.h"
+#include "polyscope/curve_network.h"
+#include "polyscope/surface_mesh.h"
 
 GaussMap::GaussMap(Mesh& mesh) :
     _hull(mesh.getHull()),
@@ -15,6 +19,7 @@ GaussMap::GaussMap(Mesh& mesh) :
     computeMaxima();
     computeSaddles();
 }
+
 
 Vector3 GaussMap::randomGaussNormal()
 {
@@ -53,8 +58,8 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
     // define rolling lambda
     auto rolling = [&]() {
         return (elem.type == SurfacePointType::Edge) ?
-                    _edgeRoll[elem.edge] : (elem.type == SurfacePointType::Face) ?
-                        _faceRoll[elem.face] : Roll{ RollType::WHEEL, elem };
+                   _edgeRoll[elem.edge] : (elem.type == SurfacePointType::Face) ?
+                                                           _faceRoll[elem.face] : Roll{ RollType::WHEEL, elem };
     };
 
     // while elem is not stable face do
@@ -123,17 +128,17 @@ SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
     return SurfacePoint();
 }
 
-SurfacePoint GaussMap::nextFace(const SurfacePoint& elem, 
-                                const SurfacePoint& next, 
+SurfacePoint GaussMap::nextFace(const SurfacePoint& elem,
+                                const SurfacePoint& next,
                                 const Vector3& n)
 {
     // fetch hinging edge
     Edge e = (elem.type == SurfacePointType::Edge) ? elem.edge : next.edge;
-    
+
     // fetch adjacent faces
     const Face& f1 = e.halfedge().face();
     const Face& f2 = e.halfedge().twin().face();
-    
+
     // fetch adjacent face normals
     const Vector3& nf1 = _geom.faceNormals[f1];
     const Vector3& nf2 = _geom.faceNormals[f2];
@@ -150,7 +155,7 @@ SurfacePoint GaussMap::nextFace(const SurfacePoint& elem,
     Vector3 grad = unit(grad1 + grad2);
 
     // return f1 if net gradient and vector from n to nf2 diverge, else f2
-    return SurfacePoint{(dot(grad, unit(nf2 - n)) < 0.0) ? f1 : f2, 
+    return SurfacePoint{(dot(grad, unit(nf2 - n)) < 0.0) ? f1 : f2,
                         Vector3::constant(1.0 / 3.0)};
 }
 
@@ -405,4 +410,158 @@ double GaussMap::spheTriArea(const Vector3& a,
 {
     return 2.0 * atan2(dot(a, cross(b, c)),
                        1.0 + dot(a, b) + dot(a, c) + dot(b, c));
+}
+
+void GaussMap::visualizeGaussMap() {
+    polyscope::init();
+
+    // ── GAUSS PATCH SURFACE ──
+    // Each hull vertex → one spherical polygon on the unit sphere.
+    // Triangulate as a fan from the first corner.
+
+    std::vector<glm::vec3>            sphereVerts;
+    std::vector<std::vector<size_t>>  sphereFaces;
+    std::vector<glm::vec3>            faceColors;
+
+    // Color palette per patch (cycles if more vertices than colors)
+    std::vector<glm::vec3> palette = {
+        {0.93f, 0.40f, 0.40f}, // red
+        {0.40f, 0.75f, 0.93f}, // blue
+        {0.45f, 0.88f, 0.55f}, // green
+        {0.97f, 0.78f, 0.35f}, // orange
+        {0.75f, 0.50f, 0.93f}, // purple
+        {0.93f, 0.93f, 0.40f}, // yellow
+        {0.93f, 0.55f, 0.75f}, // pink
+        {0.40f, 0.90f, 0.85f}, // cyan
+    };
+
+    const int SLERP_STEPS = 12; // subdivisions per patch edge
+
+    size_t vertexIdx = 0;
+    for (const Vertex& v : _hull.vertices()) {
+
+        // Collect face normals around this vertex (projected to unit sphere)
+        std::vector<Eigen::Vector3d> corners;
+        for (const Face& f : v.adjacentFaces()) {
+            Vector3 nf = _geom.faceNormals[f];
+            Eigen::Vector3d en(nf.x, nf.y, nf.z);
+            corners.push_back(en.normalized());
+        }
+
+        int deg = (int)corners.size();
+
+        // For each edge of the patch, generate a slerp'd arc of points
+        // Then triangulate as a fan from corners[0]
+        for (int i = 1; i + 1 < deg; i++) {
+            // Fan triangle: corners[0], arc(corners[i], corners[i+1])
+            // We tessellate the curved triangle with a grid
+
+            auto slerp = [](const Eigen::Vector3d& a,
+                            const Eigen::Vector3d& b,
+                            double t) -> Eigen::Vector3d {
+                double omega = std::acos(std::clamp(a.dot(b), -1.0, 1.0));
+                if (omega < 1e-8) return a;
+                return (std::sin((1-t)*omega)*a + std::sin(t*omega)*b) / std::sin(omega);
+            };
+
+            // Subdivide the spherical triangle (corners[0], corners[i], corners[i+1])
+            int N = SLERP_STEPS;
+            size_t baseIdx = sphereVerts.size();
+
+            // Build an (N+1)×(N+1) grid of points on the spherical triangle
+            // using barycentric-style subdivision on the sphere
+            for (int s = 0; s <= N; s++) {
+                for (int t2 = 0; t2 <= N - s; t2++) {
+                    double u = (double)s / N;
+                    double v2 = (double)t2 / N;
+                    double w = 1.0 - u - v2;
+
+                    // Spherical barycentric interpolation:
+                    // slerp along each edge, then blend
+                    Eigen::Vector3d p =
+                        (w * corners[0] + u * corners[i] + v2 * corners[i+1])
+                            .normalized();
+
+                    sphereVerts.push_back({(float)p.x(), (float)p.y(), (float)p.z()});
+                }
+            }
+
+            // Stitch quads/tris from the grid
+            glm::vec3 col = palette[vertexIdx % palette.size()];
+            auto idx = [&](int s, int t2) -> size_t {
+                // row s starts at offset s*(N+1) - s*(s-1)/2
+                size_t offset = 0;
+                for (int r = 0; r < s; r++) offset += (N - r + 1);
+                return baseIdx + offset + t2;
+            };
+
+            for (int s = 0; s < N; s++) {
+                for (int t2 = 0; t2 < N - s; t2++) {
+                    // lower triangle
+                    sphereFaces.push_back({ idx(s,t2), idx(s+1,t2), idx(s,t2+1) });
+                    faceColors.push_back(col);
+                    // upper triangle (if exists)
+                    if (s + t2 + 2 <= N) {
+                        sphereFaces.push_back({ idx(s+1,t2), idx(s+1,t2+1), idx(s,t2+1) });
+                        faceColors.push_back(col);
+                    }
+                }
+            }
+        }
+        vertexIdx++;
+    }
+
+    auto* psSphere = polyscope::registerSurfaceMesh(
+        "gauss map", sphereVerts, sphereFaces);
+    psSphere->addFaceColorQuantity("patch colors", faceColors)->setEnabled(true);
+    psSphere->setTransparency(0.85f);
+    psSphere->setEdgeWidth(0.5f);
+
+    // ── GAUSS EDGE ARCS (great arcs between adjacent patches) ──
+    std::vector<glm::vec3>           arcNodes;
+    std::vector<std::array<size_t,2>> arcEdges;
+    const int ARC_STEPS = 24;
+
+    for (const Edge& e : _hull.edges()) {
+        Vector3 nf1 = _geom.faceNormals[e.halfedge().face()];
+        Vector3 nf2 = _geom.faceNormals[e.halfedge().twin().face()];
+        Eigen::Vector3d a(nf1.x, nf1.y, nf1.z); a.normalize();
+        Eigen::Vector3d b(nf2.x, nf2.y, nf2.z); b.normalize();
+
+        double omega = std::acos(std::clamp(a.dot(b), -1.0, 1.0));
+        size_t base = arcNodes.size();
+        for (int i = 0; i <= ARC_STEPS; i++) {
+            double t = (double)i / ARC_STEPS;
+            Eigen::Vector3d p = (omega < 1e-8)
+                                    ? a
+                                    : (std::sin((1-t)*omega)*a + std::sin(t*omega)*b) / std::sin(omega);
+            arcNodes.push_back({(float)p.x(), (float)p.y(), (float)p.z()});
+        }
+        for (int i = 0; i < ARC_STEPS; i++)
+            arcEdges.push_back({ base+i, base+i+1 });
+    }
+
+    if (!arcNodes.empty()) {
+        auto* psArc = polyscope::registerCurveNetwork("gauss edges", arcNodes, arcEdges);
+        psArc->setColor({0.15f, 0.15f, 0.15f});
+        psArc->setRadius(0.004f);
+    }
+
+    // ── SADDLE POINTS ──
+    std::vector<glm::vec3> saddlePts;
+    for (const Edge& e : _hull.edges()) {
+        if (_saddles[e] != Vector3::undefined()) {
+            Vector3 s = _saddles[e];
+            Eigen::Vector3d es(s.x, s.y, s.z);
+            es.normalize();
+            saddlePts.push_back({(float)es.x(), (float)es.y(), (float)es.z()});
+        }
+    }
+    if (!saddlePts.empty()) {
+        auto* psSaddle = polyscope::registerPointCloud("saddle points", saddlePts);
+        psSaddle->setPointRadius(0.018f);
+        psSaddle->setPointColor({1.0f, 0.2f, 0.2f});
+    }
+
+    polyscope::show();
 }

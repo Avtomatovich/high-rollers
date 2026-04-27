@@ -2,6 +2,7 @@
 #define GAUSSMAP_H
 
 #include "mesh.h"
+#include <numbers>
 
 
 struct Separatrix
@@ -21,6 +22,7 @@ public:
 
     // Gauss map sampling helper
     Vector3 randomGaussNormal();
+    void visualizeGaussMap();
 
 private:
     // // vars
