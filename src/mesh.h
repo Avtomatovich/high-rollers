@@ -63,6 +63,7 @@ private:
     FaceData<Roll> _faceRoll;
 
     void computeCenterOfMass();
+    void visualizeEdgeTypes();
 
     void classify();
     void classifyEdges();

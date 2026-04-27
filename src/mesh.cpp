@@ -6,8 +6,12 @@
 
 #include "polyscope/polyscope.h"
 #include "polyscope/surface_mesh.h"
+#include "polyscope/point_cloud.h"
+#include "polyscope/curve_network.h"
 
 #include "util/quickhull/QuickHull.hpp"
+
+#include <Eigen/Geometry>
 
 Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     _com(com)
@@ -63,10 +67,53 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     classify();
 }
 
+void Mesh::visualizeEdgeTypes() {
+    // 1. Clear existing structures to avoid buffer conflicts
+    polyscope::removeStructure("Wheel Edges");
+    polyscope::removeStructure("Hinge Edges");
+
+    std::vector<glm::vec3> nodePositions;
+    for (Vertex v : _hull->vertices()) {
+        Vector3 p = _hullGeom->vertexPositions[v];
+        nodePositions.push_back({(float)p.x, (float)p.y, (float)p.z});
+    }
+
+    std::vector<std::array<size_t, 2>> wheelEdges;
+    std::vector<std::array<size_t, 2>> hingeEdges;
+
+    for (Edge e : _hull->edges()) {
+        size_t u = e.halfedge().vertex().getIndex();
+        size_t v = e.halfedge().twin().vertex().getIndex();
+
+        if (_edgeRoll[e].type == RollType::WHEEL) {
+            wheelEdges.push_back({u, v});
+        } else if (_edgeRoll[e].type == RollType::HINGE) {
+            hingeEdges.push_back({u, v});
+        }
+    }
+
+    // 2. Only register if there is actually data to show
+    // Polyscope sometimes throws 'inconsistent size' errors if you pass an empty edge list
+    if (!wheelEdges.empty()) {
+        auto *psWheel = polyscope::registerCurveNetwork("Wheel Edges", nodePositions, wheelEdges);
+        psWheel->setEnabled(true);
+        psWheel->setColor({1.0, 0.0, 0.0});
+        psWheel->setRadius(0.005);
+    }
+
+    if (!hingeEdges.empty()) {
+        auto *psHinge = polyscope::registerCurveNetwork("Hinge Edges", nodePositions, hingeEdges);
+        psHinge->setEnabled(true);
+        psHinge->setColor({0.0, 1.0, 0.0});
+        psHinge->setRadius(0.005);
+    }
+}
+
 void Mesh::show()
 {
     polyscope::init();
 
+    // // NORMAL TRANSFORMS
     // TODO: sequence the outputs
     // for (size_t i = 0; i < normals.size(); i++) {
     //     polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
@@ -77,24 +124,74 @@ void Mesh::show()
     //     ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
     // }
 
-    polyscope::SurfaceMesh *psmesh =
-            polyscope::registerSurfaceMesh("mesh",
-                                           _meshGeom->vertexPositions,
-                                           _mesh->getFaceVertexList());
-    polyscope::SurfaceMesh *pshull =
-            polyscope::registerSurfaceMesh("hull",
-                                           _hullGeom->vertexPositions,
-                                           _hull->getFaceVertexList());
-    glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d::Constant(0.5)));
-    psmesh->setTransform(t);
-    pshull->setTransform(t);
+    // polyscope::SurfaceMesh *psmesh =
+    //         polyscope::registerSurfaceMesh("mesh",
+    //                                        _meshGeom->vertexPositions,
+    //                                        _mesh->getFaceVertexList());
+    // polyscope::SurfaceMesh *pshull =
+    //         polyscope::registerSurfaceMesh("hull",
+    //                                        _hullGeom->vertexPositions,
+    //                                        _hull->getFaceVertexList());
+    // glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d::Constant(0.5)));
+    // psmesh->setTransform(t);
+    // pshull->setTransform(t);
 
+    // // CLASSIFICATION HIGHLIGHTS
+    // polyscope::registerSurfaceMesh("mesh",
+    //                                _meshGeom->vertexPositions,
+    //                                _mesh->getFaceVertexList());
+    std::vector<glm::vec3> points;
+    computeCenterOfMass();
+    points.push_back(glm::vec3(_com.x, _com.y, _com.z));
+    polyscope::PointCloud* psCloud = polyscope::registerPointCloud("really great points", points);
+    psCloud->setPointRadius(0.02);
+    psCloud->setPointRenderMode(polyscope::PointRenderMode::Quad);
+    polyscope::registerSurfaceMesh("hull",
+                                   _hullGeom->vertexPositions,
+                                   _hull->getFaceVertexList());
+    classifyEdges();
+    classifyFaces();
+    std::vector<glm::vec3> faceColors;
+    for (Face f: _hull->faces()) {
+        if (_faceRoll[f].type == RollType::STABLE) {
+            faceColors.push_back({1.0, 0.0, 0.0});
+        } else if (_faceRoll[f].type == RollType::HINGE) {
+            faceColors.push_back({0.0, 1.0, 0.0});
+        } else if (_faceRoll[f].type == RollType::WHEEL) {
+            faceColors.push_back({0.0, 0.0, 1.0});
+        }
+    }
+    polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("faceTypes", faceColors);
+    polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
+    visualizeEdgeTypes();
+    
     polyscope::show();
 }
 
 void Mesh::computeCenterOfMass()
 {
-    // TODO: compute using mesh, NOT hull
+    double totalVolume = 0.0;
+    _com = Vector3::zero();
+
+    for (Face f : _mesh->faces()) {
+        // Get the 3 vertices of this triangle via halfedge traversal
+        Halfedge he = f.halfedge();
+        Vector3 a = _meshGeom->vertexPositions[he.vertex()];
+        Vector3 b = _meshGeom->vertexPositions[he.next().vertex()];
+        Vector3 c = _meshGeom->vertexPositions[he.next().next().vertex()];
+
+        // Signed volume of tetrahedron (a, b, c, origin)
+        // = (1/6) * a · (b × c)
+        double signedVol = dot(a, cross(b, c)) / 6.0;
+        totalVolume += signedVol;
+
+        // Centroid of this tet is (a + b + c) / 4
+        // weighted by its signed volume
+        _com += (a + b + c) * signedVol;
+    }
+
+    // divide by 4 (tet centroid denominator) and totalVolume
+    _com /= (4.0 * totalVolume);
 
 }
 
