@@ -48,7 +48,7 @@ public:
     inline const FaceData<Roll>& getFaceRoll() const { return _faceRoll; }
 
     // viewing func
-    void show();
+    void show(std::vector<Vector3> N);
 
 private:
     std::unique_ptr<SurfaceMesh> _mesh;
@@ -69,7 +69,7 @@ private:
     void classifyEdges();
     void classifyFaces();
 
-    Eigen::Matrix4d normalToTransform(const Eigen::Vector3d& n);
+    Eigen::Matrix4d normalToTransform(const Vector3& n);
     static glm::mat4 eigenToGlm(const Eigen::Matrix4d& T);
 };
 

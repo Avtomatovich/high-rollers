@@ -109,21 +109,22 @@ void Mesh::visualizeEdgeTypes() {
     }
 }
 
-void Mesh::show()
+void Mesh::show(std::vector<Vector3> normals)
 {
     polyscope::init();
+
 
     // // NORMAL TRANSFORMS
 
     // TODO: sequence the outputs
-    // for (size_t i = 0; i < normals.size(); i++) {
-    //     polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
-    //         "mesh_" + std::to_string(i),          // unique name per orientation
-    //         _meshGeom->vertexPositions,
-    //         _mesh->getFaceVertexList()
-    //     );
-    //     ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
-    // }
+    for (size_t i = 0; i < normals.size(); i++) {
+        polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
+            "mesh_" + std::to_string(i),          // unique name per orientation
+            _meshGeom->vertexPositions,
+            _mesh->getFaceVertexList()
+        );
+        ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
+    }
 
     // polyscope::SurfaceMesh *psmesh =
     //         polyscope::registerSurfaceMesh("mesh",
@@ -133,7 +134,7 @@ void Mesh::show()
     //         polyscope::registerSurfaceMesh("hull",
     //                                        _hullGeom->vertexPositions,
     //                                        _hull->getFaceVertexList());
-    // glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d::Constant(0.5)));
+    // //glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d(0.5,0.5, 0.5)));
     // psmesh->setTransform(t);
     // pshull->setTransform(t);
 
@@ -143,29 +144,29 @@ void Mesh::show()
     // polyscope::registerSurfaceMesh("mesh",
     //                                _meshGeom->vertexPositions,
     //                                _mesh->getFaceVertexList());
-    std::vector<glm::vec3> points;
-    points.push_back(glm::vec3(_com.x, _com.y, _com.z));
-    polyscope::PointCloud *psCloud = polyscope::registerPointCloud("center of mass", points);
-    psCloud->setPointRadius(0.02);
-    psCloud->setPointRenderMode(polyscope::PointRenderMode::Quad);
-    polyscope::registerSurfaceMesh("hull",
-                                   _hullGeom->vertexPositions,
-                                   _hull->getFaceVertexList());
+    // std::vector<glm::vec3> points;
+    // points.push_back(glm::vec3(_com.x, _com.y, _com.z));
+    // polyscope::PointCloud *psCloud = polyscope::registerPointCloud("center of mass", points);
+    // psCloud->setPointRadius(0.02);
+    // psCloud->setPointRenderMode(polyscope::PointRenderMode::Quad);
+    // polyscope::registerSurfaceMesh("hull",
+    //                                _hullGeom->vertexPositions,
+    //                                _hull->getFaceVertexList());
 
-    std::vector<glm::vec3> faceColors;
-    for (Face f: _hull->faces()) {
-        if (_faceRoll[f].type == RollType::STABLE) {
-            faceColors.push_back({1.0, 0.0, 0.0});
-        } else if (_faceRoll[f].type == RollType::HINGE) {
-            faceColors.push_back({0.0, 1.0, 0.0});
-        } else if (_faceRoll[f].type == RollType::WHEEL) {
-            faceColors.push_back({0.0, 0.0, 1.0});
-        }
-    }
+    // std::vector<glm::vec3> faceColors;
+    // for (Face f: _hull->faces()) {
+    //     if (_faceRoll[f].type == RollType::STABLE) {
+    //         faceColors.push_back({1.0, 0.0, 0.0});
+    //     } else if (_faceRoll[f].type == RollType::HINGE) {
+    //         faceColors.push_back({0.0, 1.0, 0.0});
+    //     } else if (_faceRoll[f].type == RollType::WHEEL) {
+    //         faceColors.push_back({0.0, 0.0, 1.0});
+    //     }
+    // }
 
-    polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("face types", faceColors);
-    polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
-    visualizeEdgeTypes();
+    // polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("face types", faceColors);
+    // polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
+    // visualizeEdgeTypes();
     
     polyscope::show();
 }
@@ -198,8 +199,9 @@ void Mesh::computeCenterOfMass()
 }
 
 // Helper function to convert a normal vector into a mesh orientation
-Eigen::Matrix4d Mesh::normalToTransform(const Eigen::Vector3d& n)
+Eigen::Matrix4d Mesh::normalToTransform(const Vector3& norm)
 {
+    Eigen::Vector3d n(norm.x, norm.y, norm.z);
     Eigen::Quaterniond q =
             Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), n);
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();

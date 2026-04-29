@@ -26,7 +26,7 @@ Vector3 GaussMap::randomGaussNormal()
     // generate random numbers within [0, 1]
     double r1 = unitRand(), r2 = unitRand();
     // compute azimuthal (horizontal) angle
-    double phi = 2.0 * std::numbers::pi * r1;
+    double phi = 2.0 * M_PI * r1;
     // compute xy-scaling factor based on theta = acos(1 - 2 * r2)
     double factor = 2.0 * std::sqrt(r2 * (1.0 - r2));
     // sample random point on Gauss map (i.e. normal)
@@ -107,25 +107,26 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
 
 SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
 {
-    // face normal check
     for (const Face& f : _hull.faces()) {
         const Vector3& nf = _geom.faceNormals[f];
-        if (norm(nf - n) <= EPS * std::min(norm(nf), norm(n))) {
+        if (norm(nf - n) <= EPS * std::min(norm(nf), norm(n)))
             return SurfacePoint(f, Vector3::constant(1.0 / 3.0));
-        }
     }
-
-    // edge normal check (between face normals)
     for (const Edge& e : _hull.edges()) {
         if (onGaussEdge(e, n)) return SurfacePoint(e, 0.5);
     }
-
-    // vertex normal check
     for (const Vertex& v : _hull.vertices()) {
         if (onGaussPatch(v, n)) return SurfacePoint(v);
     }
 
-    return SurfacePoint();
+    // Fallback: snap to nearest vertex (boundary numerical drift)
+    Vertex best;
+    double bestDist = std::numeric_limits<double>::infinity();
+    for (const Vertex& v : _hull.vertices()) {
+        double d = angle(_geom.vertexNormals[v], n);
+        if (d < bestDist) { bestDist = d; best = v; }
+    }
+    return SurfacePoint(best);
 }
 
 SurfacePoint GaussMap::nextFace(const SurfacePoint& elem,
@@ -183,23 +184,27 @@ Vector3 GaussMap::rayArcInt(const Vector3& ns,
 
 bool GaussMap::onGaussEdge(const Edge& e, const Vector3& n)
 {
-    // fetch face normal
     const Face& f1 = e.halfedge().face();
+    const Face& f2 = e.halfedge().twin().face();
     const Vector3& nf1 = _geom.faceNormals[f1];
-    // check angle between nf1 and n lies between nf1 and nf2
-    return angle(nf1, n) < _geom.edgeDihedralAngles[e];
+    const Vector3& nf2 = _geom.faceNormals[f2];
+
+    // n must lie on the great circle arc between nf1 and nf2:
+    // 1. coplanar with nf1 and nf2 (triple product ≈ 0)
+    // 2. angle from nf1 is within the dihedral span
+    double tripleProduct = dot(n, cross(nf1, nf2));
+    double angleTo = angle(nf1, n);
+    double arcSpan = _geom.edgeDihedralAngles[e];
+
+    return std::abs(tripleProduct) < EPS && angleTo <= arcSpan + EPS;
 }
 
 bool GaussMap::onGaussPatch(const Vertex& v, const Vector3& n)
 {
-    // fetch arc normals
     const std::vector<Vector3>& na = _arcNormals[v];
-    // check dot prod of n with arc normals
-    bool orientation = std::signbit(dot(na[0], n));
-    for (int i = 1; i < na.size(); i++) {
-        if (std::signbit(dot(na[i], n)) != orientation) {
+    for (int i = 0; i < na.size(); i++) {
+        if (dot(na[i], n) < -EPS)  // allow boundary tolerance
             return false;
-        }
     }
     return true;
 }
@@ -281,7 +286,9 @@ void GaussMap::computeSaddles()
             // project center of mass onto edge
             Vector3 cij = xi + dot((_c - xi), vij) / dot(vij, vij) * vij;
             // compute vector from projection to center of mass
-            Vector3 nij = _c - cij;
+            //NORMALIZE HERE??
+            Vector3 nij = unit(_c - cij);
+
             // add as saddle point if on Gauss edge
             if (onGaussEdge(e, nij)) _saddles[e] = nij;
         }

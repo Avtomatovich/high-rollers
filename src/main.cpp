@@ -50,10 +50,12 @@ int main(int argc, char *argv[])
     GaussMap gaussMap(mesh);
 
     // output stable face probabilties
-    gaussMap.computeProb();
+    //gaussMap.computeProb();
 
     // display mesh and hull
-    // mesh.show();
-    gaussMap.visualizeGaussMap();
+    Vector3 initialN= gaussMap.randomGaussNormal();
+    std::vector<Vector3> orientations = gaussMap.traceGradient(initialN);
+     mesh.show(orientations);
+    //gaussMap.visualizeGaussMap();
     a.exit();
 }
