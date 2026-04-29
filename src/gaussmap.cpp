@@ -48,14 +48,7 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
     //      prioritizing faces, then edges, when the normal is shared.
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
-    if(elem.type == SurfacePointType::Vertex){
-        Vector3 p_i = _geom.vertexPositions[elem.vertex];
-        Vector3 nStar = unit(p_i - _c);
-        path.push_back({-nStar, elem});
-    }
-    else{
-        path.push_back({-n0, elem});
-    }
+    path.push_back({n0, elem});
 
     // Initialize with the first orientation
 
@@ -99,16 +92,14 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
                 const Vector3& nf2 = _geom.faceNormals[f2];
                 // Move along the gradient arc until elem's Gauss image boundary
                 // nNext <- RayArcInt(n*Elem, n, nf1, nf2)
-                Vector3 p_i = _geom.vertexPositions[elem.vertex];
-                Vector3 nStar = unit(p_i - _c);
-                Vector3 nNext = rayArcInt(nStar, n, nf1, nf2);
-                //Vector3 nNext = rayArcInt(_geom.vertexNormals[elem.vertex]-_c, n, nf1, nf2);
+                Vector3 nNext = rayArcInt(_geom.vertexPositions[elem.vertex], n, nf1, nf2);
                 // Intersection; next normal found
                 if (nNext != Vector3::zero()) {
                     // n <- nNext
                     n = nNext;
                     // N = N union {n}
-                    elem = SurfacePoint(adjEdge, 0.5);
+                    //TODO: FIX ERROR HERE: fallback is causing an infinite loop
+                    elem = elementWithNormal(n);
                     path.push_back({n, elem});
                     // don't check other neighbor edges
                     break;
