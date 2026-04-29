@@ -97,7 +97,8 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
                     // elem = ElementWithNormal(n);
                     elem = elementWithNormal(n);
                     // don't check other neighbor edges
-                    break;
+                    //TEMP CHECK~!
+                    return N;
                 }
             }
         }
