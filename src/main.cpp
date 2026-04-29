@@ -54,7 +54,7 @@ int main(int argc, char *argv[])
 
     // display mesh and hull
     Vector3 initialN= gaussMap.randomGaussNormal();
-    std::vector<Vector3> orientations = gaussMap.traceGradient(initialN);
+    std::vector<TraceStep> orientations = gaussMap.traceGradient(initialN);
      mesh.show(orientations);
     //gaussMap.visualizeGaussMap();
     a.exit();

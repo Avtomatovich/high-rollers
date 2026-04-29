@@ -18,7 +18,7 @@ public:
 
     void computeProb();
 
-    std::vector<Vector3> traceGradient(const Vector3& n0);
+    std::vector<TraceStep> traceGradient(const Vector3& n0);
 
     // Gauss map sampling helper
     Vector3 randomGaussNormal();

@@ -33,7 +33,7 @@ Vector3 GaussMap::randomGaussNormal()
     return { factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 };
 }
 
-std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
+std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
 {
     // INPUT: A unit vector n0 as the initial orientation, a convex shape H
     //          uniquely determined by a point set {p1, p2, ..., pn} in R3,
@@ -42,15 +42,23 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
     //          ni, nj, where j = i + 1, determines a great arc segment that
     //          is along the gradient flow of U.
 
-    std::vector<Vector3> N;
-
-    // Initialize with the first orientation
-    N.push_back(n0);
-
+    //Store the elem and the normal for debugging visually
+    std::vector<TraceStep> path;
     // Get the unique face, edge, or vertex that has n0 as its normal,
     //      prioritizing faces, then edges, when the normal is shared.
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
+    if(elem.type == SurfacePointType::Vertex){
+        Vector3 p_i = _geom.vertexPositions[elem.vertex];
+        Vector3 nStar = unit(p_i - _c);
+        path.push_back({-nStar, elem});
+    }
+    else{
+        path.push_back({-n0, elem});
+    }
+
+    // Initialize with the first orientation
+
 
     // n <- n0
     Vector3 n = n0;
@@ -64,6 +72,7 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
 
     // while elem is not stable face do
     for (Roll roll = rolling(); roll.type != RollType::STABLE; roll = rolling()) {
+
         // Hinge edge or face
         // if elem is hinge-type then
         if (roll.type == RollType::HINGE) {
@@ -73,7 +82,10 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
             // A face normal
             // n <- Normal(elem)
             n = _geom.faceNormals[elem.face];
-        } else { // elem is a vertex, or a cartwheel-type edge/face
+            path.push_back({n, elem});
+        }
+
+        else { // elem is a vertex, or a cartwheel-type edge/face
             // elem <- NextVertex(elem)
             elem = roll.next;
             // Neighboring edges
@@ -87,23 +99,25 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
                 const Vector3& nf2 = _geom.faceNormals[f2];
                 // Move along the gradient arc until elem's Gauss image boundary
                 // nNext <- RayArcInt(n*Elem, n, nf1, nf2)
-                Vector3 nNext = rayArcInt(_geom.vertexNormals[elem.vertex], n, nf1, nf2);
+                Vector3 p_i = _geom.vertexPositions[elem.vertex];
+                Vector3 nStar = unit(p_i - _c);
+                Vector3 nNext = rayArcInt(nStar, n, nf1, nf2);
+                //Vector3 nNext = rayArcInt(_geom.vertexNormals[elem.vertex]-_c, n, nf1, nf2);
                 // Intersection; next normal found
                 if (nNext != Vector3::zero()) {
                     // n <- nNext
                     n = nNext;
                     // N = N union {n}
-                    N.push_back(n);
-                    // elem = ElementWithNormal(n);
-                    elem = elementWithNormal(n);
+                    elem = SurfacePoint(adjEdge, 0.5);
+                    path.push_back({n, elem});
                     // don't check other neighbor edges
-                    //TEMP CHECK~!
-                    return N;
+                    break;
                 }
             }
         }
+        if(path.size() > 100) break;
     }
-    return N;
+    return path;
 }
 
 SurfacePoint GaussMap::elementWithNormal(const Vector3& n)
@@ -325,8 +339,8 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
         // f*1 <- DestinedFace(f1)
         // f*2 <- DestinedFace(f2)
         // WARNING: no enum type checks done for faces here
-        Face fs1 = elementWithNormal(traceGradient(_geom.faceNormals[f1]).back()).face;
-        Face fs2 = elementWithNormal(traceGradient(_geom.faceNormals[f2]).back()).face;
+        Face fs1 = elementWithNormal(traceGradient(_geom.faceNormals[f1]).back().n).face;
+        Face fs2 = elementWithNormal(traceGradient(_geom.faceNormals[f2]).back().n).face;
 
         // Not dividing two different basins
         // if f*1 == f*2 then

@@ -21,6 +21,11 @@ enum class RollType
     HINGE   // F2 / E2
 };
 
+struct TraceStep {
+    Vector3 n;
+    SurfacePoint elem;
+};
+
 struct Roll
 {
     RollType type;
@@ -48,7 +53,7 @@ public:
     inline const FaceData<Roll>& getFaceRoll() const { return _faceRoll; }
 
     // viewing func
-    void show(std::vector<Vector3> N);
+    void show(std::vector<TraceStep> N);
 
 private:
     std::unique_ptr<SurfaceMesh> _mesh;

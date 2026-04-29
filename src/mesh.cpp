@@ -109,35 +109,49 @@ void Mesh::visualizeEdgeTypes() {
     }
 }
 
-void Mesh::show(std::vector<Vector3> normals)
-{
+void Mesh::show(std::vector<TraceStep> steps) {
     polyscope::init();
 
+    for (size_t i = 0; i < steps.size(); i++) {
+        std::string name = "mesh_step_" + std::to_string(i);
+        auto* ps = polyscope::registerSurfaceMesh(name, _hullGeom->vertexPositions, _hull->getFaceVertexList());
 
-    // // NORMAL TRANSFORMS
+        // 1. Position the mesh based on the normal
+        ps->setTransform(eigenToGlm(normalToTransform(steps[i].n)));
+        Eigen::Matrix4d T = normalToTransform(steps[i].n);
+        // Shift each step 2 units to the right along the X axis
+        T(0, 3) = i * 3.0;
+        ps->setTransform(eigenToGlm(T));
 
-    // TODO: sequence the outputs
-    for (size_t i = 0; i < normals.size(); i++) {
-        polyscope::SurfaceMesh * ps = polyscope::registerSurfaceMesh(
-            "mesh_" + std::to_string(i),          // unique name per orientation
-            _meshGeom->vertexPositions,
-            _mesh->getFaceVertexList()
-        );
-        ps->setTransform(eigenToGlm(normalToTransform(normals[i])));
+        // 2. Prepare highlighting arrays
+        // We initialize these to a "neutral" color (light gray)
+        std::vector<glm::vec3> fColors(_hull->nFaces(), {0.95, 0.95, 0.95});
+        std::vector<double> vWeights(_hull->nVertices(), 0.0);
+
+        // 3. Highlight based on element type
+        SurfacePoint p = steps[i].elem;
+        if (p.type == SurfacePointType::Face) {
+            fColors[p.face.getIndex()] = {1.0, 0.2, 0.2}; // Bright Red for Face
+        }
+        else if (p.type == SurfacePointType::Edge) {
+            // Color both faces adjacent to the edge in Orange
+            fColors[p.edge.halfedge().face().getIndex()] = {1.0, 0.6, 0.0};
+            fColors[p.edge.halfedge().twin().face().getIndex()] = {1.0, 0.6, 0.0};
+        }
+        else if (p.type == SurfacePointType::Vertex) {
+            vWeights[p.vertex.getIndex()] = 1.0; // Highlight vertex
+            // Also color all surrounding faces in Blue to make the vertex visible
+            for(Face f : p.vertex.adjacentFaces()) {
+                fColors[f.getIndex()] = {0.2, 0.2, 1.0};
+            }
+        }
+
+        // 4. Register the colors to the mesh instance
+        ps->addFaceColorQuantity("Contact Element", fColors)->setEnabled(true);
+        if (p.type == SurfacePointType::Vertex) {
+            ps->addVertexScalarQuantity("Contact Vertex", vWeights)->setEnabled(true);
+        }
     }
-
-    // polyscope::SurfaceMesh *psmesh =
-    //         polyscope::registerSurfaceMesh("mesh",
-    //                                        _meshGeom->vertexPositions,
-    //                                        _mesh->getFaceVertexList());
-    // polyscope::SurfaceMesh *pshull =
-    //         polyscope::registerSurfaceMesh("hull",
-    //                                        _hullGeom->vertexPositions,
-    //                                        _hull->getFaceVertexList());
-    // //glm::mat4 t = eigenToGlm(normalToTransform(Eigen::Vector3d(0.5,0.5, 0.5)));
-    // psmesh->setTransform(t);
-    // pshull->setTransform(t);
-
 
     // // CLASSIFICATION HIGHLIGHTING
 
@@ -203,7 +217,7 @@ Eigen::Matrix4d Mesh::normalToTransform(const Vector3& norm)
 {
     Eigen::Vector3d n(norm.x, norm.y, norm.z);
     Eigen::Quaterniond q =
-            Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), n);
+        Eigen::Quaterniond::FromTwoVectors(n, Eigen::Vector3d(0, 1, 0));
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T.block<3, 3>(0, 0) = q.toRotationMatrix();
     return T;
