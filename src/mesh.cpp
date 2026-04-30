@@ -120,7 +120,7 @@ void Mesh::show(std::vector<TraceStep> steps) {
         ps->setTransform(eigenToGlm(normalToTransform(steps[i].n)));
         Eigen::Matrix4d T = normalToTransform(steps[i].n);
         // Shift each step 2 units to the right along the X axis
-        T(0, 3) = i * 3.0;
+        T(0, 3) = i * 2.0;
         ps->setTransform(eigenToGlm(T));
 
         // 2. Prepare highlighting arrays
@@ -314,12 +314,13 @@ void Mesh::classifyFaces()
         Eigen::Vector3d edge13 = v3 - v1;
         Eigen::Vector3d crossProd = edge12.cross(edge13);
         double A = 0.5 * crossProd.norm();
+        Eigen::Vector3d faceNormal = (v2 - v1).cross(v3 - v1).normalized();
 
         // 2. Calculate signed areas of the 3 sub-triangles formed with P
         // Sub-triangles: (P, v2, v1), (P, v3, v2), (P, v1, v3)
-        double A1 = (v2 - projCom).cross(v1 - projCom).norm() * 0.5;
-        double A2 = (v3 - projCom).cross(v2 - projCom).norm() * 0.5;
-        double A3 = (v1 - projCom).cross(v3 - projCom).norm() * 0.5;
+        double A1 = (v2 - v1).cross(projCom - v1).dot(faceNormal);
+        double A2 = (v3 - v2).cross(projCom - v2).dot(faceNormal);
+        double A3 = (v1 - v3).cross(projCom - v3).dot(faceNormal);
 
         // 3. Check if P is inside using the dot product with the main normal
         // If the sub-triangle normal points the same way as the main normal, the point is "inside" that edge
@@ -335,12 +336,17 @@ void Mesh::classifyFaces()
                 Eigen::Vector3d a = vPos[i];
                 Eigen::Vector3d b = vPos[(i + 1) % 3];
                 Eigen::Vector3d edgeDir = b - a;
+                double edgeLen = edgeDir.norm();
+
+                // FIX 2: signed t via dot product instead of (projComOnEdge - a).norm().
+                // Tells us which end was overshot when t is outside [0,1].
+                double t = edgeDir.normalized().dot(projCom - a) / edgeLen;
 
                 // Vector projection to find position along the infinite line of the edge
                 Eigen::ParametrizedLine edge =
-                        Eigen::ParametrizedLine<double, 3>::Through(a, edgeDir.normalized());
+                    Eigen::ParametrizedLine<double, 3>::Through(a, edgeDir.normalized());
                 Eigen::Vector3d projComOnEdge = edge.projection(projCom);
-                double t = (projComOnEdge - a).norm() / edgeDir.norm();
+                //double t = (projComOnEdge - a).norm() / edgeDir.norm();
 
                 // If it's outside this specific edge and 0 < t < 1, it's in the stripe
                 // We check if it's outside this edge specifically by re-checking the cross product sign

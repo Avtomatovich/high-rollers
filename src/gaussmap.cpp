@@ -49,6 +49,9 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
     path.push_back({n0, elem});
+    Vertex prevVertex;
+    bool hasPrevVertex = false;
+
 
     // Initialize with the first orientation
 
@@ -74,6 +77,7 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
             elem = nextFace(elem, roll.next, n);
             // A face normal
             // n <- Normal(elem)
+            hasPrevVertex = false;
             n = _geom.faceNormals[elem.face];
             path.push_back({n, elem});
         }
@@ -92,14 +96,20 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
                 const Vector3& nf2 = _geom.faceNormals[f2];
                 // Move along the gradient arc until elem's Gauss image boundary
                 // nNext <- RayArcInt(n*Elem, n, nf1, nf2)
-                Vector3 nNext = rayArcInt(_geom.vertexPositions[elem.vertex], n, nf1, nf2);
+                Vector3 nNext = rayArcInt(_geom.vertexNormals[elem.vertex], n, nf1, nf2);
                 // Intersection; next normal found
                 if (nNext != Vector3::zero()) {
                     // n <- nNext
                     n = nNext;
                     // N = N union {n}
-                    //TODO: FIX ERROR HERE: fallback is causing an infinite loop
-                    elem = elementWithNormal(n);
+                    if (norm(nNext - nf1) <= EPS) {
+                        elem = SurfacePoint(f1, Vector3::constant(1.0 / 3.0));
+                    } else if (norm(nNext - nf2) <= EPS) {
+                        elem = SurfacePoint(f2, Vector3::constant(1.0 / 3.0));
+                    } else {
+                        // nNext is in the interior of the Gauss arc — landed on the edge.
+                        elem = SurfacePoint(adjEdge, 0.5);
+                    }
                     path.push_back({n, elem});
                     // don't check other neighbor edges
                     break;
