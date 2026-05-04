@@ -17,7 +17,7 @@ public:
 
     void computeProb();
 
-    std::vector<Vector3> traceGradient(const Vector3& n0);
+    std::vector<TraceStep> traceGradient(const Vector3& n0);
 
     SurfacePoint elementWithNormal(const Vector3& n);
 
@@ -39,9 +39,6 @@ private:
     std::unordered_map<Face, double> _minima;
     std::unordered_map<Vertex, Vector3> _maxima;
     std::unordered_map<Edge, Vector3> _saddles;
-
-    // ?
-    FaceData<size_t> hullToDual;
 
 
     // // funcs

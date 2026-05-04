@@ -27,6 +27,12 @@ struct Roll
     SurfacePoint next;
 };
 
+struct TraceStep
+{
+    SurfacePoint elem;
+    Vector3 n;
+};
+
 class Mesh
 {
 public:

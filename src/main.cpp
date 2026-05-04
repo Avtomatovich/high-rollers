@@ -49,12 +49,11 @@ int main(int argc, char *argv[])
     // create Gauss map instance
     GaussMap gaussMap(mesh);
 
-    // std::vector<Vector3> path = gaussMap.traceGradient(gaussMap.randomGaussNormal());
+    // std::vector<TraceStep> path = gaussMap.traceGradient(gaussMap.randomGaussNormal());
 
-    // for (const Vector3& n : path) {
-    //     SurfacePoint elem = gaussMap.elementWithNormal(n);
-    //     std::cout << "Surface point: " << elem << std::endl;
-    //     std::cout << "Surface point normal: " << n << std::endl;
+    // for (const TraceStep& s : path) {
+    //     std::cout << "Surface point: " << s.elem << std::endl;
+    //     std::cout << "Surface point normal: " << s.n << std::endl;
     // }
 
     // auto& hull = mesh.getHull();

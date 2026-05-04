@@ -32,7 +32,7 @@ Vector3 GaussMap::randomGaussNormal()
     return {factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 };
 }
 
-std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
+std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
 {
     // INPUT: A unit vector n0 as the initial orientation, a convex shape H
     //          uniquely determined by a point set {p1, p2, ..., pn} in R3,
@@ -41,15 +41,16 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
     //          ni, nj, where j = i + 1, determines a great arc segment that
     //          is along the gradient flow of U.
 
-    std::vector<Vector3> N;
+    std::vector<TraceStep> N;
 
-    // Initialize with the first orientation
-    N.push_back(n0);
 
     // Get the unique face, edge, or vertex that has n0 as its normal,
     //      prioritizing faces, then edges, when the normal is shared.
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
+
+    // Initialize with the first orientation
+    N.emplace_back(elem, n0);
 
     // n <- n0
     Vector3 n = n0;
@@ -80,7 +81,7 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
             // n <- Normal(elem)
             n = _geom.faceNormals[elem.face];
             // N = N union {n}
-            N.push_back(n);
+            N.emplace_back(elem, n);
 
             // std::cout << "newly added normal: " << n << " for element " << elem << std::endl;
         } else { // elem is a vertex, or a cartwheel-type edge/face
@@ -105,7 +106,7 @@ std::vector<Vector3> GaussMap::traceGradient(const Vector3& n0)
                     // n <- nNext
                     n = nNext;
                     // N = N union {n}
-                    N.push_back(n);
+                    N.emplace_back(elem, n);
 
                     // std::cout << "newly added normal: " << n << " for element " << elem << std::endl;
                     // elem = ElementWithNormal(n);
@@ -444,17 +445,15 @@ bool GaussMap::destinedFace(Face& f)
     // fetch face normal
     const Vector3& nf = _geom.faceNormals[f];
     // trace path from given normal
-    std::vector<Vector3> path = traceGradient(nf);
-    // fetch last normal from path
-    const Vector3& nfs = path.back();
-    // fetch element at end of trace
-    SurfacePoint fs = elementWithNormal(nfs);
+    std::vector<TraceStep> path = traceGradient(nf);
+    // fetch last surface point and normal from path
+    const auto& [sf, nsf] = path.back();
     // return false if element is not face
-    if (fs.type != SurfacePointType::Face) return false;
+    if (sf.type != SurfacePointType::Face) return false;
     // return false if face is not stable
-    if (_faceRoll[fs.face].type != RollType::STABLE) return false;
+    if (_faceRoll[sf.face].type != RollType::STABLE) return false;
     // update ref with stable face and return true
-    f = fs.face;
+    f = sf.face;
     return true;
 }
 
