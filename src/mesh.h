@@ -21,15 +21,17 @@ enum class RollType
     HINGE   // F2 / E2
 };
 
-struct TraceStep {
-    Vector3 n;
-    SurfacePoint elem;
-};
 
 struct Roll
 {
     RollType type;
     SurfacePoint next;
+};
+
+struct TraceStep
+{
+    SurfacePoint elem;
+    Vector3 n;
 };
 
 class Mesh
@@ -76,6 +78,8 @@ private:
 
     Eigen::Matrix4d normalToTransform(const Vector3& n);
     static glm::mat4 eigenToGlm(const Eigen::Matrix4d& T);
+
+    static constexpr double RECIP_6 = 1.0 / 6.0;
 };
 
 #endif // MESH_H
