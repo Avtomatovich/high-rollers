@@ -2,76 +2,56 @@
 #define GAUSSMAP_H
 
 #include "mesh.h"
-#include <numbers>
+#include <unordered_map>
+#include <vector>
 
-
-struct Separatrix
-{
-    Vector3 n1, n2; // saddle points/local maxima
-    Face f1, f2; // local minima
+struct Separatrix {
+    Vector3 n1, n2;
+    Face f1, f2;
 };
 
-class GaussMap
-{
+class GaussMap {
 public:
     GaussMap(Mesh& mesh);
 
-    void computeProb();
-
-    std::vector<TraceStep> traceGradient(const Vector3& n0);
-
-    // Gauss map sampling helper
     Vector3 randomGaussNormal();
+    std::vector<TraceStep> traceGradient(const Vector3& n0);
+    SurfacePoint elementWithNormal(const Vector3& n);
+    void computeProb();
     void visualizeGaussMap();
 
 private:
-    // // vars
-    ManifoldSurfaceMesh& _hull;
+    // ── references into Mesh — no copies, all share the same SurfaceMesh instance ──
+    ManifoldSurfaceMesh&          _hull;
     const VertexPositionGeometry& _geom;
+    const EdgeData<Roll>&         _edgeRoll;
+    const FaceData<Roll>&         _faceRoll;
 
-    const Vector3& _c;
+    // ── owned by GaussMap, but constructed against _hull ──
+    Vector3                              _c;
+    VertexData<std::vector<Vector3>>     _arcNormals;
+    std::unordered_map<Face,   double>   _minima;
+    std::unordered_map<Vertex, Vector3>  _maxima;
+    std::unordered_map<Edge,   Vector3>  _saddles;
 
-    const EdgeData<Roll>& _edgeRoll;
-    const FaceData<Roll>& _faceRoll;
-
-    VertexData<std::vector<Vector3>> _arcNormals;
-
-    FaceData<double> _minima;
-    VertexData<Vector3> _maxima;
-    EdgeData<Vector3> _saddles;
-
-
-    // // funcs
-    // ray-arc/arc-arc intersection routine
-    Vector3 rayArcInt(const Vector3& ns,
-                      const Vector3& n,
-                      const Vector3& n1,
-                      const Vector3& n2);
-
-    std::vector<Separatrix> buildSeparatrix();
-
-    // hinge-rolling helper
-    SurfacePoint nextFace(const SurfacePoint& elem, 
-                          const SurfacePoint& next, 
-                          const Vector3& n);
-
-    // bounds-checking helpers
-    SurfacePoint elementWithNormal(const Vector3& n);
+    SurfacePoint nextFace(const SurfacePoint& next, const Vector3& n);
+    Vector3      rayArcInt(const Vector3& ns, const Vector3& n,
+                      const Vector3& n1, const Vector3& n2);
     bool onGaussEdge(const Edge& e, const Vector3& n);
     bool onGaussPatch(const Vertex& v, const Vector3& n);
 
-    // pre-computing helpers
     void computeArcNormals();
     void computeMinima();
     void computeMaxima();
     void computeSaddles();
 
-    // spherical triangle area helper
-    double spheTriArea(const Vector3& a,
-                       const Vector3& b,
-                       const Vector3& c);
+    std::vector<Separatrix> buildSeparatrix();
+    bool destinedFace(Face& f);
 
-    static constexpr double EPS = 1e-6;
+    double spheTriArea(const Vector3& a, const Vector3& b, const Vector3& c);
+
+    static constexpr double EPS         = 1e-6;
+    static constexpr double RECIP_3     = 1.0 / 3.0;
     static constexpr double SPHERE_AREA = 4.0 * M_PI;
 };
 

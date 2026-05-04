@@ -181,7 +181,7 @@ void Mesh::show(std::vector<TraceStep> steps) {
     // polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("face types", faceColors);
     // polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
     // visualizeEdgeTypes();
-    
+
     polyscope::show();
 }
 
@@ -250,15 +250,6 @@ void Mesh::classifyEdges()
         Vertex a = e.firstVertex();
         Vertex b = e.secondVertex();
 
-        Face fA = e.halfedge().face();
-        Face fB = e.halfedge().twin().face();
-
-        const Vector3& tempNormA = _hullGeom->faceNormals[fA];
-        const Vector3& tempNormB = _hullGeom->faceNormals[fB];
-
-        Eigen::Vector3d nfA{ tempNormA.x, tempNormA.y, tempNormA.z };
-        Eigen::Vector3d nfB{ tempNormB.x, tempNormB.y, tempNormB.z };
-
         const Vector3& v1 = _hullGeom->vertexPositions[a];
         const Vector3& v2 = _hullGeom->vertexPositions[b];
 
@@ -270,7 +261,7 @@ void Mesh::classifyEdges()
         Eigen::Vector3d projCom = plane.projection({ _com.x, _com.y, _com.z });
         Eigen::Vector3d edgeDir = vB - vA;
         Eigen::ParametrizedLine edge =
-                Eigen::ParametrizedLine<double, 3>::Through(vA, edgeDir.normalized());
+            Eigen::ParametrizedLine<double, 3>::Through(vA, edgeDir.normalized());
         Eigen::Vector3d projComOnEdge = edge.projection(projCom);
         double t = (projComOnEdge - vA).norm() / edgeDir.norm();
 
@@ -281,7 +272,7 @@ void Mesh::classifyEdges()
             // // WHEEL TYPE
             // next vertex is closest to projection of center of mass
             Vertex next = (vA - projCom).norm() > (vB - projCom).norm() ? b : a;
-            _edgeRoll[e] = {RollType::WHEEL, next};
+            _edgeRoll[e] = { RollType::WHEEL, next };
         }
     }
 }
@@ -290,75 +281,62 @@ void Mesh::classifyFaces()
 {
     for (const Face& f : _hull->faces()) {
         std::vector<Vertex> vertices;
-        for (Vertex v : f.adjacentVertices()) {
-            vertices.push_back(v);
-        }
+        for (Vertex v : f.adjacentVertices()) vertices.push_back(v);
 
         std::vector<Edge> edges;
-        for (Edge e : f.adjacentEdges()) {
-            edges.push_back(e);
-        }
+        for (Edge e : f.adjacentEdges()) edges.push_back(e);
 
         const Vector3& vA = _hullGeom->vertexPositions[vertices[0]];
         const Vector3& vB = _hullGeom->vertexPositions[vertices[1]];
         const Vector3& vC = _hullGeom->vertexPositions[vertices[2]];
 
-        Eigen::Vector3d v1{ vA.x, vA.y, vA.z };
-        Eigen::Vector3d v2{ vB.x, vB.y, vB.z };
-        Eigen::Vector3d v3{ vC.x, vC.y, vC.z };
-        std::vector<Eigen::Vector3d> vPos{v1, v2, v3};
+        Eigen::Vector3d A{ vA.x, vA.y, vA.z };
+        Eigen::Vector3d B{ vB.x, vB.y, vB.z };
+        Eigen::Vector3d C{ vC.x, vC.y, vC.z };
+        std::vector<Eigen::Vector3d> pos{ A, B, C };
 
-        Eigen::Hyperplane plane = Eigen::Hyperplane<double, 3>::Through(v1, v2, v3);
-        Eigen::Vector3d projCom = plane.projection({ _com.x, _com.y, _com.z });
-        Eigen::Vector3d edge12 = v2 - v1;
-        Eigen::Vector3d edge13 = v3 - v1;
-        Eigen::Vector3d crossProd = edge12.cross(edge13);
-        double A = 0.5 * crossProd.norm();
-        Eigen::Vector3d faceNormal = (v2 - v1).cross(v3 - v1).normalized();
+        Eigen::Hyperplane plane = Eigen::Hyperplane<double, 3>::Through(A, B, C);
+        Eigen::Vector3d P = plane.projection({ _com.x, _com.y, _com.z });
+        Eigen::Vector3d crossProd = (B - A).cross(C - A);
+        double ABC = 0.5 * crossProd.norm();
 
-        // 2. Calculate signed areas of the 3 sub-triangles formed with P
-        // Sub-triangles: (P, v2, v1), (P, v3, v2), (P, v1, v3)
-        double A1 = (v2 - v1).cross(projCom - v1).dot(faceNormal);
-        double A2 = (v3 - v2).cross(projCom - v2).dot(faceNormal);
-        double A3 = (v1 - v3).cross(projCom - v3).dot(faceNormal);
+        // 2. Calculate barycentric coordinates using sub-triangle areas
+        // Sub-triangles:       (P, A, B), (P, B, C), (P, C, A)
+        // double ABC   = 0.5 * (B - A).cross(C - A).norm();
+        double alpha    = 0.5 * (A - P).cross(B - P).norm() / ABC;
+        double beta     = 0.5 * (B - P).cross(C - P).norm() / ABC;
+        // double gamma = 0.5 * (C - P).cross(A - P).norm() / ABC;
 
-        // 3. Check if P is inside using the dot product with the main normal
-        // If the sub-triangle normal points the same way as the main normal, the point is "inside" that edge
-        if (A1 / A >= 0.0 && A2 / A >= 0.0 && A3 / A >= 0.0) {
+        // 3. Check if P is inside by ensuring weights are positive and sum is less than 1
+        if (alpha >= 0.0 && beta >= 0.0 && alpha + beta <= 1.0) {
             // f is placeholder for next as stable faces don't roll
-            _faceRoll[f] = { RollType::STABLE, {f, Vector3::constant(1.0 / 3.0)} }; // F0: Inside
+            _faceRoll[f] = { RollType::STABLE, { f, Vector3::constant(1.0 / 3.0) } };
         } else {
-            // 4. Determine if it's a Hinge (F1) or Wheel (F2)
+            // 4. Determine if hinge (F1) or wheel (F2)
             // It is a Hinge if it's "outside" an edge but within the Voronoi stripe of that edge
             double closest = std::numeric_limits<double>::infinity();
 
             for (int i = 0; i < 3; i++) {
-                Eigen::Vector3d a = vPos[i];
-                Eigen::Vector3d b = vPos[(i + 1) % 3];
-                Eigen::Vector3d edgeDir = b - a;
-                double edgeLen = edgeDir.norm();
-
-                // FIX 2: signed t via dot product instead of (projComOnEdge - a).norm().
-                // Tells us which end was overshot when t is outside [0,1].
-                double t = edgeDir.normalized().dot(projCom - a) / edgeLen;
+                A = pos[i];
+                B = pos[(i + 1) % 3];
+                Eigen::Vector3d edgeDir = B - A;
 
                 // Vector projection to find position along the infinite line of the edge
                 Eigen::ParametrizedLine edge =
-                    Eigen::ParametrizedLine<double, 3>::Through(a, edgeDir.normalized());
-                Eigen::Vector3d projComOnEdge = edge.projection(projCom);
-                //double t = (projComOnEdge - a).norm() / edgeDir.norm();
+                    Eigen::ParametrizedLine<double, 3>::Through(A, edgeDir.normalized());
+                Eigen::Vector3d pEdge = edge.projection(P);
+                double t = (pEdge - A).norm() / edgeDir.norm();
 
-                // If it's outside this specific edge and 0 < t < 1, it's in the stripe
-                // We check if it's outside this edge specifically by re-checking the cross product sign
-                if (t >= 0.0 && t <= 1.0) {
-                    // sets the hinge edge to the one that is in this stripe
+                // If weight is between 0 and 1, projection is in stripe
+                if (0.0 <= t && t <= 1.0) {
+                    // rolls onto edge that subtends stripe
                     _faceRoll[f] = { RollType::HINGE, { edges[i], t } };
                     break;
                 } else {
                     // rolls onto a vertex
-                    double vertDist = (projCom - a).norm();
-                    if (vertDist < closest) {
-                        closest = vertDist;
+                    double dist = (P - A).norm();
+                    if (dist < closest) {
+                        closest = dist;
                         _faceRoll[f] = { RollType::WHEEL, vertices[i] };
                     }
                 }
