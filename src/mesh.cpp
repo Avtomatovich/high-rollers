@@ -19,64 +19,36 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // load mesh
     std::tie(_mesh, _meshGeom) = readSurfaceMesh(meshPath);
 
-    // init bool check for convex hull build
-    bool buildHull = false;
+    // map out as flat array
+    auto flatMap = FlattenedEigenMap<double, 3>(_meshGeom->vertexPositions);
 
-    // pre-compute edge dihedral angles
-    // _meshGeom->requireEdgeDihedralAngles();
+    // invoke quickhull algorithm
+    quickhull::QuickHull<double> qh;
+    auto hull = qh.getConvexHull(flatMap.data(), flatMap.size() / 3, true, false);
 
-    // build hull if any edge has negative (non-convex) angle
-    for (const Edge& e : _mesh->edges()) {
-        // if (_meshGeom->edgeDihedralAngles[e] < 0.0) {
-        //     buildHull = true;
-        // }
-        const Vector3& nf1 = _meshGeom->faceNormal(e.halfedge().face());
-        const Vector3& nf2 = _meshGeom->faceNormal(e.halfedge().twin().face());
-        if (angle(nf1, nf2) < 0.0) {
-            buildHull = true;
-            break;
+    // fetch faces and vertices of convex hull
+    const auto& iBuf = hull.getIndexBuffer();
+    const auto& vBuf = hull.getVertexBuffer();
+
+    // build polygon and vertex containers for convex hull data
+    std::vector<std::vector<size_t>> poly(iBuf.size() / 3);
+    std::vector<Vector3> vert(vBuf.size());
+
+    size_t upper_bound = std::max(poly.size(), vert.size());
+
+    // copy data from temp hull obj to containers in one pass
+    for (size_t i = 0; i < upper_bound; i++) {
+        if (i < poly.size()) {
+            poly[i] = { iBuf[3 * i], iBuf[3 * i + 1], iBuf[3 * i + 2] };
+        }
+        if (i < vert.size()) {
+            const auto& vec = vBuf[i];
+            vert[i] = { vec.x, vec.y, vec.z };
         }
     }
 
-    // free edge dihedral angle memory
-    // _meshGeom->unrequireEdgeDihedralAngles();
-
-    if (!buildHull) {
-        // copy over mesh to hull
-        _hull = _mesh->toManifoldMesh();
-        _hullGeom = _meshGeom->copy();
-    } else {
-        // map out as flat array
-        auto flatMap = FlattenedEigenMap<double, 3>(_meshGeom->vertexPositions);
-
-        // invoke quickhull algorithm
-        quickhull::QuickHull<double> qh;
-        auto hull = qh.getConvexHull(flatMap.data(), flatMap.size() / 3, true, false);
-
-        // fetch faces and vertices of convex hull
-        const auto& iBuf = hull.getIndexBuffer();
-        const auto& vBuf = hull.getVertexBuffer();
-
-        // build polygon and vertex containers for convex hull data
-        std::vector<std::vector<size_t>> poly(iBuf.size() / 3);
-        std::vector<Vector3> vert(vBuf.size());
-
-        size_t upper_bound = std::max(poly.size(), vert.size());
-
-        // copy data from temp hull obj to containers in one pass
-        for (size_t i = 0; i < upper_bound; i++) {
-            if (i < poly.size()) {
-                poly[i] = { iBuf[3 * i], iBuf[3 * i + 1], iBuf[3 * i + 2] };
-            }
-            if (i < vert.size()) {
-                const auto& vec = vBuf[i];
-                vert[i] = { vec.x, vec.y, vec.z };
-            }
-        }
-
-        // build manifold convex hull
-        std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
-    }
+    // build manifold convex hull
+    std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
 
     // pre-compute vertex positions on hull
     _hullGeom->requireVertexPositions();
@@ -96,44 +68,45 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
 }
 
 void Mesh::visualizeEdgeTypes() {
-    // // 1. Clear existing structures to avoid buffer conflicts
-    // polyscope::removeStructure("wheel edges");
-    // polyscope::removeStructure("hinge edges");
+    // 1. Clear existing structures to avoid buffer conflicts
+    polyscope::removeStructure("wheel edges");
+    polyscope::removeStructure("hinge edges");
 
-    // std::vector<glm::vec3> nodePositions;
-    // for (Vertex v : _hull->vertices()) {
-    //     Vector3 p = _hullGeom->vertexPositions[v];
-    //     nodePositions.push_back({(float)p.x, (float)p.y, (float)p.z});
-    // }
+    std::vector<glm::vec3> nodePositions;
+    for (Vertex v : _hull->vertices()) {
+        Vector3 p = _hullGeom->vertexPositions[v];
+        nodePositions.push_back({(float)p.x, (float)p.y, (float)p.z});
+    }
 
-    // std::vector<std::array<size_t, 2>> wheelEdges, hingeEdges;
+    std::vector<std::array<size_t, 2>> wheelEdges;
+    std::vector<std::array<size_t, 2>> hingeEdges;
 
-    // for (Edge e : _hull->edges()) {
-    //     size_t u = e.halfedge().vertex().getIndex();
-    //     size_t v = e.halfedge().twin().vertex().getIndex();
+    for (Edge e : _hull->edges()) {
+        size_t u = e.halfedge().vertex().getIndex();
+        size_t v = e.halfedge().twin().vertex().getIndex();
 
-    //     if (_edgeRoll[e].type == RollType::WHEEL) {
-    //         wheelEdges.push_back({u, v});
-    //     } else if (_edgeRoll[e].type == RollType::HINGE) {
-    //         hingeEdges.push_back({u, v});
-    //     }
-    // }
+        if (_edgeRoll[e].type == RollType::WHEEL) {
+            wheelEdges.push_back({u, v});
+        } else if (_edgeRoll[e].type == RollType::HINGE) {
+            hingeEdges.push_back({u, v});
+        }
+    }
 
-    // // 2. Only register if there is actually data to show
-    // // Polyscope sometimes throws 'inconsistent size' errors if you pass an empty edge list
-    // if (!wheelEdges.empty()) {
-    //     auto *psWheel = polyscope::registerCurveNetwork("wheel edges", nodePositions, wheelEdges);
-    //     psWheel->setEnabled(true);
-    //     psWheel->setColor({1.0, 0.0, 0.0});
-    //     psWheel->setRadius(0.005);
-    // }
+    // 2. Only register if there is actually data to show
+    // Polyscope sometimes throws 'inconsistent size' errors if you pass an empty edge list
+    if (!wheelEdges.empty()) {
+        auto *psWheel = polyscope::registerCurveNetwork("wheel edges", nodePositions, wheelEdges);
+        psWheel->setEnabled(true);
+        psWheel->setColor({1.0, 0.0, 0.0});
+        psWheel->setRadius(0.005);
+    }
 
-    // if (!hingeEdges.empty()) {
-    //     auto *psHinge = polyscope::registerCurveNetwork("hinge edges", nodePositions, hingeEdges);
-    //     psHinge->setEnabled(true);
-    //     psHinge->setColor({0.0, 1.0, 0.0});
-    //     psHinge->setRadius(0.005);
-    // }
+    if (!hingeEdges.empty()) {
+        auto *psHinge = polyscope::registerCurveNetwork("hinge edges", nodePositions, hingeEdges);
+        psHinge->setEnabled(true);
+        psHinge->setColor({0.0, 1.0, 0.0});
+        psHinge->setRadius(0.005);
+    }
 }
 
 void Mesh::show(std::vector<TraceStep> steps) {
@@ -208,50 +181,41 @@ void Mesh::show(std::vector<TraceStep> steps) {
     // polyscope::getSurfaceMesh("hull")->addFaceColorQuantity("face types", faceColors);
     // polyscope::getSurfaceMesh("hull")->setTransparency(0.5);
     // visualizeEdgeTypes();
-    
-    // polyscope::show();
+
+    polyscope::show();
 }
 
 void Mesh::computeCenterOfMass()
 {
+    double totalVolume = 0.0;
     _com = Vector3::zero();
-    double totalVol = 0.0;
 
-    // center of mass formula of masses m, positions p
-    // com = \Sum^{n}_{i = 1} m_i * p_i / (\Sum^{n}_{i = 1} m_i)
-    // with constant density rho, rho = m / vol, centroids c of volumes
-    // com = \Sum^{n}_{i = 1} v_i * c_i / (\Sum^{n}_{i = 1} v_i)
-
-    // init origin
-    const Vector3 p1 = Vector3::zero();
     for (const Face& f : _mesh->faces()) {
-        // fetch face vertices
-        const Halfedge& h = f.halfedge();
-        const Vector3& p2 = _meshGeom->vertexPositions[h.vertex()];
-        const Vector3& p3 = _meshGeom->vertexPositions[h.next().vertex()];
-        const Vector3& p4 = _meshGeom->vertexPositions[h.next().next().vertex()];
+        // Get the 3 vertices of this triangle via halfedge traversal
+        Halfedge he = f.halfedge();
+        const Vector3& a = _meshGeom->vertexPositions[he.vertex()];
+        const Vector3& b = _meshGeom->vertexPositions[he.next().vertex()];
+        const Vector3& c = _meshGeom->vertexPositions[he.next().next().vertex()];
 
-        // O'Brien-Hodgins tet vol = (1 / 6) * [(p2 - p1) x (p3 - p1)] . (p4 - p1)
-        double vol = RECIP_6 * dot(cross(p2 - p1, p3 - p1), p4 - p1);
-        // tet centroid = (1 / 4) * (p1 + p2 + p3 + p4)
-        Vector3 centroid = 0.25 * (p1 + p2 + p3 + p4);
+        // Signed volume of tetrahedron (a, b, c, origin)
+        // = (1 / 6) * a · (b × c)
+        double signedVol = dot(a, cross(b, c)) / 6.0;
+        totalVolume += signedVol;
 
-        // accumulate numerator and denominator
-        _com += vol * centroid;
-        totalVol += vol;
+        // Centroid of this tet is (a + b + c) / 4
+        // weighted by its signed volume
+        _com += (a + b + c) * signedVol;
     }
 
-    // divide by total volume
-    _com /= totalVol;
+    // divide by 4 (tet centroid denominator) and totalVolume
+    _com /= (4.0 * totalVolume);
 
-    std::cout << "center of mass: " << _com << std::endl << std::endl;
 }
 
 // Helper function to convert a normal vector into a mesh orientation
 Eigen::Matrix4d Mesh::normalToTransform(const Vector3& norm)
 {
     Eigen::Vector3d n(norm.x, norm.y, norm.z);
-    // TODO: change UnitZ to UnitY?
     Eigen::Quaterniond q =
         Eigen::Quaterniond::FromTwoVectors(n, Eigen::Vector3d(0, 1, 0));
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
@@ -297,7 +261,7 @@ void Mesh::classifyEdges()
         Eigen::Vector3d projCom = plane.projection({ _com.x, _com.y, _com.z });
         Eigen::Vector3d edgeDir = vB - vA;
         Eigen::ParametrizedLine edge =
-                Eigen::ParametrizedLine<double, 3>::Through(vA, edgeDir.normalized());
+            Eigen::ParametrizedLine<double, 3>::Through(vA, edgeDir.normalized());
         Eigen::Vector3d projComOnEdge = edge.projection(projCom);
         double t = (projComOnEdge - vA).norm() / edgeDir.norm();
 
@@ -359,9 +323,10 @@ void Mesh::classifyFaces()
 
                 // Vector projection to find position along the infinite line of the edge
                 Eigen::ParametrizedLine edge =
-                        Eigen::ParametrizedLine<double, 3>::Through(A, edgeDir.normalized());
+                    Eigen::ParametrizedLine<double, 3>::Through(A, edgeDir.normalized());
                 Eigen::Vector3d pEdge = edge.projection(P);
                 double t = (pEdge - A).norm() / edgeDir.norm();
+
                 // If weight is between 0 and 1, projection is in stripe
                 if (0.0 <= t && t <= 1.0) {
                     // rolls onto edge that subtends stripe

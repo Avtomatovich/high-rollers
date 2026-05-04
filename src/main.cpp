@@ -108,11 +108,8 @@ int main(int argc, char *argv[])
     // std::cout << "Surface point normal: " << n << std::endl;
 
     // output stable face probabilties
-<<<<<<< HEAD
-    //gaussMap.computeProb();
-=======
+
     // gaussMap.computeProb();
->>>>>>> samson
 
     // display mesh and hull
     Vector3 initialN= gaussMap.randomGaussNormal();

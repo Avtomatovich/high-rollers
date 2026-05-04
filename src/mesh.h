@@ -22,6 +22,7 @@ enum class RollType
 };
 
 
+
 struct Roll
 {
     RollType type;
