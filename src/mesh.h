@@ -71,6 +71,8 @@ private:
 
     Eigen::Matrix4d normalToTransform(const Eigen::Vector3d& n);
     static glm::mat4 eigenToGlm(const Eigen::Matrix4d& T);
+
+    static constexpr double RECIP_6 = 1.0 / 6.0;
 };
 
 #endif // MESH_H

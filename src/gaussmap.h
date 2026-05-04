@@ -19,6 +19,8 @@ public:
 
     std::vector<Vector3> traceGradient(const Vector3& n0);
 
+    SurfacePoint elementWithNormal(const Vector3& n);
+
     // Gauss map sampling helper
     Vector3 randomGaussNormal();
 
@@ -34,9 +36,12 @@ private:
 
     VertexData<std::vector<Vector3>> _arcNormals;
 
-    FaceData<double> _minima;
-    VertexData<Vector3> _maxima;
-    EdgeData<Vector3> _saddles;
+    std::unordered_map<Face, double> _minima;
+    std::unordered_map<Vertex, Vector3> _maxima;
+    std::unordered_map<Edge, Vector3> _saddles;
+
+    // ?
+    FaceData<size_t> hullToDual;
 
 
     // // funcs
@@ -49,12 +54,10 @@ private:
     std::vector<Separatrix> buildSeparatrix();
 
     // hinge-rolling helper
-    SurfacePoint nextFace(const SurfacePoint& elem, 
-                          const SurfacePoint& next, 
+    SurfacePoint nextFace(const SurfacePoint& next,
                           const Vector3& n);
 
     // bounds-checking helpers
-    SurfacePoint elementWithNormal(const Vector3& n);
     bool onGaussEdge(const Edge& e, const Vector3& n);
     bool onGaussPatch(const Vertex& v, const Vector3& n);
 
@@ -69,8 +72,14 @@ private:
                        const Vector3& b,
                        const Vector3& c);
 
-    static constexpr double EPS = 1e-6;
+    // destined stable face helper
+    bool destinedFace(Face& f);
+
+
+    // // constants
+    static constexpr double EPS = 1e-8;
     static constexpr double SPHERE_AREA = 4.0 * std::numbers::pi;
+    static constexpr double RECIP_3 = 1.0 / 3.0;
 };
 
 #endif // GAUSSMAP_H
