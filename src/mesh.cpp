@@ -19,64 +19,36 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // load mesh
     std::tie(_mesh, _meshGeom) = readSurfaceMesh(meshPath);
 
-    // init bool check for convex hull build
-    bool buildHull = false;
+    // map out as flat array
+    auto flatMap = FlattenedEigenMap<double, 3>(_meshGeom->vertexPositions);
 
-    // pre-compute edge dihedral angles
-    // _meshGeom->requireEdgeDihedralAngles();
+    // invoke quickhull algorithm
+    quickhull::QuickHull<double> qh;
+    auto hull = qh.getConvexHull(flatMap.data(), flatMap.size() / 3, true, false);
 
-    // build hull if any edge has negative (non-convex) angle
-    for (const Edge& e : _mesh->edges()) {
-        // if (_meshGeom->edgeDihedralAngles[e] < 0.0) {
-        //     buildHull = true;
-        // }
-        const Vector3& nf1 = _meshGeom->faceNormal(e.halfedge().face());
-        const Vector3& nf2 = _meshGeom->faceNormal(e.halfedge().twin().face());
-        if (angle(nf1, nf2) < 0.0) {
-            buildHull = true;
-            break;
+    // fetch faces and vertices of convex hull
+    const auto& iBuf = hull.getIndexBuffer();
+    const auto& vBuf = hull.getVertexBuffer();
+
+    // build polygon and vertex containers for convex hull data
+    std::vector<std::vector<size_t>> poly(iBuf.size() / 3);
+    std::vector<Vector3> vert(vBuf.size());
+
+    size_t upper_bound = std::max(poly.size(), vert.size());
+
+    // copy data from temp hull obj to containers in one pass
+    for (size_t i = 0; i < upper_bound; i++) {
+        if (i < poly.size()) {
+            poly[i] = { iBuf[3 * i], iBuf[3 * i + 1], iBuf[3 * i + 2] };
+        }
+        if (i < vert.size()) {
+            const auto& vec = vBuf[i];
+            vert[i] = { vec.x, vec.y, vec.z };
         }
     }
 
-    // free edge dihedral angle memory
-    // _meshGeom->unrequireEdgeDihedralAngles();
-
-    if (!buildHull) {
-        // copy over mesh to hull
-        _hull = _mesh->toManifoldMesh();
-        _hullGeom = _meshGeom->copy();
-    } else {
-        // map out as flat array
-        auto flatMap = FlattenedEigenMap<double, 3>(_meshGeom->vertexPositions);
-
-        // invoke quickhull algorithm
-        quickhull::QuickHull<double> qh;
-        auto hull = qh.getConvexHull(flatMap.data(), flatMap.size() / 3, true, false);
-
-        // fetch faces and vertices of convex hull
-        const auto& iBuf = hull.getIndexBuffer();
-        const auto& vBuf = hull.getVertexBuffer();
-
-        // build polygon and vertex containers for convex hull data
-        std::vector<std::vector<size_t>> poly(iBuf.size() / 3);
-        std::vector<Vector3> vert(vBuf.size());
-
-        size_t upper_bound = std::max(poly.size(), vert.size());
-
-        // copy data from temp hull obj to containers in one pass
-        for (size_t i = 0; i < upper_bound; i++) {
-            if (i < poly.size()) {
-                poly[i] = { iBuf[3 * i], iBuf[3 * i + 1], iBuf[3 * i + 2] };
-            }
-            if (i < vert.size()) {
-                const auto& vec = vBuf[i];
-                vert[i] = { vec.x, vec.y, vec.z };
-            }
-        }
-
-        // build manifold convex hull
-        std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
-    }
+    // build manifold convex hull
+    std::tie(_hull, _hullGeom) = makeManifoldSurfaceMeshAndGeometry(poly, vert);
 
     // pre-compute vertex positions on hull
     _hullGeom->requireVertexPositions();
@@ -270,20 +242,20 @@ void Mesh::classifyEdges()
         Vertex a = e.firstVertex();
         Vertex b = e.secondVertex();
 
-        const Vector3& v1 = _hullGeom->vertexPositions[a];
-        const Vector3& v2 = _hullGeom->vertexPositions[b];
+        const Vector3& vA = _hullGeom->vertexPositions[a];
+        const Vector3& vB = _hullGeom->vertexPositions[b];
 
         // convert to Eigen
-        Eigen::Vector3d vA{ v1.x, v1.y, v1.z };
-        Eigen::Vector3d vB{ v2.x, v2.y, v2.z };
+        Eigen::Vector3d A{ vA.x, vA.y, vA.z };
+        Eigen::Vector3d B{ vB.x, vB.y, vB.z };
 
-        Eigen::Hyperplane plane = Eigen::Hyperplane<double, 3>::Through(vA, vB);
-        Eigen::Vector3d projCom = plane.projection({ _com.x, _com.y, _com.z });
-        Eigen::Vector3d edgeDir = vB - vA;
+        Eigen::Hyperplane plane = Eigen::Hyperplane<double, 3>::Through(A, B);
+        Eigen::Vector3d P = plane.projection({ _com.x, _com.y, _com.z });
+        Eigen::Vector3d edgeDir = B - A;
         Eigen::ParametrizedLine edge =
-                Eigen::ParametrizedLine<double, 3>::Through(vA, edgeDir.normalized());
-        Eigen::Vector3d projComOnEdge = edge.projection(projCom);
-        double t = (projComOnEdge - vA).norm() / edgeDir.norm();
+                Eigen::ParametrizedLine<double, 3>::Through(A, edgeDir.normalized());
+        Eigen::Vector3d pEdge = edge.projection(P);
+        double t = (pEdge - A).norm() / edgeDir.norm();
 
         if (0.0 <= t && t <= 1.0) {
             // // HINGE TYPE
@@ -291,7 +263,7 @@ void Mesh::classifyEdges()
         } else {
             // // WHEEL TYPE
             // next vertex is closest to projection of center of mass
-            Vertex next = (vA - projCom).norm() > (vB - projCom).norm() ? b : a;
+            Vertex next = (A - P).norm() < (B - P).norm() ? a : b;
             _edgeRoll[e] = { RollType::WHEEL, next };
         }
     }
@@ -330,7 +302,7 @@ void Mesh::classifyFaces()
         // 3. Check if P is inside by ensuring weights are positive and sum is less than 1
         if (alpha >= 0.0 && beta >= 0.0 && alpha + beta <= 1.0) {
             // f is placeholder for next as stable faces don't roll
-            _faceRoll[f] = { RollType::STABLE, { f, Vector3::constant(1.0 / 3.0) } };
+            _faceRoll[f] = { RollType::STABLE, { f, { alpha, beta, 1.0 - alpha - beta } } };
         } else {
             // 4. Determine if hinge (F1) or wheel (F2)
             // It is a Hinge if it's "outside" an edge but within the Voronoi stripe of that edge

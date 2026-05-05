@@ -49,12 +49,7 @@ int main(int argc, char *argv[])
     // create Gauss map instance
     GaussMap gaussMap(mesh);
 
-    // std::vector<TraceStep> path = gaussMap.traceGradient(gaussMap.randomGaussNormal());
-
-    // for (const TraceStep& s : path) {
-    //     std::cout << "Surface point: " << s.elem << std::endl;
-    //     std::cout << "Surface point normal: " << s.n << std::endl;
-    // }
+    // gaussMap.traceGradient(gaussMap.randomGaussNormal(), true);
 
     // auto& hull = mesh.getHull();
     // const auto& geom = mesh.getHullGeom();
@@ -64,10 +59,10 @@ int main(int argc, char *argv[])
     // double t = unitRand();
     // // double t = 0.5;
 
-    // std::cout << "Random index: " << randIdx << std::endl << std::endl;
+    // std::cout << "Selected index: " << randIdx << std::endl << std::endl;
 
     // size_t i = 0;
-    // for (Edge e : hull.edges()) {
+    // for (const Edge& e : hull.edges()) {
     //     std::cout << "Current index: " << i << std::endl;
     //     Face f1 = e.halfedge().face();
     //     Face f2 = e.halfedge().twin().face();
@@ -79,13 +74,13 @@ int main(int argc, char *argv[])
     //         double omega = geom.edgeDihedralAngle(e);
     //         // double omega = angle(nf1, nf2);
     //         if (omega <= 0.0) {
-    //             std::cout << "Invalid dihedral angle: " << omega << std::endl;
-    //             omega = std::acos(std::fmax(-1., std::fmin(1., dot(unit(nf1), unit(nf2)))));
-    //             std::cout << "For comparison,    handmade: " << omega << std::endl;
+    //             std::cout << "geometry-central dihedral angle: " << omega << std::endl;
+    //             omega = std::acos(std::clamp(dot(unit(nf1), unit(nf2)), -1., 1.));
+    //             std::cout << "                    traditional: " << omega << std::endl;
     //             omega = angle(nf1, nf2);
-    //             std::cout << "geometry-central angle func: " << omega << std::endl;
-    //             omega = geom.edgeDihedralAngles[e];
-    //             std::cout << "pre-computed dihedral angle: " << omega << std::endl << std::endl;
+    //             std::cout << "    geometry-central angle func: " << omega << std::endl;
+    //             // omega = geom.edgeDihedralAngles[e];
+    //             // std::cout << "pre-computed dihedral angle: " << omega << std::endl << std::endl;
     //             i++;
     //             continue;
     //         }
@@ -104,11 +99,11 @@ int main(int argc, char *argv[])
     // Vector3 n = gaussMap.randomGaussNormal();
     // Vector3 n{0, -1, 0.0005};
     // SurfacePoint elem = gaussMap.elementWithNormal(n);
-    // std::cout << "Surface point: " << elem << std::endl;
-    // std::cout << "Surface point normal: " << n << std::endl;
+    // std::cout << "Element: " << elem << std::endl;
+    // std::cout << "Element normal: " << n << std::endl;
 
     // output stable face probabilties
-    // gaussMap.computeProb();
+    gaussMap.computeProb();
 
     // display mesh and hull
     // mesh.show();

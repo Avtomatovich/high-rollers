@@ -17,7 +17,7 @@ public:
 
     void computeProb();
 
-    std::vector<TraceStep> traceGradient(const Vector3& n0);
+    std::vector<TraceStep> traceGradient(const Vector3& n0, bool debug = false);
 
     SurfacePoint elementWithNormal(const Vector3& n);
 

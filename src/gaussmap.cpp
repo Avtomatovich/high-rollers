@@ -1,7 +1,6 @@
 #include "gaussmap.h"
 
 
-
 #include "geometrycentral/utilities/utilities.h"
 
 GaussMap::GaussMap(Mesh& mesh) :
@@ -15,9 +14,6 @@ GaussMap::GaussMap(Mesh& mesh) :
     computeMinima();
     computeMaxima();
     computeSaddles();
-
-    // mapping from hull face to Gauss map vertex
-    hullToDual = FaceData<size_t>(_hull);
 }
 
 Vector3 GaussMap::randomGaussNormal()
@@ -29,10 +25,10 @@ Vector3 GaussMap::randomGaussNormal()
     // compute xy-scaling factor based on theta = acos(1 - 2 * r2)
     double factor = 2.0 * std::sqrt(r2 * (1.0 - r2));
     // sample random point on Gauss map (i.e. normal)
-    return {factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 };
+    return unit({factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 });
 }
 
-std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
+std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0, bool debug)
 {
     // INPUT: A unit vector n0 as the initial orientation, a convex shape H
     //          uniquely determined by a point set {p1, p2, ..., pn} in R3,
@@ -43,79 +39,118 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0)
 
     std::vector<TraceStep> N;
 
-
     // Get the unique face, edge, or vertex that has n0 as its normal,
     //      prioritizing faces, then edges, when the normal is shared.
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
 
     // Initialize with the first orientation
-    N.emplace_back(elem, n0);
+    N.push_back({elem, n0});
 
     // n <- n0
     Vector3 n = n0;
 
+    // init previous element
+    SurfacePoint prev;
+
+    // define visited lambda
+    auto visited = [&]() {
+        return (prev.type != elem.type) ?
+                    false : (elem.type == SurfacePointType::Edge) ?
+                        prev.edge == elem.edge : (elem.type == SurfacePointType::Face) ?
+                            prev.face == elem.face : prev.vertex == elem.vertex;
+    };
+
     // define rolling lambda
     auto rolling = [&]() {
-        Vertex next;
-        if (elem.type == SurfacePointType::Vertex) {
-            for (Edge e : elem.vertex.adjacentEdges()) {
-                next = e.otherVertex(elem.vertex);
-                break;
-            }
-        }
         return (elem.type == SurfacePointType::Edge) ?
                     _edgeRoll[elem.edge] : (elem.type == SurfacePointType::Face) ?
-                        _faceRoll[elem.face] : Roll{ RollType::WHEEL, next };
+                        _faceRoll[elem.face] : Roll{ RollType::WHEEL, elem };
     };
+
+    if (debug) std::cout << "Start trace" << std::endl;
+
+    // init step counter
+    int i = 0;
 
     // while elem is not stable face do
     for (Roll roll = rolling(); roll.type != RollType::STABLE; roll = rolling()) {
-        // Hinge edge or face
-        // if elem is hinge-type then
-        if (roll.type == RollType::HINGE) {
-            // Face that elem hinge-rolls onto
-            // elem <- NextFace(elem)
-            elem = nextFace(roll.next, n);
-            // A face normal
-            // n <- Normal(elem)
-            n = _geom.faceNormals[elem.face];
-            // N = N union {n}
-            N.emplace_back(elem, n);
 
-            // std::cout << "newly added normal: " << n << " for element " << elem << std::endl;
+        if (debug) {
+            std::cout << "  STEP " << i++ << std::endl;
+            std::cout << "     prev normal: " << n << std::endl;
+            std::cout << "    prev element: " << elem << std::endl;
+        }
+
+        // update previous element
+        prev = elem;
+
+        // if elem is hinge-type then
+        if (roll.type == RollType::HINGE) { // Hinge edge or face
+
+            if (debug) std::cout << "  HINGE ROLL" << std::endl;
+
+            // elem <- NextFace(elem)
+            elem = nextFace(roll.next, n); // Face that elem hinge-rolls onto
+            // n <- Normal(elem)
+            n = _geom.faceNormals[elem.face]; // A face normal
+            // N = N union {n}
+            N.push_back({elem, n});
         } else { // elem is a vertex, or a cartwheel-type edge/face
+
+            if (debug) std::cout << "  WHEEL ROLL" << std::endl;
+
             // elem <- NextVertex(elem)
             elem = roll.next;
-            // Neighboring edges
             // for elemAdj in AdjEdges(elem) do
-            for (const Edge& adjEdge : elem.vertex.adjacentEdges()) {
-                // f1, f2 <- adjFaces(edgeAdj)
+            for (const Edge& adjEdge : elem.vertex.adjacentEdges()) { // Neighboring edges
+                // f1, f2 <- adjFaces(elemAdj)
                 const Face& f1 = adjEdge.halfedge().face();
                 const Face& f2 = adjEdge.halfedge().twin().face();
                 // nf1, nf2 <- Normal(f1), Normal(f2)
                 const Vector3& nf1 = _geom.faceNormals[f1];
                 const Vector3& nf2 = _geom.faceNormals[f2];
-                // skip if coplanar
-                if (1.0 - dot(nf1, nf2) <= EPS) continue;
                 // Move along the gradient arc until elem's Gauss image boundary
                 // nNext <- RayArcInt(n*Elem, n, nf1, nf2)
                 Vector3 nNext = rayArcInt(_geom.vertexNormals[elem.vertex], n, nf1, nf2);
-                // Intersection; next normal found
-                if (nNext != Vector3::zero()) {
+                if (nNext != Vector3::zero()) { // Intersection; next normal found
                     // n <- nNext
                     n = nNext;
-                    // N = N union {n}
-                    N.emplace_back(elem, n);
-
-                    // std::cout << "newly added normal: " << n << " for element " << elem << std::endl;
                     // elem = ElementWithNormal(n);
                     elem = elementWithNormal(n);
-                    // don't check other neighbor edges
-                    break;
+                    // N = N union {n}
+                    N.push_back({elem, n});
+                    break; // don't check other neighbor edges
                 }
             }
         }
+
+        if (debug) {
+            std::cout << "     curr normal: " << n << std::endl;
+            std::cout << "    curr element: " << elem << std::endl << std::endl;
+        }
+
+        // Pop last element and exit loop if visited
+        if (visited()) {
+            if (debug) {
+                std::cout << "    revisited: " << elem << std::endl;
+                std::cout << "    EXIT" << std::endl;
+            }
+            N.pop_back();
+            break;
+        }
+
+    }
+
+    if (debug) {
+        std::cout << "End trace" << std::endl << std::endl;
+
+        std::cout << "Start path output" << std::endl;
+        for (const TraceStep& s : N) {
+            std::cout << "    normal: " << s.n << std::endl;
+            std::cout << "   element: " << s.elem << std::endl << std::endl;
+        }
+        std::cout << "End path output" << std::endl << std::endl;
     }
 
     return N;
@@ -163,9 +198,6 @@ SurfacePoint GaussMap::nextFace(const SurfacePoint& next,
     // return arbitrary face if faces are coplanar
     if (!isfinite(n1n2)) return { f1, Vector3::constant(RECIP_3) };
 
-    // compute tangent of current normal and great circle normal
-    Vector3 t = cross(n, n1n2);
-
     // fetch vertex endpoint coords
     const Vector3& x1 = _geom.vertexPositions[e.firstVertex()];
     const Vector3& x2 = _geom.vertexPositions[e.secondVertex()];
@@ -176,13 +208,8 @@ SurfacePoint GaussMap::nextFace(const SurfacePoint& next,
     // extract tangential component of gradient wrt current normal
     grad = grad - dot(grad, n) * n;
 
-    // TODO: double-check this logic
-    // check if gradient points towards nf1
-    bool toF1 = (dot(nf1 - n, t) >= 0.0) == true
-            && (dot(grad, t) >= 0.0) == true;
-
     // return face based on boolean check
-    return SurfacePoint{toF1 ? f1 : f2,
+    return SurfacePoint{(dot(nf1 - n, grad) >= 0.0) ? f1 : f2,
                         Vector3::constant(RECIP_3)};
 }
 
@@ -219,20 +246,20 @@ bool GaussMap::onGaussEdge(const Edge& e, const Vector3& n)
     const Vector3& nf1 = _geom.faceNormals[f1];
     const Vector3& nf2 = _geom.faceNormals[f2];
     // compute great circle normal and possible normal with n
-    Vector3 n1n2 = unit(cross(nf1, nf2)), n1n = unit(cross(nf1, n));
-    // return false if great circle normal degenerates, i.e. coplanar
-    if (!isfinite(n1n2)) return false;
-    // return false if possible normal degenerates, i.e. n is at n1
-    if (!isfinite(n1n)) {
-        std::cout << "Normal n=" << n << " is at nf1=" << nf1 << std::endl;
+    Vector3 nc = unit(cross(nf1, nf2)), ns = unit(cross(nf1, n));
+    // return false if faces are coplanar
+    if (!isfinite(nc)) return false;
+    // return false if at first face's normal, i.e. Gauss edge endpoint
+    if (!isfinite(ns)) {
+        std::cout << "Test n " << n << " == " << " face n " << nf1 << std::endl;
         return false;
     }
     // return false if point is not on great circle
-    if (1.0 - std::abs(dot(n1n2, n1n)) > EPS) return false;
+    if (1.0 - std::abs(dot(nc, ns)) > EPS) return false;
     // compute slerp weight
     // double t = angle(nf1, n) / _geom.edgeDihedralAngles[e];
     double t = angle(nf1, n) / angle(nf1, nf2);
-    // return true if weight is between 0 and 1 and is finite
+    // return true if slerp weight is between 0 and 1
     return 0.0 < t && t < 1.0;
 }
 
@@ -240,7 +267,7 @@ bool GaussMap::onGaussPatch(const Vertex& v, const Vector3& n)
 {
     // fetch arc normals
     const std::vector<Vector3>& na = _arcNormals[v];
-    // return false if patch has no boundaries
+    // return false if no patch exists
     if (na.empty()) return false;
     // check dot prod of n with arc normals
     bool orientation = dot(na[0], n) > 0.0;
@@ -254,7 +281,7 @@ bool GaussMap::onGaussPatch(const Vertex& v, const Vector3& n)
 
 void GaussMap::computeArcNormals()
 {
-    // link list of arc normals to hull
+    // link list of great circle normals to hull
     _arcNormals = VertexData<std::vector<Vector3>>(_hull);
 
     for (const Vertex& v : _hull.vertices()) {
@@ -268,20 +295,20 @@ void GaussMap::computeArcNormals()
 
         // get cross prods of adjacent face normals
         for (const Face& f : v.adjacentFaces()) {
-            // init first normal if undefined
+            // init first face normal if undefined
             if (nf0 == Vector3::undefined()) {
                 nf0 = nf1 = _geom.faceNormals[f];
                 continue;
             }
             // get current face normal
             nf2 = _geom.faceNormals[f];
-            // add great circle normal to list if not coplanar
+            // add great circle normal if no coplanarity
             na = unit(cross(nf1, nf2));
             if (isfinite(na)) np.push_back(na);
             // update latest normals
             nf1 = nf2;
         }
-        // add final great circle normal if not coplanar
+        // add last great circle normal if no coplanarity
         na = unit(cross(nf2, nf0));
         if (isfinite(na)) np.push_back(na);
     }
@@ -354,40 +381,31 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
         // SE <- SaddleEdges(H)
         std::unordered_map<Edge, Vector3>& SE = _saddles;
 
+        // BUG: infinite loop
         // for e0 in SE do
         for (const auto& [e0, n0] : SE) {
-            // Two faces neighboring e0
             // (f1, f2) <- AdjFaces(e0)
-            const Face& f1 = e0.halfedge().face();
+            const Face& f1 = e0.halfedge().face(); // Two faces neighboring e0
             const Face& f2 = e0.halfedge().twin().face();
 
-            // Normals of neighboring faces
-            const Vector3& nf1 = _geom.faceNormals[f1];
-            const Vector3& nf2 = _geom.faceNormals[f2];
-
-            // Faces on same point on Gauss map, i.e. coplanar
-            if (1.0 - dot(nf1, nf2) <= EPS) continue;
-
-            // Resting face starting from f1
             // f*1 <- DestinedFace(f1)
             // f*2 <- DestinedFace(f2)
-            Face fs1 = f1, fs2 = f2;
-            if (!destinedFace(fs1)) throw std::logic_error("No stable face from f1");
-            if (!destinedFace(fs2)) throw std::logic_error("No stable face from f2");
+            Face fs1 = f1, fs2 = f2; // Resting face starting from f1, f2
+            if (!destinedFace(fs1)) throw std::logic_error("Trace fails from f1");
+            if (!destinedFace(fs2)) throw std::logic_error("Trace fails from f2");
 
-            // Not dividing two different basins
             // if f*1 == f*2 then
             //     break
-            if (fs1 == fs2) continue;
+            if (fs1 == fs2) continue; // Not dividing two different basins
 
             // n <- n*e0
             Vector3 n = n0;
             // nNext <- 0
             Vector3 nNext = Vector3::zero();
 
-            // Two vertices adjacent to e
+            // BUG: infinite loop
             // for pi in AdjVertices(e0) do
-            for (Vertex p : e0.adjacentVertices()) {
+            for (Vertex p : e0.adjacentVertices()) { // Two vertices adjacent to e
                 // p <- pi
                 // while True do
                 while (true) {
@@ -395,8 +413,9 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
                     if (_maxima.contains(p)) {
                         // nNext <- n*p
                         nNext = _maxima[p];
+                        // NOTE: { saddle, max, min, min }
                         // BN <- BN union (n, nNext, f*1, f*2)
-                        BN.emplace_back(n, nNext, fs1, fs2);
+                        BN.push_back({n, nNext, fs1, fs2});
                         // break
                         break;
                     }
@@ -409,19 +428,20 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
                         // nf, nf' <- Normal(f), Normal(f')
                         const Vector3& nf  = _geom.faceNormals[f];
                         const Vector3& nfp = _geom.faceNormals[fp];
-                        // skip if coplanar
-                        if (1.0 - dot(nf, nfp) <= EPS) continue;
                         // nNext <- ArcsInt(n, nVertex, nf, nf')
                         nNext = rayArcInt(n, _geom.vertexNormals[p], nf, nfp);
-                        // Intersection happens
                         // if nNext != 0 then
-                        if (nNext != Vector3::zero()) {
+                        if (nNext != Vector3::zero()) { // Intersection happens
+                            // NOTE: { saddle, saddle, min, min }
                             // BN <- BN union (n, nNext, f*1, f*2)
-                            BN.emplace_back(n, nNext, fs1, fs2);
+                            BN.push_back({n, nNext, fs1, fs2});
                             // n <- nNext
                             n = nNext;
                             // p = OtherVertex(e, p)
                             p = e.otherVertex(p);
+
+                            std::cout << "Break out of infinite loop" << std::endl;
+
                             // break
                             break;
                         }
@@ -446,14 +466,14 @@ bool GaussMap::destinedFace(Face& f)
     const Vector3& nf = _geom.faceNormals[f];
     // trace path from given normal
     std::vector<TraceStep> path = traceGradient(nf);
-    // fetch last surface point and normal from path
-    const auto& [sf, nsf] = path.back();
+    // fetch last element from path
+    const auto& [elem, _] = path.back();
     // return false if element is not face
-    if (sf.type != SurfacePointType::Face) return false;
+    if (elem.type != SurfacePointType::Face) return false;
     // return false if face is not stable
-    if (_faceRoll[sf.face].type != RollType::STABLE) return false;
+    if (_faceRoll[elem.face].type != RollType::STABLE) return false;
     // update ref with stable face and return true
-    f = sf.face;
+    f = elem.face;
     return true;
 }
 
@@ -461,6 +481,7 @@ void GaussMap::computeProb()
 {
     std::vector<Separatrix> separatrices = buildSeparatrix();
 
+    // BUG: area computation
     // accumulate signed spherical triangle areas for stable faces
     for (const Separatrix& s : separatrices) {
         const Vector3& nf1 = _geom.faceNormals[s.f1];
