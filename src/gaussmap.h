@@ -6,7 +6,8 @@
 
 struct Separatrix
 {
-    Vector3 n1, n2; // saddle points/local maxima
+    Vector3 n1; // saddle point
+    Vector3 n2; // local maximum
     Face f1, f2; // local minima
 };
 

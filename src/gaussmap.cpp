@@ -376,82 +376,77 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
     // BN <- {}
     std::vector<Separatrix> BN;
 
-    try {
+    // SE <- SaddleEdges(H)
+    std::unordered_map<Edge, Vector3>& SE = _saddles;
 
-        // SE <- SaddleEdges(H)
-        std::unordered_map<Edge, Vector3>& SE = _saddles;
+    // for e0 in SE do
+    for (const auto& [e0, n0] : SE) {
+        // (f1, f2) <- AdjFaces(e0)
+        const Face& f1 = e0.halfedge().face(); // Two faces neighboring e0
+        const Face& f2 = e0.halfedge().twin().face();
 
-        // BUG: infinite loop
-        // for e0 in SE do
-        for (const auto& [e0, n0] : SE) {
-            // (f1, f2) <- AdjFaces(e0)
-            const Face& f1 = e0.halfedge().face(); // Two faces neighboring e0
-            const Face& f2 = e0.halfedge().twin().face();
+        // f*1 <- DestinedFace(f1)
+        // f*2 <- DestinedFace(f2)
+        Face fs1 = f1, fs2 = f2; // Resting face starting from f1, f2
+        if (!destinedFace(fs1)) continue;
+        if (!destinedFace(fs2)) continue;
 
-            // f*1 <- DestinedFace(f1)
-            // f*2 <- DestinedFace(f2)
-            Face fs1 = f1, fs2 = f2; // Resting face starting from f1, f2
-            if (!destinedFace(fs1)) throw std::logic_error("Trace fails from f1");
-            if (!destinedFace(fs2)) throw std::logic_error("Trace fails from f2");
+        // Fetch normals of destined faces
+        const Vector3& nfs1 = _geom.faceNormals[fs1];
+        const Vector3& nfs2 = _geom.faceNormals[fs2];
 
-            // if f*1 == f*2 then
-            //     break
-            if (fs1 == fs2) continue; // Not dividing two different basins
+        // if f*1 == f*2 then
+        //     break
+        if (fs1 == fs2 || !isfinite(unit(cross(nfs1, nfs2)))) { // Not dividing two different basins
+            continue;
+        }
 
-            // n <- n*e0
-            Vector3 n = n0;
-            // nNext <- 0
-            Vector3 nNext = Vector3::zero();
+        // n <- n*e0
+        Vector3 n = n0;
+        // nNext <- 0
+        Vector3 nNext = Vector3::zero();
 
-            // BUG: infinite loop
-            // for pi in AdjVertices(e0) do
-            for (Vertex p : e0.adjacentVertices()) { // Two vertices adjacent to e
-                // p <- pi
-                // while True do
-                while (true) {
-                    // if p is maximum vertex then
-                    if (_maxima.contains(p)) {
-                        // nNext <- n*p
-                        nNext = _maxima[p];
-                        // NOTE: { saddle, max, min, min }
+        // for pi in AdjVertices(e0) do
+        for (const Vertex& pi : e0.adjacentVertices()) { // Two vertices adjacent to e
+            // p <- pi
+            Vertex p = pi;
+            // while True do
+            while (true) {
+                // if p is maximum vertex then
+                if (_maxima.contains(p)) {
+                    // nNext <- n*p
+                    nNext = _maxima[p];
+                    // BN <- BN union (n, nNext, f*1, f*2)
+                    BN.push_back({n, nNext, fs1, fs2});
+                    // break
+                    break;
+                }
+                // for e in AdjEdges(p) do
+                for (const Edge& e : p.adjacentEdges()) {
+                    // f, f' <- AdjFaces(e)
+                    const Face& f = e.halfedge().face();
+                    const Face& fp = e.halfedge().twin().face();
+                    // nf, nf' <- Normal(f), Normal(f')
+                    const Vector3& nf  = _geom.faceNormals[f];
+                    const Vector3& nfp = _geom.faceNormals[fp];
+                    // nNext <- ArcsInt(n, nVertex, nf, nf')
+                    nNext = rayArcInt(n, _geom.vertexNormals[p], nf, nfp);
+                    // if nNext != 0 then
+                    if (nNext != Vector3::zero()) { // Intersection happens
                         // BN <- BN union (n, nNext, f*1, f*2)
                         BN.push_back({n, nNext, fs1, fs2});
+                        // n <- nNext
+                        n = nNext;
+                        // p = OtherVertex(e, p)
+                        p = e.otherVertex(p);
                         // break
                         break;
                     }
-
-                    // for e in AdjEdges(p) do
-                    for (const Edge& e : p.adjacentEdges()) {
-                        // f, f' <- AdjFaces(e)
-                        const Face& f = e.halfedge().face();
-                        const Face& fp = e.halfedge().twin().face();
-                        // nf, nf' <- Normal(f), Normal(f')
-                        const Vector3& nf  = _geom.faceNormals[f];
-                        const Vector3& nfp = _geom.faceNormals[fp];
-                        // nNext <- ArcsInt(n, nVertex, nf, nf')
-                        nNext = rayArcInt(n, _geom.vertexNormals[p], nf, nfp);
-                        // if nNext != 0 then
-                        if (nNext != Vector3::zero()) { // Intersection happens
-                            // NOTE: { saddle, saddle, min, min }
-                            // BN <- BN union (n, nNext, f*1, f*2)
-                            BN.push_back({n, nNext, fs1, fs2});
-                            // n <- nNext
-                            n = nNext;
-                            // p = OtherVertex(e, p)
-                            p = e.otherVertex(p);
-
-                            std::cout << "Break out of infinite loop" << std::endl;
-
-                            // break
-                            break;
-                        }
-                    }
                 }
+                // break if no separatrix found
+                break;
             }
         }
-
-    } catch (std::exception& e) {
-        std::cout << "buildSeparatrix | ERROR | " << e.what() << std::endl;
     }
 
     // return BN
@@ -481,7 +476,6 @@ void GaussMap::computeProb()
 {
     std::vector<Separatrix> separatrices = buildSeparatrix();
 
-    // BUG: area computation
     // accumulate signed spherical triangle areas for stable faces
     for (const Separatrix& s : separatrices) {
         const Vector3& nf1 = _geom.faceNormals[s.f1];
@@ -507,10 +501,6 @@ double GaussMap::spheTriArea(const Vector3& a,
                              const Vector3& b,
                              const Vector3& c)
 {
-    double N = dot(a, cross(b, c));
-    double D = norm(a) * norm(b) * norm(c) +
-                dot(a, b) * norm(c) +
-                dot(a, c) * norm(b) +
-                dot(b, c) * norm(a);
-    return 2.0 * atan2(N, D);
+    return 2.0 * atan2(dot(a, cross(b, c)),
+                       1.0 + dot(a, b) + dot(a, c) + dot(b, c));
 }

@@ -68,8 +68,8 @@ int main(int argc, char *argv[])
     //     Face f2 = e.halfedge().twin().face();
     //     Vector3 nf1 = geom.faceNormal(f1);
     //     Vector3 nf2 = geom.faceNormal(f2);
-    //     // std::cout << "Face normal 1 of edge " << e << ": " << nf1 << std::endl;
-    //     // std::cout << "Face normal 2 of edge " << e << ": " << nf2 << std::endl;
+    //     std::cout << "Face normal 1 of edge " << e << ": " << nf1 << std::endl;
+    //     std::cout << "Face normal 2 of edge " << e << ": " << nf2 << std::endl;
     //     if (i >= randIdx) {
     //         double omega = geom.edgeDihedralAngle(e);
     //         // double omega = angle(nf1, nf2);
@@ -79,8 +79,8 @@ int main(int argc, char *argv[])
     //             std::cout << "                    traditional: " << omega << std::endl;
     //             omega = angle(nf1, nf2);
     //             std::cout << "    geometry-central angle func: " << omega << std::endl;
-    //             // omega = geom.edgeDihedralAngles[e];
-    //             // std::cout << "pre-computed dihedral angle: " << omega << std::endl << std::endl;
+    //             omega = geom.edgeDihedralAngles[e];
+    //             std::cout << "pre-computed dihedral angle: " << omega << std::endl << std::endl;
     //             i++;
     //             continue;
     //         }
@@ -90,7 +90,7 @@ int main(int argc, char *argv[])
     //         SurfacePoint elem = gaussMap.elementWithNormal(n);
     //         std::cout << "Current edge: " << e << std::endl;
     //         std::cout << "Surface point: " << elem << std::endl;
-    //         std::cout << "Surface point normal: " << n << std::endl;
+    //         std::cout << "Surface point normal: " << n << std::endl << std::endl;
     //         break;
     //     }
     //     i++;

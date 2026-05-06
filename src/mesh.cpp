@@ -207,9 +207,8 @@ void Mesh::computeCenterOfMass()
 // Helper function to convert a normal vector into a mesh orientation
 Eigen::Matrix4d Mesh::normalToTransform(const Eigen::Vector3d& n)
 {
-    // TODO: change UnitZ to UnitY?
     Eigen::Quaterniond q =
-            Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitZ(), n);
+            Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitY(), n);
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T.block<3, 3>(0, 0) = q.toRotationMatrix();
     return T;
@@ -257,7 +256,7 @@ void Mesh::classifyEdges()
         Eigen::Vector3d pEdge = edge.projection(P);
         double t = (pEdge - A).norm() / edgeDir.norm();
 
-        if (0.0 <= t && t <= 1.0) {
+        if (0.0 < t && t < 1.0) {
             // // HINGE TYPE
             _edgeRoll[e] = { RollType::HINGE, { e, t } };
         } else {
@@ -301,11 +300,11 @@ void Mesh::classifyFaces()
 
         // 3. Check if P is inside by ensuring weights are positive and sum is less than 1
         if (alpha >= 0.0 && beta >= 0.0 && alpha + beta <= 1.0) {
-            // f is placeholder for next as stable faces don't roll
+            // NOTE: f is placeholder
             _faceRoll[f] = { RollType::STABLE, { f, { alpha, beta, 1.0 - alpha - beta } } };
         } else {
             // 4. Determine if hinge (F1) or wheel (F2)
-            // It is a Hinge if it's "outside" an edge but within the Voronoi stripe of that edge
+            // It is a Hinge if it's within the Voronoi stripe of that edge
             double closest = std::numeric_limits<double>::infinity();
 
             for (int i = 0; i < 3; i++) {
@@ -320,7 +319,7 @@ void Mesh::classifyFaces()
                 double t = (pEdge - A).norm() / edgeDir.norm();
 
                 // If weight is between 0 and 1, projection is in stripe
-                if (0.0 <= t && t <= 1.0) {
+                if (0.0 < t && t < 1.0) {
                     // rolls onto edge that subtends stripe
                     _faceRoll[f] = { RollType::HINGE, { edges[i], t } };
                     break;
@@ -332,7 +331,6 @@ void Mesh::classifyFaces()
                         _faceRoll[f] = { RollType::WHEEL, vertices[i] };
                     }
                 }
-
             }
 
         }
