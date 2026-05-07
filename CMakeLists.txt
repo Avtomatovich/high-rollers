@@ -28,9 +28,12 @@ add_executable(${PROJECT_NAME}
     src/util/quickhull/Quickhull.cpp
 
     src/mesh.h 
+    src/gaussmap.h
+    src/unionfind.h
+
     src/mesh.cpp
-    src/gaussmap.h 
     src/gaussmap.cpp
+    src/unionfind.cpp
 )
 
 add_subdirectory(deps/eigen)
