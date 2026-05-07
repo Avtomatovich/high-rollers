@@ -41,34 +41,48 @@ private:
     std::unordered_map<Vertex, Vector3> _maxima;
     std::unordered_map<Edge, Vector3> _saddles;
 
+    FaceData<Face> _toGaussFace;
+    FaceData<std::vector<Face>> _toHullFace;
+
 
     // // funcs
+    std::vector<Separatrix> buildSeparatrix(bool debug = false);
+
     // ray-arc/arc-arc intersection routine
     Vector3 rayArcInt(const Vector3& ns,
                       const Vector3& n,
                       const Vector3& n1,
                       const Vector3& n2);
 
-    std::vector<Separatrix> buildSeparatrix();
-
     // hinge-rolling helper
     SurfacePoint nextFace(const SurfacePoint& next,
                           const Vector3& n);
 
-    // bounds-checking helpers
+    // boundary checking helpers
     bool onGaussEdge(const Edge& e, const Vector3& n);
     bool onGaussPatch(const Vertex& v, const Vector3& n);
 
     // pre-computing helpers
+    void computeMappings();
     void computeArcNormals();
     void computeMinima();
     void computeMaxima();
     void computeSaddles();
 
-    // spherical triangle area helper
-    double spheTriArea(const Vector3& a,
-                       const Vector3& b,
-                       const Vector3& c);
+    // utility helpers
+    inline double spheTriArea(const Vector3& a,
+                              const Vector3& b,
+                              const Vector3& c)
+    {
+        return 2.0 * atan2(dot(a, cross(b, c)),
+                           1.0 + dot(a, b) + dot(a, c) + dot(b, c));
+    }
+    inline bool isCoplanar(const Vector3& ni,
+                           const Vector3& nj)
+    {
+        // NOTE: assumes that vectors are normalized
+        return 1.0 - dot(ni, nj) <= EPS;
+    }
 
     // destined stable face helper
     bool destinedFace(Face& f);

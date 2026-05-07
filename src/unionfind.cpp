@@ -64,7 +64,7 @@ void UnionFind::join(size_t i, size_t j)
     }
 }
 
-int UnionFind::size(size_t i)
+size_t UnionFind::size(size_t i)
 {
-    return (0 <= i && i < _size.size()) ? _size[i] : -1;
+    return (0 <= i && i < _size.size()) ? _size[i] : 0;
 }

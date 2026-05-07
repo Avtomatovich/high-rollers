@@ -60,6 +60,9 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // pre-compute edge dihedral angles (angles between faces)
     _hullGeom->requireEdgeDihedralAngles();
 
+    // pre-compute face indices of hull
+    _hullGeom->requireFaceIndices();
+
     // compute center of mass if not provided
     if (computeCom) computeCenterOfMass();
 

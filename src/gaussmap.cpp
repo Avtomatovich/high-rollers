@@ -1,6 +1,8 @@
 #include "gaussmap.h"
 
 
+#include "unionfind.h"
+
 #include "geometrycentral/utilities/utilities.h"
 
 GaussMap::GaussMap(Mesh& mesh) :
@@ -10,6 +12,7 @@ GaussMap::GaussMap(Mesh& mesh) :
     _edgeRoll(mesh.getEdgeRoll()),
     _faceRoll(mesh.getFaceRoll())
 {
+    computeMappings();
     computeArcNormals();
     computeMinima();
     computeMaxima();
@@ -28,6 +31,9 @@ Vector3 GaussMap::randomGaussNormal()
     return unit({factor * std::cos(phi), factor * std::sin(phi), 1.0 - 2.0 * r2 });
 }
 
+
+// // GRADIENT TRACING
+
 std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0, bool debug)
 {
     // INPUT: A unit vector n0 as the initial orientation, a convex shape H
@@ -44,8 +50,7 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0, bool debug)
     // elem <- ElementWithNormal(n0)
     SurfacePoint elem = elementWithNormal(n0);
 
-    // Initialize with the first orientation
-    N.push_back({elem, n0});
+    N.push_back({elem, n0}); // Initialize with the first orientation
 
     // n <- n0
     Vector3 n = n0;
@@ -96,6 +101,7 @@ std::vector<TraceStep> GaussMap::traceGradient(const Vector3& n0, bool debug)
             n = _geom.faceNormals[elem.face]; // A face normal
             // N = N union {n}
             N.push_back({elem, n});
+
         } else { // elem is a vertex, or a cartwheel-type edge/face
 
             if (debug) std::cout << "  WHEEL ROLL" << std::endl;
@@ -192,11 +198,8 @@ SurfacePoint GaussMap::nextFace(const SurfacePoint& next,
     const Vector3& nf1 = _geom.faceNormals[f1];
     const Vector3& nf2 = _geom.faceNormals[f2];
 
-    // compute great circle normal
-    Vector3 n1n2 = unit(cross(nf1, nf2));
-
     // return arbitrary face if faces are coplanar
-    if (!isfinite(n1n2)) return { f1, Vector3::constant(RECIP_3) };
+    if (isCoplanar(nf1, nf2)) return { f1, Vector3::constant(RECIP_3) };
 
     // fetch vertex endpoint coords
     const Vector3& x1 = _geom.vertexPositions[e.firstVertex()];
@@ -225,9 +228,6 @@ Vector3 GaussMap::rayArcInt(const Vector3& ns,
     Vector3 n1n2 = cross(n1, n2), n2n1 = -n1n2;
     // d is on the intersection of two great circles containing the input arcs
     Vector3 d = unit(cross(cross(ns, n), n1n2));
-    // return early if intersection degenerates
-    if (!isfinite(d)) return nInt;
-
     Vector3 dn2 = cross(d, n2), dn1 = cross(d, n1);
     if (dot(dn2, n1n2) >= 0.0 && dot(dn1, n2n1) >= 0.0) {
         nInt =  d; //  d inside the arc
@@ -237,6 +237,9 @@ Vector3 GaussMap::rayArcInt(const Vector3& ns,
     }
     return nInt;
 }
+
+
+// // BOUNDARY CHECKING
 
 bool GaussMap::onGaussEdge(const Edge& e, const Vector3& n)
 {
@@ -251,7 +254,7 @@ bool GaussMap::onGaussEdge(const Edge& e, const Vector3& n)
     if (!isfinite(nc)) return false;
     // return false if at first face's normal, i.e. Gauss edge endpoint
     if (!isfinite(ns)) {
-        std::cout << "Test n " << n << " == " << " face n " << nf1 << std::endl;
+        std::cout << "Edge n " << n << " == " << " face n " << nf1 << std::endl;
         return false;
     }
     // return false if point is not on great circle
@@ -279,91 +282,10 @@ bool GaussMap::onGaussPatch(const Vertex& v, const Vector3& n)
     return true;
 }
 
-void GaussMap::computeArcNormals()
-{
-    // link list of great circle normals to hull
-    _arcNormals = VertexData<std::vector<Vector3>>(_hull);
 
-    for (const Vertex& v : _hull.vertices()) {
-        // fetch ref to list of great circle normals
-        std::vector<Vector3>& np = _arcNormals[v];
-        np.reserve(v.faceDegree());
+// // MORSE-SMALE COMPLEX
 
-        // init face normal vars
-        Vector3 na, nf0, nf1, nf2;
-        nf0 = Vector3::undefined();
-
-        // get cross prods of adjacent face normals
-        for (const Face& f : v.adjacentFaces()) {
-            // init first face normal if undefined
-            if (nf0 == Vector3::undefined()) {
-                nf0 = nf1 = _geom.faceNormals[f];
-                continue;
-            }
-            // get current face normal
-            nf2 = _geom.faceNormals[f];
-            // add great circle normal if no coplanarity
-            na = unit(cross(nf1, nf2));
-            if (isfinite(na)) np.push_back(na);
-            // update latest normals
-            nf1 = nf2;
-        }
-        // add last great circle normal if no coplanarity
-        na = unit(cross(nf2, nf0));
-        if (isfinite(na)) np.push_back(na);
-    }
-}
-
-void GaussMap::computeMinima()
-{
-    // init all stable face areas to zero
-    for (const Face& f : _hull.faces()) {
-        if (_faceRoll[f].type == RollType::STABLE) {
-            _minima[f] = 0.0;
-        }
-    }
-}
-
-void GaussMap::computeMaxima()
-{
-    for (const Vertex& v : _hull.vertices()) {
-        // compute normalized gradient
-        Vector3 nj = unit(_geom.vertexPositions[v] - _c);
-        if (!isfinite(nj)) continue;
-        // add maxima if in Gauss patch of vertex
-        if (onGaussPatch(v, nj)) _maxima[v] = nj;
-    }
-}
-
-void GaussMap::computeSaddles()
-{
-    for (const Edge& e : _hull.edges()) {
-        // if edge is a hinge type
-        if (_edgeRoll[e].type == RollType::HINGE) {
-            // fetch adjacent face normals
-            const Face& fi = e.halfedge().face();
-            const Face& fj = e.halfedge().twin().face();
-            const Vector3& nfi = _geom.faceNormals[fi];
-            const Vector3& nfj = _geom.faceNormals[fj];
-            // skip if normals are identical (i.e. faces are coplanar)
-            if (1.0 - dot(nfi, nfj) <= EPS) continue;
-            // fetch endpoint coords
-            const Vector3& xi = _geom.vertexPositions[e.firstVertex()];
-            const Vector3& xj = _geom.vertexPositions[e.secondVertex()];
-            // compute edge vector
-            Vector3 vij = xj - xi;
-            // project center of mass onto edge
-            Vector3 cij = xi + dot(_c - xi, vij) / dot(vij, vij) * vij;
-            // compute vector from projection to center of mass
-            Vector3 nij = unit(_c - cij);
-            if (!isfinite(nij)) continue;
-            // add as saddle point if on Gauss edge
-            if (onGaussEdge(e, nij)) _saddles[e] = nij;
-        }
-    }
-}
-
-std::vector<Separatrix> GaussMap::buildSeparatrix()
+std::vector<Separatrix> GaussMap::buildSeparatrix(bool debug)
 {
     // INPUT: A convex shape H uniquely determined by a point
     //          set {x1, x2, ..., xn} in R3, a point c in R3 inside H
@@ -387,17 +309,13 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
 
         // f*1 <- DestinedFace(f1)
         // f*2 <- DestinedFace(f2)
-        Face fs1 = f1, fs2 = f2; // Resting face starting from f1, f2
+        Face fs1 = f1, fs2 = f2; // Resting faces starting from f1, f2
         if (!destinedFace(fs1)) continue;
         if (!destinedFace(fs2)) continue;
 
-        // Fetch normals of destined faces
-        const Vector3& nfs1 = _geom.faceNormals[fs1];
-        const Vector3& nfs2 = _geom.faceNormals[fs2];
-
         // if f*1 == f*2 then
         //     break
-        if (fs1 == fs2 || !isfinite(unit(cross(nfs1, nfs2)))) { // Not dividing two different basins
+        if (fs1 == fs2 || _toGaussFace[fs1] == _toGaussFace[fs2]) { // Not dividing two different basins
             continue;
         }
 
@@ -410,6 +328,12 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
         for (const Vertex& pi : e0.adjacentVertices()) { // Two vertices adjacent to e
             // p <- pi
             Vertex p = pi;
+
+            // // init visited set of vertices
+            // std::unordered_set<Vertex> visited;
+            // // init trace list
+            // std::vector<Vertex> trace;
+
             // while True do
             while (true) {
                 // if p is maximum vertex then
@@ -418,11 +342,30 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
                     nNext = _maxima[p];
                     // BN <- BN union (n, nNext, f*1, f*2)
                     BN.push_back({n, nNext, fs1, fs2});
+
+                    // if (debug) {
+                    //     trace.push_back(p);
+                    //     int i = 0;
+                    //     std::cout << "With maxima" << std::endl;
+                    //     for (const auto& v : trace) {
+                    //         std::cout << "Vertex " << i++ << ": " << v << std::endl;
+                    //     }
+                    //     std::cout << std::endl << std::endl;
+                    // }
+
                     // break
                     break;
                 }
+
+                // create found bool
+                // bool found = false;
                 // for e in AdjEdges(p) do
                 for (const Edge& e : p.adjacentEdges()) {
+                    // // break if visited
+                    // if (visited.contains(p)) break;
+                    // // mark vertex as visited
+                    // visited.insert(p);
+                    // if (debug) trace.push_back(p);
                     // f, f' <- AdjFaces(e)
                     const Face& f = e.halfedge().face();
                     const Face& fp = e.halfedge().twin().face();
@@ -439,12 +382,28 @@ std::vector<Separatrix> GaussMap::buildSeparatrix()
                         n = nNext;
                         // p = OtherVertex(e, p)
                         p = e.otherVertex(p);
+                        // mark as found
+                        // found = true;
                         // break
                         break;
                     }
                 }
                 // break if no separatrix found
-                break;
+                // if (!found) {
+
+                //     // if (debug) {
+                //     //     int i = 0;
+                //     //     std::cout << "Without maxima" << std::endl;
+                //     //     for (const auto& v : trace) {
+                //     //         std::cout << "Vertex " << i++ << ": " << v << std::endl;
+                //     //     }
+                //     //     std::cout << std::endl << std::endl;
+                //     // }
+
+                //     break;
+                // }
+                // if (!found) break;
+                // break;
             }
         }
     }
@@ -472,35 +431,206 @@ bool GaussMap::destinedFace(Face& f)
     return true;
 }
 
+
+// // PRE-COMPUTING
+
+void GaussMap::computeMappings()
+{
+    // link hull-to-Gauss face map to hull mesh
+    _toGaussFace = FaceData<Face>(_hull);
+
+    // link Gauss-to-hull face map to hull mesh
+    _toHullFace = FaceData<std::vector<Face>>(_hull);
+
+    // init union find data structure
+    UnionFind partition(_hull.nFaces());
+
+    for (const Face& fi : _hull.faces()) {
+        // map face to self in hull-to-Gauss face map
+        _toGaussFace[fi] = fi;
+        // fetch face index and normal
+        size_t i = _geom.faceIndices[fi];
+        const Vector3& ni = _geom.faceNormals[fi];
+        // for each adjacent face
+        for (const Face& fj : fi.adjacentFaces()) {
+            // fetch adjacent face index and normal
+            size_t j = _geom.faceIndices[fj];
+            const Vector3& nj = _geom.faceNormals[fj];
+            // join faces i and j if coplanar
+            if (isCoplanar(ni, nj)) partition.join(i, j);
+        }
+    }
+
+    for (const Face& f : _hull.faces()) {
+        // fetch face index
+        size_t i = _geom.faceIndices[f];
+        // if face is singleton, i.e. not parent
+        if (partition.size(i) == 1) {
+            // find parent face index
+            size_t p = partition.find(i);
+            // fetch parent face
+            Face fp(&_hull, p);
+            // map curr face to parent face
+            _toGaussFace[f] = fp;
+            // add curr face as child of parent face
+            _toHullFace[fp].push_back(f);
+        }
+    }
+}
+
+void GaussMap::computeArcNormals()
+{
+    // link list of great circle normals to hull
+    _arcNormals = VertexData<std::vector<Vector3>>(_hull);
+
+    for (const Vertex& v : _hull.vertices()) {
+        // init list of face normals
+        std::vector<Vector3> nf;
+        nf.reserve(v.faceDegree());
+
+        // std::cout << "Current vertex " << v << std::endl;
+        for (const Face& f : v.adjacentFaces()) {
+            // std::cout << "    Original face " << f << std::endl;
+            // std::cout << "    Original normal " << _geom.faceNormals[f] << std::endl;
+            // std::cout << "    Gauss face " << _toGaussFace[f] << std::endl;
+            // std::cout << "    Gauss normal " << _geom.faceNormals[_toGaussFace[f]] << std::endl << std::endl;
+            nf.push_back(_geom.faceNormals[_toGaussFace[f]]);
+        }
+
+        // fetch ref to list of great circle normals
+        std::vector<Vector3>& np = _arcNormals[v];
+        np.reserve(v.faceDegree());
+
+        if (nf.size() >= 3) {
+            Vector3 na;
+            for (size_t i = 0; i < nf.size(); i++) {
+                const Vector3& ni = nf[i];
+                const Vector3& nj = nf[(i + 1) % nf.size()];
+                na = unit(cross(ni, nj));
+                if (isfinite(na)) np.push_back(na);
+            }
+        }
+
+        if (np.size() < 3) np.clear();
+
+        // // init face normal vars
+        // Vector3 na, nf0, nf1, nf2;
+        // nf0 = Vector3::undefined();
+
+        // // get cross prods of adjacent face normals
+        // for (const Face& f : v.adjacentFaces()) {
+        //     // init first face normal if undefined
+        //     if (nf0 == Vector3::undefined()) {
+        //         nf0 = nf1 = _geom.faceNormals[f];
+        //         continue;
+        //     }
+        //     // get current face normal
+        //     nf2 = _geom.faceNormals[f];
+        //     // add great circle normal if no coplanarity
+        //     na = unit(cross(nf1, nf2));
+        //     if (isfinite(na)) np.push_back(na);
+        //     // update latest normals
+        //     nf1 = nf2;
+        // }
+        // // add last great circle normal if no coplanarity
+        // na = unit(cross(nf2, nf0));
+        // if (isfinite(na)) np.push_back(na);
+
+        // std::cout << "Arc normals of " << v << " at " << _geom.vertexPositions[v] << std::endl;
+        // std::cout << "Num of arc normals: " << np.size() << std::endl;
+        // for (const Vector3& a : np) {
+        //     std::cout << "    " << a << std::endl;
+        // }
+        // std::cout << std::endl;
+    }
+}
+
+void GaussMap::computeMinima()
+{
+    // init all stable face areas to zero
+    for (const Face& f : _hull.faces()) {
+        if (_faceRoll[f].type == RollType::STABLE) _minima[f] = 0.0;
+    }
+}
+
+void GaussMap::computeMaxima()
+{
+    for (const Vertex& v : _hull.vertices()) {
+        // compute direction vector from center of mass to hull vertex
+        Vector3 nj = unit(_geom.vertexPositions[v] - _c);
+        if (!isfinite(nj)) {
+            std::cout << "Local maximum is NaN" << std::endl;
+            continue;
+        }
+        // add maxima if on Gauss patch of vertex
+        if (onGaussPatch(v, nj)) _maxima[v] = nj;
+    }
+
+    std::cout << "No of maxima: " << _maxima.size() << std::endl;
+}
+
+void GaussMap::computeSaddles()
+{
+    for (const Edge& e : _hull.edges()) {
+        // if edge is a hinge type
+        if (_edgeRoll[e].type == RollType::HINGE) {
+            // fetch adjacent face normals
+            const Face& fi = e.halfedge().face();
+            const Face& fj = e.halfedge().twin().face();
+            // skip if faces are coplanar
+            if (_toGaussFace[fi] == _toGaussFace[fj]) continue;
+            // fetch endpoint coords
+            const Vector3& xi = _geom.vertexPositions[e.firstVertex()];
+            const Vector3& xj = _geom.vertexPositions[e.secondVertex()];
+            // compute edge vector
+            Vector3 vij = xj - xi;
+            // project center of mass onto edge
+            Vector3 cij = xi + dot(_c - xi, vij) / dot(vij, vij) * vij;
+            // compute vector from projection to center of mass
+            Vector3 nij = unit(_c - cij);
+            if (!isfinite(nij)) continue;
+            // add as saddle point if on Gauss edge
+            if (onGaussEdge(e, nij)) _saddles[e] = nij;
+        }
+    }
+
+    std::cout << "No of saddle points: " << _saddles.size() << std::endl;
+}
+
 void GaussMap::computeProb()
 {
     std::vector<Separatrix> separatrices = buildSeparatrix();
+    // std::vector<Separatrix> separatrices = buildSeparatrix(true);
 
+    int i = 0;
     // accumulate signed spherical triangle areas for stable faces
     for (const Separatrix& s : separatrices) {
+        std::cout << "Separatrix " << i++ << ": " << std::endl;
+        std::cout << "    Face f1: " << s.f1 << std::endl;
+        std::cout << "    Face f2: " << s.f2 << std::endl;
+        std::cout << "    Normal n1: " << s.n1 << std::endl;
+        std::cout << "    Normal n2: " << s.n2 << std::endl;
         const Vector3& nf1 = _geom.faceNormals[s.f1];
         const Vector3& nf2 = _geom.faceNormals[s.f2];
         _minima[s.f1] += spheTriArea(nf1, s.n1, s.n2);
         _minima[s.f2] += spheTriArea(nf2, s.n1, s.n2);
+        // std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
+        // std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
     }
 
     std::cout << "Odds of stability for each hull face: " << std::endl;
 
+    double sum = 0.0;
     // normalize area sums to get probabilities
     for (const auto& [f, a] : _minima) {
         double area = a;
         area /= SPHERE_AREA;
-        std::cout << "  Prob of face " << f << ": " << area << std::endl;
+        sum += area;
+        std::cout << "    Prob of face " << f << ": " << area << std::endl;
     }
+
+    std::cout << "Sum of probs: " << sum << std::endl << std::endl;
 
     // reset after probability computation
     computeMinima();
-}
-
-double GaussMap::spheTriArea(const Vector3& a,
-                             const Vector3& b,
-                             const Vector3& c)
-{
-    return 2.0 * atan2(dot(a, cross(b, c)),
-                       1.0 + dot(a, b) + dot(a, c) + dot(b, c));
 }
