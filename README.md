@@ -6,7 +6,7 @@ Final Project Repo for Spring 2026, CSCI2240: Advanced Computer Graphics at Brow
 
 ## Project Description
 
-We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Putting Rigid Bodies to Rest" by Keenan Crane, Qingnan Zhou, Nicholas Sharp, Hossein Baktash, and Alec Jacobson. 
+We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Putting Rigid Bodies to Rest" by Keenan Crane, Qingnan Zhou, Nicholas Sharp, Hossein Baktash, and Alec Jacobson. https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/
 
 ## Project Presentation
 
