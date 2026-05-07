@@ -1,5 +1,30 @@
 # High Rollers
 
+Samson Tsegai, Marissa Shaffer, and Justin Xu
+
+Final Project Repo for Spring 2026, CSCI2240: Advanced Computer Graphics at Brown University.
+
+## Project Description
+
+We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Putting Rigid Bodies to Rest" by Keenan Crane, Qingnan Zhou, Nicholas Sharp, Hossein Baktash, and Alec Jacobson. 
+
+## Project Presentation
+
+[High Rollers.pptx](https://github.com/user-attachments/files/27497098/High.Rollers.pptx)
+
+## Results
+
+**Cow Mesh Rolling to Rest**
+<img width="676" height="217" alt="cow_roll" src="https://github.com/user-attachments/assets/8e65e466-6ede-4fc5-bdaf-7d4c2e63b4e1" />
+
+**Cube Rolling to Rest**
+<img width="301" height="211" alt="Screenshot 2026-05-07 at 5 30 01 PM" src="https://github.com/user-attachments/assets/2f9e4426-d704-4834-a328-1f0b4f1aaea3" />
+
+**Gauss Map Visualization**
+<img width="404" height="215" alt="Screenshot 2026-05-07 at 5 29 31 PM" src="https://github.com/user-attachments/assets/ea85492b-a557-4c80-9467-e7783a9806e0" />
+
+
+
 ## Setup
 
 - After cloning the repository to your local device, make sure to run this command in the project directory in your terminal:
@@ -31,3 +56,4 @@ This project acknowledges and expresses thanks for the use of the following exte
 - [**Polyscope** by Nicholas Sharp and others](www.polyscope.run)
 - [**Eigen** by Gaël Guennebaud and Benoît Jacob and others](https://libeigen.gitlab.io)
 - [**Quickhull** by Antti Kuukka and others](https://github.com/akuukka/quickhull)
+- **[Bullet](https://github.com/bulletphysics/bullet3)**
