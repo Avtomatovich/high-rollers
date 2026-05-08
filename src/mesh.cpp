@@ -63,6 +63,9 @@ Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     // pre-compute face indices of hull
     _hullGeom->requireFaceIndices();
 
+    std::cout << "No of hull vertices: " << _hull->nVertices() << std::endl;
+    std::cout << "No of hull faces: " << _hull->nFaces() << std::endl;
+
     // compute center of mass if not provided
     if (computeCom) computeCenterOfMass();
 
@@ -142,9 +145,9 @@ void Mesh::show()
 
     // // CLASSIFICATION HIGHLIGHTING
 
-    // polyscope::registerSurfaceMesh("mesh",
-    //                                _meshGeom->vertexPositions,
-    //                                _mesh->getFaceVertexList());
+    // // polyscope::registerSurfaceMesh("mesh",
+    // //                                _meshGeom->vertexPositions,
+    // //                                _mesh->getFaceVertexList());
     // std::vector<glm::vec3> points;
     // points.push_back({ _com.x, _com.y, _com.z });
     // polyscope::PointCloud *psCloud = polyscope::registerPointCloud("center of mass", points);
