@@ -15,7 +15,7 @@ public:
     GaussMap(Mesh& mesh);
 
     Vector3 randomGaussNormal();
-    std::vector<TraceStep> traceGradient(const Vector3& n0);
+    std::vector<TraceStep> traceGradient(const Vector3& n0, bool debug);
     SurfacePoint elementWithNormal(const Vector3& n);
     void computeProb();
     void visualizeGaussMap();
@@ -26,6 +26,8 @@ private:
     const VertexPositionGeometry& _geom;
     const EdgeData<Roll>&         _edgeRoll;
     const FaceData<Roll>&         _faceRoll;
+    FaceData<Face> _toGaussFace;
+    FaceData<std::vector<Face>> _toHullFace;
 
     // ── owned by GaussMap, but constructed against _hull ──
     Vector3                              _c;
@@ -40,15 +42,29 @@ private:
     bool onGaussEdge(const Edge& e, const Vector3& n);
     bool onGaussPatch(const Vertex& v, const Vector3& n);
 
+    void computeMappings();
     void computeArcNormals();
     void computeMinima();
     void computeMaxima();
     void computeSaddles();
 
-    std::vector<Separatrix> buildSeparatrix();
+    std::vector<Separatrix> buildSeparatrix(bool debug);
     bool destinedFace(Face& f);
 
-    double spheTriArea(const Vector3& a, const Vector3& b, const Vector3& c);
+    // utility helpers
+    inline double spheTriArea(const Vector3& a,
+                              const Vector3& b,
+                              const Vector3& c)
+    {
+        return 2.0 * atan2(dot(a, cross(b, c)),
+                           1.0 + dot(a, b) + dot(a, c) + dot(b, c));
+    }
+    inline bool isCoplanar(const Vector3& ni,
+                           const Vector3& nj)
+    {
+        // NOTE: assumes that vectors are normalized
+        return 1.0 - dot(ni, nj) <= EPS;
+    }
 
     static constexpr double EPS         = 1e-6;
     static constexpr double RECIP_3     = 1.0 / 3.0;
@@ -56,3 +72,5 @@ private:
 };
 
 #endif // GAUSSMAP_H
+
+

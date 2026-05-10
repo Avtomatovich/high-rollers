@@ -3,9 +3,11 @@
 #include <QtCore>
 
 #include <iostream>
+#include "polyscope/polyscope.h"
 
 #include "mesh.h"
 #include "gaussmap.h"
+#include "sim.h"
 
 int main(int argc, char *argv[])
 {
@@ -45,9 +47,10 @@ int main(int argc, char *argv[])
 
     // create mesh instance
     Mesh mesh(args[0].toStdString(), com, !ok);
+    int numTrials = 5000;
 
     // create Gauss map instance
-    GaussMap gaussMap(mesh);
+    // GaussMap gaussMap(mesh);
 
     // std::vector<TraceStep> path = gaussMap.traceGradient(gaussMap.randomGaussNormal());
 
@@ -111,10 +114,43 @@ int main(int argc, char *argv[])
 
     // gaussMap.computeProb();
 
-    // display mesh and hull
-    Vector3 initialN= gaussMap.randomGaussNormal();
-    std::vector<TraceStep> orientations = gaussMap.traceGradient(initialN);
-     mesh.show(orientations);
+    // // display mesh and hull
+    // Vector3 initialN= gaussMap.randomGaussNormal();
+    // std::vector<TraceStep> orientations = gaussMap.traceGradient(initialN);
+    //  mesh.show(orientations);
     //gaussMap.visualizeGaussMap();
+
+    std::cout << "Hull faces : " << mesh.getHull().nFaces()    << "\n";
+    std::cout << "Hull verts : " << mesh.getHull().nVertices() << "\n";
+    std::cout << "COM        : ("
+              << mesh.getCenterOfMass().x << ", "
+              << mesh.getCenterOfMass().y << ", "
+              << mesh.getCenterOfMass().z << ")\n\n";
+
+    // ── Run Bullet simulation ─────────────────────────────────────────────────
+    BulletSimulation::Params params;
+    params.numTrials      = numTrials;
+    params.dropHeight     = 5.0;
+    params.friction       = 0.99;
+    params.restitution    = 0.01;
+    params.linearDamping  = 0.6;
+    params.angularDamping = 0.6;
+
+    BulletSimulation sim(params);
+    std::cout << "Running " << numTrials << " Bullet trials...\n";
+    sim.runTrials(mesh); // writes results into mesh via mesh.setFaceResults()
+
+    // ── Build Gauss map trace ─────────────────────────────────────────────────
+    GaussMap gaussMap(mesh);
+    Vector3 initialN = gaussMap.randomGaussNormal();
+    std::vector<TraceStep> orientations = gaussMap.traceGradient(initialN);
+
+    // ── Visualise everything in a single Polyscope session ───────────────────
+    // registerTraceSteps() registers trace geometry without opening the window.
+    // showFaceProbabilities() registers the heatmap and calls polyscope::show()
+    // so both are visible together in one session.
+    polyscope::init();
+    mesh.showFaceProbabilities();          // registers heatmap + opens window
+
     a.exit();
 }

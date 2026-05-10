@@ -10,7 +10,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # Sets C++ standard
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Specifies required Qt components
@@ -34,15 +34,23 @@ add_executable(${PROJECT_NAME}
     src/mesh.cpp
     src/gaussmap.h
     src/gaussmap.cpp
+    src/sim.h src/sim.cpp
+
+
 )
 
 set(BUILD_STATIC_LIBS ON CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
 set(WITH_QHULL_TESTS OFF CACHE BOOL "" FORCE)
 set(WITH_QHULL_TOOLS OFF CACHE BOOL "" FORCE)
+set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
+set(INSTALL_LIBS ON CACHE BOOL "" FORCE)
 
 add_subdirectory(deps/geometry-central)
 add_subdirectory(deps/polyscope)
+add_subdirectory(deps/bullet3)
 
 # Toggle AUTOMOC for qhull to prevent build errors if qhull doesn't support it
 set(CMAKE_AUTOMOC OFF)
@@ -58,6 +66,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     polyscope
     qhullcpp
     qhull_r
+    BulletDynamics
+    BulletCollision
+    LinearMath
 )
 
 # This allows you to `#include "Eigen/..."`
@@ -66,6 +77,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE BEFORE
     deps/geometry-central
     deps/qhull/src/libqhullcpp
     deps/qhull/src
+    deps/bullet3/src
 )
 
 target_include_directories(high-rollers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
