@@ -1,17 +1,13 @@
 # High Rollers
 
-- This project implements the paper [_"Putting Rigid Bodies to Rest"_](https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/index.html) by Hossein Baktash, Nicholas Sharp, Qingnan Zhou, Keenan Crane, and Alec Jacobson.
-Samson Tsegai, Marissa Shaffer, and Justin Xu
+## Description
 
-Final Project Repo for Spring 2026, CSCI2240: Advanced Computer Graphics at Brown University.
+- This project implements a version of the methods described in the paper [_"Putting Rigid Bodies to Rest"_](https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/index.html) by Hossein Baktash, Nicholas Sharp, Qingnan Zhou, Keenan Crane, and Alec Jacobson.
 
-## Project Description
+## Presentation
 
-We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Putting Rigid Bodies to Rest" by Keenan Crane, Qingnan Zhou, Nicholas Sharp, Hossein Baktash, and Alec Jacobson. https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/
-
-## Project Presentation
-
-[High Rollers.pptx](https://github.com/user-attachments/files/27497098/High.Rollers.pptx)
+- Here is a link to the
+[presentation slides](https://github.com/user-attachments/files/27497098/High.Rollers.pptx).
 
 ## Results
 
@@ -23,8 +19,6 @@ We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Pu
 
 **Gauss Map Visualization**
 <img width="404" height="215" alt="Screenshot 2026-05-07 at 5 29 31 PM" src="https://github.com/user-attachments/assets/ea85492b-a557-4c80-9467-e7783a9806e0" />
-
-
 
 ## Setup
 
@@ -48,7 +42,6 @@ We implemented a version of the method described in the 2025 SIGGRAPH Paper, "Pu
 ## Notes
 
 - Here is a link to the [shorthand reference notes](ref-notes.md) for the project.
-- Here is a link to the [presentation slides](https://docs.google.com/presentation/d/1gJvBXPrCu8XJKisWlCtNvoPHVwfjEwPwgcW8fsk4STY/edit?usp=sharing).
 
 ## Team Members
 
