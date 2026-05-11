@@ -211,6 +211,8 @@
   * Compute dihedral angle $\phi$ (angle between face normals)
   * Is edge normal if angle $\theta$ with either face normal is less than dihedral angle $\phi$
     * $\theta < \phi$
+  * More precisely, get ratio of edge normal angle $\theta$ to dihedral angle, and ensure it is $0 < \theta < 1$
+  * Also ensure edge normal is on Gauss image, i.e. on great circle formed by face normal arc on Gauss map
 
 #### How to check if it is a vertex normal?
 
@@ -323,14 +325,6 @@
 
 * All faces of $H$ are _stable_ = all vertices of $H$ are _unstable_
   * Thus, $p_f$ = normalized solid angle of face $f$ seen from center of mass $c$
-
-## Manipulating the Probabilities
-
-* TODO...
-
-## Inverse Design
-
-* TODO...
 
 ## Rigid Body Simulation Validation
 

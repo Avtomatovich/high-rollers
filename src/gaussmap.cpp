@@ -350,7 +350,7 @@ std::vector<Separatrix> GaussMap::buildSeparatrix(bool debug)
             Vertex p = pi;
 
             // // init visited set of vertices
-            // std::unordered_set<Vertex> visited;
+            std::unordered_set<Vertex> visited;
             // // init trace list
             // std::vector<Vertex> trace;
 
@@ -378,9 +378,12 @@ std::vector<Separatrix> GaussMap::buildSeparatrix(bool debug)
                 }
 
                 // create found bool
-                // bool found = false;
+                bool found = false;
                 // for e in AdjEdges(p) do
                 for (const Edge& e : p.adjacentEdges()) {
+                    // break if visited, else add to set
+                    if (visited.contains(p)) break;
+                    visited.insert(p);
                     // f, f' <- AdjFaces(e)
                     const Face& f = e.halfedge().face();
                     const Face& fp = e.halfedge().twin().face();
@@ -398,7 +401,7 @@ std::vector<Separatrix> GaussMap::buildSeparatrix(bool debug)
                         // p = OtherVertex(e, p)
                         p = e.otherVertex(p);
                         // mark as found
-                        // found = true;
+                        found = true;
                         // break
                         break;
                     }
@@ -417,7 +420,7 @@ std::vector<Separatrix> GaussMap::buildSeparatrix(bool debug)
 
                 //     break;
                 // }
-                // if (!found) break;
+                if (!found) break;
                 // break;
             }
         }
@@ -601,47 +604,28 @@ void GaussMap::computeProb()
     std::vector<Separatrix> separatrices = buildSeparatrix();
     // std::vector<Separatrix> separatrices = buildSeparatrix(true);
 
-    int i = 0;
-    // // accumulate signed spherical triangle areas for stable faces
-    // for (const Separatrix& s : separatrices) {
-    //     std::cout << "Separatrix " << i++ << ": " << std::endl;
-    //     // std::cout << "    Face f1: " << s.f1 << std::endl;
-    //     // std::cout << "    Face f2: " << s.f2 << std::endl;
-    //     // std::cout << "    Gauss face f1: " << gaussFace(s.f1) << std::endl;
-    //     // std::cout << "    Gauss face f2: " << gaussFace(s.f2) << std::endl;
-    //     // std::cout << "    Normal n1: " << s.n1 << std::endl;
-    //     // std::cout << "    Normal n2: " << s.n2 << std::endl;
-    //     // const Vector3& nf1 = _geom.faceNormals[s.f1];
-    //     // const Vector3& nf2 = _geom.faceNormals[s.f2];
-    //     const Vector3& nf1 = gaussNormal(s.f1);
-    //     const Vector3& nf2 = gaussNormal(s.f2);
-    //     double a1 = spheTriArea(nf1, s.n1, s.n2);
-    //     double a2 = spheTriArea(nf2, s.n1, s.n2);
-    //     std::cout << "Area of patch 1: " << a1 << std::endl;
-    //     std::cout << "Area of patch 2: " << a2 << std::endl;
-    //     _minima[s.f1] += spheTriArea(nf1, s.n1, s.n2);
-    //     _minima[s.f2] -= spheTriArea(nf2, s.n1, s.n2);
-    //     // std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
-    //     // std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
-    // }
-
+    // int i = 0;
     // accumulate signed spherical triangle areas for stable faces
-    double areaSum = 0.0;
     for (const Separatrix& s : separatrices) {
-        std::cout << "Separatrix " << i++ << ": " << std::endl;
+        // std::cout << "Separatrix " << i++ << ": " << std::endl;
+        // std::cout << "    Face f1: " << s.f1 << std::endl;
+        // std::cout << "    Face f2: " << s.f2 << std::endl;
+        // std::cout << "    Gauss face f1: " << gaussFace(s.f1) << std::endl;
+        // std::cout << "    Gauss face f2: " << gaussFace(s.f2) << std::endl;
+        // std::cout << "    Normal n1: " << s.n1 << std::endl;
+        // std::cout << "    Normal n2: " << s.n2 << std::endl;
+        // const Vector3& nf1 = _geom.faceNormals[s.f1];
+        // const Vector3& nf2 = _geom.faceNormals[s.f2];
         const Vector3& nf1 = gaussNormal(s.f1);
         const Vector3& nf2 = gaussNormal(s.f2);
         double a1 = spheTriArea(nf1, s.n1, s.n2);
         double a2 = spheTriArea(nf2, s.n1, s.n2);
-        double sign1 = (dot(nf1, cross(s.n1, s.n2)) >= 0.0) ? 1.0 : -1.0;
-        double sign2 = (dot(nf2, cross(s.n2, s.n1)) >= 0.0) ? 1.0 : -1.0;
-        std::cout << "Area of patch 1: " << a1 << std::endl;
-        std::cout << "Area of patch 2: " << a2 << std::endl;
-        _minima[s.f1] += sign1 * a1;
-        _minima[s.f2] += sign2 * a2;
-        areaSum += a1 + a2;
-        std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
-        std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
+        // std::cout << "Area of patch 1: " << a1 << std::endl;
+        // std::cout << "Area of patch 2: " << a2 << std::endl;
+        _minima[s.f1] += a1;
+        _minima[s.f2] += a2;
+        // std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
+        // std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
     }
 
     std::cout << "Odds of stability for each hull face: " << std::endl;
@@ -651,7 +635,6 @@ void GaussMap::computeProb()
     for (const auto& [f, a] : _minima) {
         double area = a;
         area /= SPHERE_AREA;
-        // area /= areaSum;
         sum += area;
         std::cout << "    Prob of face " << f << ": " << area << std::endl;
     }

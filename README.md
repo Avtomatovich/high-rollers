@@ -1,5 +1,7 @@
 # High Rollers
 
+- This project implements the paper [_"Putting Rigid Bodies to Rest"_](https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/index.html) by Hossein Baktash, Nicholas Sharp, Qingnan Zhou, Keenan Crane, and Alec Jacobson.
+
 ## Setup
 
 - After cloning the repository to your local device, make sure to run this command in the project directory in your terminal:
@@ -22,6 +24,13 @@
 ## Notes
 
 - Here is a link to the [shorthand reference notes](ref-notes.md) for the project.
+- Here is a link to the [presentation slides](https://docs.google.com/presentation/d/1gJvBXPrCu8XJKisWlCtNvoPHVwfjEwPwgcW8fsk4STY/edit?usp=sharing).
+
+## Team Members
+
+- Samson Tsegai
+- Marissa Shaffer
+- Justin Xu
 
 ## Dependencies
 
@@ -31,3 +40,4 @@ This project acknowledges and expresses thanks for the use of the following exte
 - [**Polyscope** by Nicholas Sharp and others](www.polyscope.run)
 - [**Eigen** by Gaël Guennebaud and Benoît Jacob and others](https://libeigen.gitlab.io)
 - [**Quickhull** by Antti Kuukka and others](https://github.com/akuukka/quickhull)
+- [**Bullet** by Erwin Coumans and others](https://github.com/bulletphysics/bullet3)
