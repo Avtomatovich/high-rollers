@@ -6,6 +6,7 @@
 
 #include "mesh.h"
 #include "gaussmap.h"
+#include "sim.h"
 
 int main(int argc, char *argv[])
 {
@@ -96,17 +97,45 @@ int main(int argc, char *argv[])
     //     i++;
     // }
 
-    // Vector3 n = gaussMap.randomGaussNormal();
     // Vector3 n{0, -1, 0.0005};
     // SurfacePoint elem = gaussMap.elementWithNormal(n);
     // std::cout << "Element: " << elem << std::endl;
     // std::cout << "Element normal: " << n << std::endl;
-
+    
     // output stable face probabilties
     gaussMap.computeProb();
 
     // display mesh and hull
     // mesh.show();
+    
+    
+    // // BULLET TESTING
+    // init number of trials
+    int numTrials = 5000;
+
+    // init sim params
+    BulletSimulation::Params params;
+    params.numTrials      = numTrials;
+    params.dropHeight     = 5.0;
+    params.friction       = 0.99;
+    params.restitution    = 0.01;
+    params.linearDamping  = 0.6;
+    params.angularDamping = 0.6;
+    
+    // run simulation
+    BulletSimulation sim(params);
+    std::cout << "Running " << numTrials << " Bullet trials...\n";
+    sim.runTrials(mesh); // writes results into mesh via mesh.setFaceResults()
+    
+    // build Gauss map trace
+    Vector3 n = gaussMap.randomGaussNormal();
+    std::vector<TraceStep> orientations = gaussMap.traceGradient(n);
+    
+    // mesh.show(orientations);
+    // gaussMap.visualizeGaussMap();
+
+    // register and display heatmap
+    mesh.showFaceProbabilities();
 
     a.exit();
 }

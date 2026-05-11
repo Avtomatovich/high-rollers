@@ -8,6 +8,7 @@
 #include "geometrycentral/surface/vertex_position_geometry.h"
 #include "geometrycentral/surface/manifold_surface_mesh.h"
 #include "geometrycentral/surface/surface_point.h"
+#include <btBulletDynamicsCommon.h>
 
 #include "glm/glm.hpp"
 
@@ -33,6 +34,8 @@ struct TraceStep
     Vector3 n;
 };
 
+struct FaceResult;
+
 class Mesh
 {
 public:
@@ -53,8 +56,33 @@ public:
     inline const EdgeData<Roll>& getEdgeRoll() const { return _edgeRoll; }
     inline const FaceData<Roll>& getFaceRoll() const { return _faceRoll; }
 
-    // viewing func
+    inline const std::vector<FaceResult>& getFaceResults() const { return _faceResults; }
+    inline void setFaceResults(const std::vector<FaceResult>& results) { _faceResults = results; }
+    
+    inline void setNumTrials(int n) { _numTrials = n; }
+    
+    // init bullet world
+    // NOTE: must delete all sub-objects
+    btDiscreteDynamicsWorld* initSim();
+
+    // add convex hull as dynamic rigid body (COM at origin)
+    btRigidBody* createBulletBody(btDiscreteDynamicsWorld* world);
+
+    // viewing funcs
     void show();
+    void show(const std::vector<TraceStep>& N);
+
+    void buildCoplanarGroups(double angleTolerance);
+    void showFaceProbabilities();
+    
+    // maps triangle index -> group index
+    std::vector<int> _faceGroup;
+    int _numGroups = 0;
+    int _numTrials = 0;
+    
+    // indexed by face
+    std::vector<Eigen::Vector3d> _stableFaceNormals;
+    std::vector<int> _stableFaceIndices;
 
 private:
     std::unique_ptr<SurfaceMesh> _mesh;
@@ -67,6 +95,8 @@ private:
 
     EdgeData<Roll> _edgeRoll;
     FaceData<Roll> _faceRoll;
+    
+    std::vector<FaceResult> _faceResults;
 
     void computeCenterOfMass();
     void visualizeEdgeTypes();
@@ -75,7 +105,7 @@ private:
     void classifyEdges();
     void classifyFaces();
 
-    Eigen::Matrix4d normalToTransform(const Eigen::Vector3d& n);
+    Eigen::Matrix4d normalToTransform(const Vector3& n);
     static glm::mat4 eigenToGlm(const Eigen::Matrix4d& T);
 
     static constexpr double RECIP_6 = 1.0 / 6.0;

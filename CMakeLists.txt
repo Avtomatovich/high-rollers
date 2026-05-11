@@ -30,15 +30,23 @@ add_executable(${PROJECT_NAME}
     src/mesh.h 
     src/gaussmap.h
     src/unionfind.h
+    src/sim.h
 
     src/mesh.cpp
     src/gaussmap.cpp
     src/unionfind.cpp
+    src/sim.cpp
 )
+
+# set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+# set(BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
+# set(BUILD_BULLET2_DEMOS OFF CACHE BOOL "" FORCE)
+# set(BUILD_EXTRAS OFF CACHE BOOL "" FORCE)
 
 add_subdirectory(deps/eigen)
 add_subdirectory(deps/geometry-central)
 add_subdirectory(deps/polyscope)
+add_subdirectory(deps/bullet3)
 
 # Specifies libraries to be linked (Qt components, etc)
 target_link_libraries(${PROJECT_NAME} PRIVATE
@@ -48,11 +56,15 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     Eigen3::Eigen
     geometry-central
     polyscope
+    BulletDynamics
+    BulletCollision
+    LinearMath
 )
 
 # This allows you to include libraries
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
+    # deps/bullet3/src
 )
 
 # Set this flag to silence warnings on Windows

@@ -25,6 +25,9 @@ public:
     // Gauss map sampling helper
     Vector3 randomGaussNormal();
 
+    // Gauss map visualizing helper
+    void visualizeGaussMap();
+
 private:
     // // vars
     ManifoldSurfaceMesh& _hull;
@@ -83,10 +86,12 @@ private:
         // NOTE: assumes that vectors are normalized
         return 1.0 - dot(ni, nj) <= EPS;
     }
-    inline Face gaussFace(const Face& f) {
+    inline Face gaussFace(const Face& f) 
+    {
         return _toGaussFace[f];
     }
-    inline Vector3 gaussNormal(const Face& f) {
+    inline Vector3 gaussNormal(const Face& f) 
+    {
         return _geom.faceNormals[_toGaussFace[f]];
     }
 
