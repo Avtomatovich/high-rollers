@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         for (int i = 1; i < 4; i++) {
             args[i].toFloat(&ok);
             if (!ok) {
-                char pos = i == 1 ? 'x' : i == 2 ? 'y' : 'z'; 
+                char pos = i == 1 ? 'x' : i == 2 ? 'y' : 'z';
                 std::cerr << "Invalid " << pos << "-coord param." << std::endl;
                 break;
             } 
@@ -52,6 +52,7 @@ int main(int argc, char *argv[])
 
     // gaussMap.traceGradient(gaussMap.randomGaussNormal(), true);
 
+    // // WARNING: BUGGY GEOMETRY-CENTRAL DIHEDRAL ANGLE DEMO BELOW
     // auto& hull = mesh.getHull();
     // const auto& geom = mesh.getHullGeom();
 
@@ -105,17 +106,17 @@ int main(int argc, char *argv[])
     // output stable face probabilties
     gaussMap.computeProb();
 
-    // display mesh and hull
+    // display mesh and hull with highlighted elements
     // mesh.show();
     
     
-    // // BULLET TESTING
+    // // RIGID BODY SIMULATION VALIDATION
     // init number of trials
     int numTrials = 5000;
 
     // init sim params
     BulletSimulation::Params params;
-    params.numTrials      = numTrials;
+    params.numTrials      = 5000;
     params.dropHeight     = 5.0;
     params.friction       = 0.99;
     params.restitution    = 0.01;

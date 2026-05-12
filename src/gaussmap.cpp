@@ -605,31 +605,64 @@ void GaussMap::computeSaddles()
 
 void GaussMap::computeProb()
 {
-    std::vector<Separatrix> separatrices = buildSeparatrix();
-    // std::vector<Separatrix> separatrices = buildSeparatrix(true);
+    // special case for symmetric/Platonic solids
+    if (_minima.size() == _hull.nFaces() && _maxima.size() == _hull.nVertices()) {
+        // // compute hull center of mass
+        Vector3 hullCom = Vector3::zero();
+        double totalVol = 0.0;
+        const double recip6 = 1.0 / 6.0;
+        Vector3 p1 = Vector3::zero();
+        for (const Face& f : _hull.faces()) {
+            const Halfedge& h = f.halfedge();
+            const Vector3& p2 = _geom.vertexPositions[h.vertex()];
+            const Vector3& p3 = _geom.vertexPositions[h.next().vertex()];
+            const Vector3& p4 = _geom.vertexPositions[h.next().next().vertex()];
+            double vol = recip6 * dot(cross(p2 - p1, p3 - p1), p4 - p1);
+            Vector3 centroid = 0.25 * (p1 + p2 + p3 + p4);
+            hullCom += vol * centroid;
+            totalVol += vol;
+        }
+        hullCom /= totalVol;
 
-    // int i = 0;
-    // accumulate signed spherical triangle areas for stable faces
-    for (const Separatrix& s : separatrices) {
-        // std::cout << "Separatrix " << i++ << ": " << std::endl;
-        // std::cout << "    Face f1: " << s.f1 << std::endl;
-        // std::cout << "    Face f2: " << s.f2 << std::endl;
-        // std::cout << "    Gauss face f1: " << gaussFace(s.f1) << std::endl;
-        // std::cout << "    Gauss face f2: " << gaussFace(s.f2) << std::endl;
-        // std::cout << "    Normal n1: " << s.n1 << std::endl;
-        // std::cout << "    Normal n2: " << s.n2 << std::endl;
-        // const Vector3& nf1 = _geom.faceNormals[s.f1];
-        // const Vector3& nf2 = _geom.faceNormals[s.f2];
-        const Vector3& nf1 = gaussNormal(s.f1);
-        const Vector3& nf2 = gaussNormal(s.f2);
-        double a1 = spheTriArea(nf1, s.n1, s.n2);
-        double a2 = spheTriArea(nf2, s.n1, s.n2);
-        // std::cout << "Area of patch 1: " << a1 << std::endl;
-        // std::cout << "Area of patch 2: " << a2 << std::endl;
-        _minima[s.f1] += a1;
-        _minima[s.f2] += a2;
-        // std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
-        // std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
+        p1 = hullCom;
+        for (const Face& f : _hull.faces()) {
+            const Halfedge& h = f.halfedge();
+            const Vector3& p2 = _geom.vertexPositions[h.vertex()];
+            const Vector3& p3 = _geom.vertexPositions[h.next().vertex()];
+            const Vector3& p4 = _geom.vertexPositions[h.next().next().vertex()];
+            Vector3 r1 = p2 - p1, r2 = p3 - p1, r3 = p4 - p1;
+            double l1 = norm(r1), l2 = norm(r2), l3 = norm(r3);
+            double N = std::abs(dot(r1, cross(r2, r3)));
+            double D = l1 * l2 * l3 + dot(r1, r2) * l3 + dot(r1, r3) * l2 + dot(r2, r3) * l1;
+            _minima[f] = 2.0 * atan2(N, D);
+        }
+    } else {
+        std::vector<Separatrix> separatrices = buildSeparatrix();
+        // std::vector<Separatrix> separatrices = buildSeparatrix(true);
+
+        // int i = 0;
+        // accumulate signed spherical triangle areas for stable faces
+        for (const Separatrix& s : separatrices) {
+            // std::cout << "Separatrix " << i++ << ": " << std::endl;
+            // std::cout << "    Face f1: " << s.f1 << std::endl;
+            // std::cout << "    Face f2: " << s.f2 << std::endl;
+            // std::cout << "    Gauss face f1: " << gaussFace(s.f1) << std::endl;
+            // std::cout << "    Gauss face f2: " << gaussFace(s.f2) << std::endl;
+            // std::cout << "    Normal n1: " << s.n1 << std::endl;
+            // std::cout << "    Normal n2: " << s.n2 << std::endl;
+            // const Vector3& nf1 = _geom.faceNormals[s.f1];
+            // const Vector3& nf2 = _geom.faceNormals[s.f2];
+            const Vector3& nf1 = gaussNormal(s.f1);
+            const Vector3& nf2 = gaussNormal(s.f2);
+            double a1 = spheTriArea(nf1, s.n1, s.n2);
+            double a2 = spheTriArea(nf2, s.n1, s.n2);
+            // std::cout << "Area of patch 1: " << a1 << std::endl;
+            // std::cout << "Area of patch 2: " << a2 << std::endl;
+            _minima[s.f1] += a1;
+            _minima[s.f2] += a2;
+            // std::cout << "Area for " << s.f1 << ": " << _minima[s.f1] << std::endl;
+            // std::cout << "Area for " << s.f2 << ": " << _minima[s.f2] << std::endl;
+        }
     }
 
     std::cout << "Odds of stability for each hull face: " << std::endl;
@@ -642,7 +675,6 @@ void GaussMap::computeProb()
         sum += area;
         std::cout << "    Prob of face " << f << ": " << area << std::endl;
     }
-
     std::cout << "Sum of probs: " << sum << std::endl << std::endl;
 
     // reset after probability computation
@@ -652,8 +684,8 @@ void GaussMap::computeProb()
 void GaussMap::visualizeGaussMap() {
     polyscope::init();
 
-    // ── GAUSS PATCH SURFACE ──
-    // Each hull vertex → one spherical polygon on the unit sphere.
+    // // GAUSS PATCH SURFACE
+    // Each hull vertex -> one spherical polygon on the unit sphere.
     // Triangulate as a fan from the first corner.
 
     std::vector<glm::vec3>            sphereVerts;
@@ -672,73 +704,70 @@ void GaussMap::visualizeGaussMap() {
         {0.40f, 0.90f, 0.85f}, // cyan
     };
 
-    const int SLERP_STEPS = 12; // subdivisions per patch edge
+    // SLERP_STEPS = subdivisions per patch edge
 
-    auto slerp = [](const Eigen::Vector3d& a,
-                    const Eigen::Vector3d& b,
-                    double t) -> Eigen::Vector3d {
-        double omega = std::acos(std::clamp(a.dot(b), -1.0, 1.0));
-        if (omega < 1e-8) return a;
+    auto slerp = [](const Vector3& a, const Vector3& b, double t) {
+        double omega = angle(a, b);
+        if (omega < EPS) return a;
         return (std::sin((1 - t) * omega) * a + std::sin(t * omega) * b) / std::sin(omega);
     };
 
     size_t vertexIdx = 0;
-    for (const Vertex& v : _hull.vertices()) {
+    for (const Vertex& vert : _hull.vertices()) {
 
         // Collect face normals around this vertex (projected to unit sphere)
         std::vector<Eigen::Vector3d> corners;
-        for (const Face& f : v.adjacentFaces()) {
+        for (const Face& f : vert.adjacentFaces()) {
             const Vector3& nf = _geom.faceNormals[f];
             corners.push_back({ nf.x, nf.y, nf.z });
         }
 
         int deg = (int)corners.size();
 
-        // For each edge of the patch, generate a slerp'd arc of points
+        // For each edge of the patch, generate a slerped arc of points
         // Then triangulate as a fan from corners[0]
         for (int i = 1; i + 1 < deg; i++) {
-            // Fan triangle: corners[0], arc(corners[i], corners[i+1])
+            // Fan triangle: corners[0], arc(corners[i], corners[i + 1])
             // We tessellate the curved triangle with a grid
 
-            // Subdivide the spherical triangle (corners[0], corners[i], corners[i+1])
+            // Subdivide the spherical triangle (corners[0], corners[i], corners[i + 1])
             int N = SLERP_STEPS;
             size_t baseIdx = sphereVerts.size();
 
             // Build an (N + 1) × (N + 1) grid of points on the spherical triangle
             // using barycentric-style subdivision on the sphere
             for (int s = 0; s <= N; s++) {
-                for (int t2 = 0; t2 <= N - s; t2++) {
+                for (int t = 0; t <= N - s; t++) {
                     double u = (double)s / N;
-                    double v2 = (double)t2 / N;
-                    double w = 1.0 - u - v2;
+                    double v = (double)t / N;
+                    double w = 1.0 - u - v;
 
                     // Spherical barycentric interpolation:
                     // slerp along each edge, then blend
                     Eigen::Vector3d p =
-                        (w * corners[0] + u * corners[i] + v2 * corners[i+1])
+                        (w * corners[0] + u * corners[i] + v * corners[i+1])
                             .normalized();
-
                     sphereVerts.push_back({(float)p.x(), (float)p.y(), (float)p.z()});
                 }
             }
 
             // Stitch quads/tris from the grid
             glm::vec3 col = palette[vertexIdx % palette.size()];
-            auto idx = [&](int s, int t2) -> size_t {
-                // row s starts at offset s*(N+1) - s*(s-1)/2
+            auto idx = [&](int s, int t) {
+                // row s starts at offset s * (N + 1) - s * (s - 1) / 2
                 size_t offset = 0;
                 for (int r = 0; r < s; r++) offset += (N - r + 1);
-                return baseIdx + offset + t2;
+                return baseIdx + offset + t;
             };
 
             for (int s = 0; s < N; s++) {
-                for (int t2 = 0; t2 < N - s; t2++) {
+                for (int t = 0; t < N - s; t++) {
                     // lower triangle
-                    sphereFaces.push_back({ idx(s, t2), idx(s + 1, t2), idx(s, t2 + 1) });
+                    sphereFaces.push_back({ idx(s, t), idx(s + 1, t), idx(s, t + 1) });
                     faceColors.push_back(col);
                     // upper triangle (if exists)
-                    if (s + t2 + 2 <= N) {
-                        sphereFaces.push_back({ idx(s + 1, t2), idx(s + 1, t2 + 1), idx(s, t2 + 1) });
+                    if (s + t + 2 <= N) {
+                        sphereFaces.push_back({ idx(s + 1, t), idx(s + 1, t + 1), idx(s, t + 1) });
                         faceColors.push_back(col);
                     }
                 }
@@ -752,23 +781,19 @@ void GaussMap::visualizeGaussMap() {
     psSphere->setTransparency(0.85f);
     psSphere->setEdgeWidth(0.5f);
 
-    // // Gauss edge arcs
+    // // GAUSS EDGE ARCS
     std::vector<glm::vec3>             arcNodes;
     std::vector<std::array<size_t, 2>> arcEdges;
-    const int ARC_STEPS = 24;
 
     for (const Edge& e : _hull.edges()) {
         const Vector3& nf1 = _geom.faceNormals[e.halfedge().face()];
         const Vector3& nf2 = _geom.faceNormals[e.halfedge().twin().face()];
 
-        Eigen::Vector3d a(nf1.x, nf1.y, nf1.z);
-        Eigen::Vector3d b(nf2.x, nf2.y, nf2.z);
-
         size_t base = arcNodes.size();
         for (int i = 0; i <= ARC_STEPS; i++) {
             double t = (double)i / ARC_STEPS;
-            Eigen::Vector3d p = slerp(a, b, t);
-            arcNodes.push_back({(float)p.x(), (float)p.y(), (float)p.z()});
+            Vector3 p = slerp(nf1, nf2, t);
+            arcNodes.push_back({(float)p.x, (float)p.y, (float)p.z});
         }
         for (int i = 0; i < ARC_STEPS; i++)
             arcEdges.push_back({ base + i, base + i + 1 });
@@ -780,7 +805,7 @@ void GaussMap::visualizeGaussMap() {
         psArc->setRadius(0.004f);
     }
 
-    // // saddle points
+    // // SADDLE POINTS
     std::vector<glm::vec3> saddlePts;
     for (const Edge& e : _hull.edges()) {
         if (_saddles.contains(e)) {
