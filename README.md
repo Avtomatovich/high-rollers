@@ -2,7 +2,7 @@
 
 ## Description
 
-- This project implements a version of the methods described in the paper [_"Putting Rigid Bodies to Rest"_](https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/index.html) by Hossein Baktash, Nicholas Sharp, Qingnan Zhou, Keenan Crane, and Alec Jacobson.
+- This project implements a version of the methods described in the 2025 SIGGRAPH paper [_Putting Rigid Bodies to Rest_](https://hbaktash.github.io/projects/putting-rigid-bodies-to-rest/index.html) by Hossein Baktash, Nicholas Sharp, Qingnan Zhou, Keenan Crane, and Alec Jacobson.
 
 ## Presentation
 
@@ -11,23 +11,26 @@
 
 ## Results
 
-**Cow Mesh Rolling to Rest**
-<img width="676" height="217" alt="cow_roll" src="https://github.com/user-attachments/assets/8e65e466-6ede-4fc5-bdaf-7d4c2e63b4e1" />
+### Cow Mesh Rolling to Rest
 
-**Cube Rolling to Rest**
-<img width="301" height="211" alt="Screenshot 2026-05-07 at 5 30 01 PM" src="https://github.com/user-attachments/assets/2f9e4426-d704-4834-a328-1f0b4f1aaea3" />
+![cow_roll](https://github.com/user-attachments/assets/8e65e466-6ede-4fc5-bdaf-7d4c2e63b4e1)
 
-**Gauss Map Visualization**
-<img width="404" height="215" alt="Screenshot 2026-05-07 at 5 29 31 PM" src="https://github.com/user-attachments/assets/ea85492b-a557-4c80-9467-e7783a9806e0" />
+### Cube Rolling to Rest
+
+![cube_roll](https://github.com/user-attachments/assets/2f9e4426-d704-4834-a328-1f0b4f1aaea3)
+
+### Gauss Map Visualization
+
+![gauss_vis](https://github.com/user-attachments/assets/ea85492b-a557-4c80-9467-e7783a9806e0)
 
 ## Setup
 
 - After cloning the repository to your local device, make sure to run this command in the project directory in your terminal:
   - `git submodule update --init --recursive --depth 1`
     - _Tip:_ The `--depth 1` flag will reduce the memory footprint of the dependencies on your device.
-- _Note for Windows users:_ To build the project, you will need to run your IDE or build software of your choice (e.g. CMake) in administrator mode.
+- _Note for Windows users:_ To build the project, you will need to run your IDE or build software of your choice (e.g. CMake) in administrator mode, or enable Developer Mode in your settings.
   - This is because symlinks are used during the build process, a privileged operation.
-- If you are using QtCreator, you can set your default working directory to be `%{Project:Path}` in the Build & Run settings in Preferences to make your life easier.
+- If you are using QtCreator, you can set your default working directory as `%{Project:Path}` in the Build & Run settings in Preferences to make your life easier.
 
 ## Usage
 
@@ -45,9 +48,9 @@
 
 ## Team Members
 
-- Samson Tsegai
-- Marissa Shaffer
-- Justin Xu
+- [Samson Tsegai](https://github.com/Avtomatovich)
+- [Marissa Shaffer](https://github.com/marissa-kate)
+- [Justin Xu](https://github.com/JustinXu2019)
 
 ## Dependencies
 
