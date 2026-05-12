@@ -1,5 +1,7 @@
 #include "mesh.h"
 
+#include <queue>
+
 #include "geometrycentral/surface/meshio.h"
 #include "geometrycentral/surface/surface_mesh_factories.h"
 #include "geometrycentral/utilities/eigen_interop_helpers.h"
@@ -11,9 +13,8 @@
 
 #include "util/quickhull/QuickHull.hpp"
 
-#include "sim.h"
-
 #include <Eigen/Geometry>
+
 
 Mesh::Mesh(const std::string& meshPath, const Vector3& com, bool computeCom) :
     _com(com)
@@ -233,10 +234,11 @@ void Mesh::computeCenterOfMass()
 }
 
 // Helper function to convert a normal vector into a mesh orientation
-Eigen::Matrix4d Mesh::normalToTransform(const Vector3& norm)
+Eigen::Matrix4d Mesh::normalToTransform(const Vector3& n)
 {
     Eigen::Quaterniond q =
-            Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitY(), {n.x, n.y, n.z});
+            Eigen::Quaterniond::FromTwoVectors(Eigen::Vector3d::UnitY(),
+                                               Eigen::Vector3d{n.x, n.y, n.z});
     Eigen::Matrix4d T = Eigen::Matrix4d::Identity();
     T.block<3, 3>(0, 0) = q.toRotationMatrix();
     return T;
@@ -376,7 +378,7 @@ void Mesh::showFaceProbabilities()
     
     if (_faceResults.empty()) {
         std::cerr << "[Mesh::showFaceProbabilities] No results yet - "
-        std::cerr << "run BulletSimulation::runTrials() first.\n";
+                  << "run BulletSimulation::runTrials() first.\n";
         return;
     }
 

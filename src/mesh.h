@@ -8,6 +8,7 @@
 #include "geometrycentral/surface/vertex_position_geometry.h"
 #include "geometrycentral/surface/manifold_surface_mesh.h"
 #include "geometrycentral/surface/surface_point.h"
+
 #include <btBulletDynamicsCommon.h>
 
 #include "glm/glm.hpp"
@@ -24,17 +25,21 @@ enum class RollType
 
 struct Roll
 {
-    RollType type;
+    RollType     type;
     SurfacePoint next;
 };
 
 struct TraceStep
 {
     SurfacePoint elem;
-    Vector3 n;
+    Vector3      n;
 };
 
-struct FaceResult;
+struct FaceResult {
+    size_t   faceIndex   = 0;
+    int      landCount   = 0;   // how many trials landed on this face
+    double   probability = 0.0; // = landCount / totalTrials
+};
 
 class Mesh
 {

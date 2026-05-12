@@ -22,6 +22,10 @@ GaussMap::GaussMap(Mesh& mesh) :
     computeMinima();
     computeMaxima();
     computeSaddles();
+
+    std::cout << "No of minima: " << _minima.size() << std::endl;
+    std::cout << "No of maxima: " << _maxima.size() << std::endl;
+    std::cout << "No of saddle points: " << _saddles.size() << std::endl;
 }
 
 Vector3 GaussMap::randomGaussNormal()
@@ -553,10 +557,10 @@ void GaussMap::computeMinima()
 {
     // init all stable face areas to zero
     for (const Face& f : _hull.faces()) {
-        if (_faceRoll[f].type == RollType::STABLE) _minima[f] = 0.0;
+        if (_faceRoll[f].type == RollType::STABLE) {
+            _minima[f] = 0.0;
+        }
     }
-
-    std::cout << "No of minima: " << _minima.size() << std::endl;
 }
 
 void GaussMap::computeMaxima()
@@ -571,8 +575,6 @@ void GaussMap::computeMaxima()
         // add maxima if on Gauss patch of vertex
         if (onGaussPatch(v, nj)) _maxima[v] = nj;
     }
-
-    std::cout << "No of maxima: " << _maxima.size() << std::endl;
 }
 
 void GaussMap::computeSaddles()
@@ -599,8 +601,6 @@ void GaussMap::computeSaddles()
             if (onGaussEdge(e, nij)) _saddles[e] = nij;
         }
     }
-
-    std::cout << "No of saddle points: " << _saddles.size() << std::endl;
 }
 
 void GaussMap::computeProb()
@@ -747,7 +747,7 @@ void GaussMap::visualizeGaussMap() {
         vertexIdx++;
     }
 
-    auto* psSphere = polyscope::registerSurfaceMesh("gauss map", sphereVerts, sphereFaces);
+    auto* psSphere = polyscope::registerSurfaceMesh("Gauss map", sphereVerts, sphereFaces);
     psSphere->addFaceColorQuantity("patch colors", faceColors)->setEnabled(true);
     psSphere->setTransparency(0.85f);
     psSphere->setEdgeWidth(0.5f);
@@ -775,7 +775,7 @@ void GaussMap::visualizeGaussMap() {
     }
 
     if (!arcNodes.empty()) {
-        auto* psArc = polyscope::registerCurveNetwork("gauss edges", arcNodes, arcEdges);
+        auto* psArc = polyscope::registerCurveNetwork("Gauss edges", arcNodes, arcEdges);
         psArc->setColor({0.15f, 0.15f, 0.15f});
         psArc->setRadius(0.004f);
     }

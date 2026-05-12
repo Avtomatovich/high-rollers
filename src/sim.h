@@ -4,18 +4,7 @@
 
 #include <btBulletDynamicsCommon.h>
 
-#include <unordered_map>
 #include <vector>
-#include <string>
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Per-face result collected across all simulation trials
-// ─────────────────────────────────────────────────────────────────────────────
-struct FaceResult {
-    size_t   faceIndex   = 0;
-    int      landCount   = 0;   // how many trials landed on this face
-    double   probability = 0.0; // landCount / totalTrials (filled after runTrials)
-};
 
 // Simulation hyper-parameters (tweak to taste / match the paper's setup)
 struct simParams {
